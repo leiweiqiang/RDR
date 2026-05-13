@@ -20,7 +20,7 @@
     <div class="sf__inner">
       <header class="sf__header">
         <div class="sf__header-brand">
-          <NuxtLink to="/home" class="sf__logo-link">
+          <NuxtLink to="/" class="sf__logo-link">
             <img class="sf__logo" :src="rdrLogoUrl" width="80" height="31" alt="RDR" />
           </NuxtLink>
           <nav class="sf__crumbs" aria-label="Breadcrumb">

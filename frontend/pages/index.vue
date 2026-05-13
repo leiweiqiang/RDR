@@ -1,12 +1,8 @@
 <template>
-  <div class="landing">
+  <div class="landing" :style="{ '--landing-bg': `url(${infinityBgUrl})` }">
     <div class="landing__glow landing__glow--red" aria-hidden="true" />
-    <div class="landing__glow landing__glow--violet" aria-hidden="true" />
-
-    <div class="landing__hourglass" aria-hidden="true">
-      <div class="landing__tri landing__tri--left" />
-      <div class="landing__tri landing__tri--right" />
-    </div>
+    <div class="landing__glow landing__glow--red-center" aria-hidden="true" />
+    <div class="landing__spotlight" aria-hidden="true" />
 
     <div class="landing__noise" aria-hidden="true">
       <svg class="landing__noise-svg" xmlns="http://www.w3.org/2000/svg">
@@ -21,19 +17,21 @@
       </svg>
     </div>
 
+    <div class="landing__blur-edge" aria-hidden="true">
+      <div class="landing__blur-col landing__blur-col--wide" />
+      <span class="landing__blur-divider" />
+      <div class="landing__blur-col landing__blur-col--narrow" />
+      <span class="landing__blur-divider" />
+    </div>
+
     <div class="landing__grid">
       <div class="landing__col landing__col--left">
-        <div class="landing__glass" aria-hidden="true">
-          <span class="landing__glass-line" />
-          <span class="landing__glass-panel" />
-          <span class="landing__glass-line" />
-        </div>
         <div class="landing__brand">
           <img
             class="landing__logo"
             :src="rdrLogoUrl"
-            width="80"
-            height="31"
+            width="298"
+            height="150"
             alt="RDR — Detail Defences Picture Quality"
           />
         </div>
@@ -51,7 +49,8 @@
 </template>
 
 <script setup lang="ts">
-import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
+import rdrLogoUrl from '~/assets/icon-rdr-large.svg?url'
+import infinityBgUrl from '~/assets/infinity-image.png?url'
 
 useHead({
   title: 'RDR',
@@ -69,7 +68,11 @@ useHead({
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background: #000;
+  background-color: #000;
+  background-image:
+    radial-gradient(ellipse 100% 90% at 50% 100%, rgba(120, 8, 28, 0.85) 0%, rgba(55, 4, 14, 0.45) 42%, transparent 58%),
+    radial-gradient(ellipse 120% 85% at 0% 100%, rgba(110, 12, 32, 0.72) 0%, rgba(45, 6, 14, 0.35) 38%, transparent 62%),
+    linear-gradient(180deg, #000000 0%, #050204 38%, #120208 100%);
   color: #fff;
   font-family:
     Inter,
@@ -80,79 +83,76 @@ useHead({
     sans-serif;
 }
 
-.landing__hourglass {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.landing__tri {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 50%;
-}
-
-.landing__tri--left {
-  left: 0;
-  clip-path: polygon(0 0, 0 100%, 100% 50%);
-  background: linear-gradient(
-    90deg,
-    #c40000 0%,
-    #ff2a00 35%,
-    #ffae00 78%,
-    #ffff00 100%
-  );
-  filter: drop-shadow(0 0 80px rgba(255, 40, 0, 0.55));
-}
-
-.landing__tri--right {
-  right: 0;
-  clip-path: polygon(100% 0, 100% 100%, 0 50%);
-  background: linear-gradient(
-    90deg,
-    #fff200 0%,
-    #ff8800 18%,
-    #ff2200 38%,
-    #a4006e 62%,
-    #4b0082 82%,
-    #1a0028 100%
-  );
-}
-
 .landing__glow {
   position: absolute;
   z-index: 0;
   pointer-events: none;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.45;
 }
 
 .landing__glow--red {
-  width: min(70vw, 720px);
-  height: min(70vw, 720px);
-  left: -12%;
-  bottom: -18%;
-  background: radial-gradient(circle, rgba(255, 50, 0, 0.9) 0%, transparent 70%);
+  width: min(95vw, 980px);
+  height: min(95vw, 980px);
+  left: -22%;
+  bottom: -35%;
+  opacity: 0.55;
+  background: radial-gradient(
+    circle,
+    rgba(160, 24, 48, 0.55) 0%,
+    rgba(90, 8, 28, 0.38) 42%,
+    rgba(30, 0, 10, 0.12) 68%,
+    transparent 76%
+  );
 }
 
-.landing__glow--violet {
-  width: min(55vw, 560px);
-  height: min(55vw, 560px);
-  right: -8%;
-  bottom: -22%;
-  background: radial-gradient(circle, rgba(90, 20, 140, 0.55) 0%, transparent 68%);
-  opacity: 0.35;
+.landing__glow--red-center {
+  width: min(120vw, 1400px);
+  height: min(70vh, 900px);
+  left: 50%;
+  bottom: -40%;
+  transform: translateX(-50%);
+  opacity: 0.7;
+  filter: blur(140px);
+  background: radial-gradient(
+    ellipse 55% 45% at 50% 100%,
+    rgba(200, 28, 48, 0.5) 0%,
+    rgba(80, 6, 22, 0.28) 50%,
+    transparent 72%
+  );
+}
+
+.landing__spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 58% 46% at 50% 38%,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 240, 245, 0.02) 45%,
+    transparent 74%
+  );
+}
+
+.landing::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: clamp(1rem, 4vw, 2.75rem);
+  background-image: var(--landing-bg);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 .landing__noise {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
-  opacity: 0.22;
+  opacity: 0.16;
   mix-blend-mode: overlay;
 }
 
@@ -161,9 +161,52 @@ useHead({
   height: 100%;
 }
 
+.landing__blur-edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.landing__blur-col {
+  flex-shrink: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(22px) saturate(1.15);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
+}
+
+.landing__blur-col--wide {
+  width: clamp(13rem, 30vw, 21rem);
+}
+
+.landing__blur-col--narrow {
+  width: clamp(7rem, 14vw, 11.5rem);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.landing__blur-divider {
+  flex-shrink: 0;
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 18%,
+    rgba(255, 255, 255, 0.5) 82%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
 .landing__grid {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -192,40 +235,8 @@ useHead({
   padding-right: clamp(0.25rem, 2vw, 1rem);
 }
 
-.landing__glass {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: stretch;
-  height: min(72vh, 640px);
-  z-index: 0;
-}
-
-.landing__glass-line {
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.55) 22%,
-    rgba(255, 255, 255, 0.55) 78%,
-    rgba(255, 255, 255, 0) 100%
-  );
-}
-
-.landing__glass-panel {
-  width: clamp(52px, 8vw, 96px);
-  margin: 0 2px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 2px;
-}
-
 .landing__brand {
   position: relative;
-  z-index: 1;
   padding-left: clamp(4.5rem, 12vw, 8.5rem);
   display: flex;
   flex-direction: column;
@@ -234,8 +245,8 @@ useHead({
 
 .landing__logo {
   display: block;
-  width: 80px;
-  height: 30.57px;
+  width: clamp(140px, 32vw, 260px);
+  height: auto;
   object-fit: contain;
 }
 
@@ -290,11 +301,13 @@ useHead({
     justify-content: center;
   }
 
-  .landing__glass {
+  .landing__blur-edge {
+    top: 50%;
     left: 50%;
+    bottom: auto;
+    height: min(52vh, 440px);
     transform: translate(-50%, -50%);
-    height: min(48vh, 420px);
-    opacity: 0.85;
+    opacity: 0.92;
   }
 
   .landing__brand {

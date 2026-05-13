@@ -6,14 +6,14 @@
 
     <div class="hsa__noise" aria-hidden="true">
       <svg class="hsa__noise-svg" xmlns="http://www.w3.org/2000/svg">
-        <filter id="cpw-noise" x="0" y="0" width="100%" height="100%">
+        <filter id="cpb-noise" x="0" y="0" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch" result="n" />
           <feColorMatrix type="saturate" values="0" in="n" result="g" />
           <feComponentTransfer in="g" result="c">
             <feFuncA type="linear" slope="0.35" />
           </feComponentTransfer>
         </filter>
-        <rect width="100%" height="100%" filter="url(#cpw-noise)" />
+        <rect width="100%" height="100%" filter="url(#cpb-noise)" />
       </svg>
     </div>
 
@@ -50,7 +50,7 @@
       <p class="hsa__watermark" aria-hidden="true">WORKSPACE</p>
 
       <footer class="hsa__footer">
-        <span class="hsa__copyright">{{ copyrightText }}</span>
+        <span class="hsa__copyright">© CSOT 2023</span>
       </footer>
     </div>
   </div>
@@ -67,43 +67,34 @@ const props = defineProps<{
 
 const route = useRoute()
 
-type Active = 'targeting' | 'metadata-extraction' | 'packaging'
+type PlaybackStep = 'targeting' | 'decode-sr' | 'player'
 
-const activeStepId = computed<Active>(() => {
+const activePlaybackStep = computed<PlaybackStep>(() => {
   const p = route.path
-  if (p.endsWith('/metadata-extraction')) return 'metadata-extraction'
-  if (p.endsWith('/packaging')) return 'packaging'
+  if (p.endsWith('/playback/decode-sr')) return 'decode-sr'
+  if (p.endsWith('/playback/player')) return 'player'
   return 'targeting'
 })
 
 const steps = computed(() => {
   const id = props.poolId
+  const base = `/content-pool/${id}/playback`
   return [
-    { id: 'content' as const, label: 'Content', to: '/high-speed-action', icon: 'content' satisfies WorkflowStepIconKey },
-    { id: 'targeting' as const, label: 'Targeting', to: `/content-pool/${id}/targeting`, icon: 'target' satisfies WorkflowStepIconKey },
-    {
-      id: 'metadata-extraction' as const,
-      label: 'Metadata Extraction',
-      to: `/content-pool/${id}/metadata-extraction`,
-      icon: 'metadata' satisfies WorkflowStepIconKey,
-    },
-    { id: 'packaging' as const, label: 'Packaging', to: `/content-pool/${id}/packaging`, icon: 'packaging' satisfies WorkflowStepIconKey },
+    { id: 'targeting' as const, label: 'Targeting', to: `${base}/targeting`, icon: 'target' satisfies WorkflowStepIconKey },
+    { id: 'decode-sr' as const, label: 'Decode & SR', to: `${base}/decode-sr`, icon: 'decode' satisfies WorkflowStepIconKey },
+    { id: 'player' as const, label: 'Player', to: `${base}/player`, icon: 'player' satisfies WorkflowStepIconKey },
   ]
 })
 
 const stepIndex: Record<string, number> = {
-  content: 0,
-  targeting: 1,
-  'metadata-extraction': 2,
-  packaging: 3,
+  targeting: 0,
+  'decode-sr': 1,
+  player: 2,
 }
 
-const activeIndex = computed(() => stepIndex[activeStepId.value] ?? 1)
+const activeIndex = computed(() => stepIndex[activePlaybackStep.value] ?? 0)
 
 function stepClass(stepId: string) {
-  if (stepId === 'content') {
-    return { 'hsa__step--done': true }
-  }
   const si = stepIndex[stepId] ?? 0
   const ai = activeIndex.value
   return {
@@ -114,19 +105,17 @@ function stepClass(stepId: string) {
 }
 
 const stepperHint = computed(() => {
-  switch (activeStepId.value) {
+  switch (activePlaybackStep.value) {
     case 'targeting':
-      return 'Select your required target format to prepare for the next step.'
-    case 'metadata-extraction':
-      return 'Select the AI Image Enhancement techniques to apply and generate RDR Metadata.'
-    case 'packaging':
-      return 'Synchronize and encapsulate extracted RDR Metadata with the source video essence to generate a standardized, AI-enhanced bitstream for downstream TCON processing.'
+      return 'AI-Driven Pixel Reconstruction.'
+    case 'decode-sr':
+      return 'Achieve high-performance bitstream parsing and synchronized metadata extraction.'
+    case 'player':
+      return 'Review the final result.'
     default:
       return ''
   }
 })
-
-const copyrightText = computed(() => (activeStepId.value === 'packaging' ? '© CSOT 2024' : '© CSOT 2023'))
 
 useHead({
   link: [
@@ -397,5 +386,4 @@ useHead({
     padding-right: 0.5rem;
   }
 }
-
 </style>

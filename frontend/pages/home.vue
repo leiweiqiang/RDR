@@ -19,13 +19,15 @@
 
     <div class="home__inner">
       <header class="home__header">
-        <img
-          class="home__logo"
-          :src="rdrLogoUrl"
-          width="80"
-          height="31"
-          alt="RDR"
-        />
+        <NuxtLink to="/" class="home__logo-link" aria-label="RDR home">
+          <img
+            class="home__logo"
+            :src="rdrLogoUrl"
+            width="80"
+            height="31"
+            alt=""
+          />
+        </NuxtLink>
         <div class="home__progress" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4" aria-label="Step 1 of 4">
           <span v-for="i in 4" :key="i" class="home__progress-segment" :class="{ 'home__progress-segment--active': i === 1 }" />
         </div>
@@ -254,6 +256,14 @@ useHead({
   flex-direction: column;
   align-items: flex-start;
   gap: clamp(0.85rem, 2vw, 1.25rem);
+}
+
+.home__logo-link {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .home__logo {

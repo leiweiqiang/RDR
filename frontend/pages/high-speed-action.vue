@@ -20,7 +20,7 @@
     <div class="hsa__inner">
       <header class="hsa__header">
         <div class="hsa__header-brand">
-          <NuxtLink to="/home" class="hsa__logo-link">
+          <NuxtLink to="/" class="hsa__logo-link">
             <img class="hsa__logo" :src="rdrLogoUrl" width="80" height="31" alt="RDR" />
           </NuxtLink>
           <nav class="hsa__crumbs" aria-label="Breadcrumb">

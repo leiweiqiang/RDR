@@ -69,14 +69,14 @@
     </aside>
 
     <div class="pkg__actions">
-      <button type="button" class="pkg__btn">Packaging</button>
-      <button type="button" class="pkg__btn" @click="goNext">Next</button>
+      <button type="button" class="pkg__btn" @click="goPackagingPlayback">Packaging</button>
+      <button type="button" class="pkg__btn pkg__btn--secondary" @click="goNext">Next</button>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   previewImageUrl: string
   poolId: string
 }>()
@@ -84,6 +84,10 @@ defineProps<{
 const router = useRouter()
 
 const placement = ref<'manifest' | 'video'>('manifest')
+
+function goPackagingPlayback() {
+  router.push(`/content-pool/${props.poolId}/playback/targeting`)
+}
 
 function goNext() {
   router.push('/home')
@@ -241,6 +245,16 @@ function goNext() {
 .pkg__btn:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
+}
+
+.pkg__btn--secondary {
+  background: #d8d8d8;
+  color: #111;
+  box-shadow: none;
+}
+
+.pkg__btn--secondary:hover {
+  filter: brightness(1.05);
 }
 
 @media (max-width: 900px) {
