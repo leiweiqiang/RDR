@@ -39,7 +39,7 @@
                     @click="activeIndex = index"
                   >
                     <span class="workflow__step-icon" aria-hidden="true">
-                      <WorkflowIcon :name="step.icon" />
+                      <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
                     </span>
                     <span class="workflow__step-label">{{ step.label }}</span>
                   </NuxtLink>
@@ -53,11 +53,13 @@
                     @click="activeIndex = index"
                   >
                     <span class="workflow__step-icon" aria-hidden="true">
-                      <WorkflowIcon :name="step.icon" />
+                      <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
                     </span>
                     <span class="workflow__step-label">{{ step.label }}</span>
                   </button>
-                  <span v-if="index < steps.length - 1" class="workflow__arrow" aria-hidden="true">→</span>
+                  <span v-if="index < steps.length - 1" class="workflow__arrow" aria-hidden="true">
+                    <img :src="rightArrowUrl" alt="" class="workflow__arrow-img" width="32" height="32" />
+                  </span>
                 </template>
               </div>
             </div>
@@ -80,63 +82,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, type PropType, type VNode } from 'vue'
-
-type StepIcon = 'content' | 'target' | 'metadata' | 'packaging' | 'decode' | 'player'
-
-function iconGraphic(name: StepIcon): VNode {
-  switch (name) {
-    case 'content':
-      return h('g', [
-        h('rect', { x: '5', y: '10', width: '22', height: '14', rx: '2', stroke: 'currentColor', 'stroke-width': '1.5' }),
-        h('path', { d: 'M5 14h22', stroke: 'currentColor', 'stroke-width': '1.5' }),
-        h('path', { d: 'M10 7l4 3H9l4-3z', stroke: 'currentColor', 'stroke-width': '1.2', 'stroke-linejoin': 'round' }),
-        h('path', { d: 'M14 16l6 3.5v-7L14 16z', fill: 'currentColor' }),
-      ])
-    case 'target':
-      return h('g', [
-        h('circle', { cx: '16', cy: '16', r: '10', stroke: 'currentColor', 'stroke-width': '1.5' }),
-        h('circle', { cx: '16', cy: '16', r: '6', stroke: 'currentColor', 'stroke-width': '1.5' }),
-        h('circle', { cx: '16', cy: '16', r: '2', fill: 'currentColor' }),
-      ])
-    case 'metadata':
-      return h('g', [
-        h('path', {
-          d: 'M9 6h8a4 4 0 014 4v12a4 4 0 01-4 4H9a4 4 0 01-4-4V10a4 4 0 014-4z',
-          stroke: 'currentColor',
-          'stroke-width': '1.5',
-        }),
-        h('path', { d: 'M22 12l5-3v14l-5-3', stroke: 'currentColor', 'stroke-width': '1.5', 'stroke-linejoin': 'round' }),
-      ])
-    case 'packaging':
-      return h('g', [
-        h('path', {
-          d: 'M6 12l10-4 10 4v14a2 2 0 01-2 2H8a2 2 0 01-2-2V12z',
-          stroke: 'currentColor',
-          'stroke-width': '1.5',
-          'stroke-linejoin': 'round',
-        }),
-        h('path', { d: 'M6 12l10 4 10-4M16 16v12', stroke: 'currentColor', 'stroke-width': '1.5' }),
-      ])
-    case 'decode':
-      return h('g', [
-        h('rect', { x: '7', y: '7', width: '18', height: '18', rx: '2', stroke: 'currentColor', 'stroke-width': '1.5' }),
-        h('path', {
-          d: 'M11 21V11h3.5c2 0 3.5 1.2 3.5 3s-1.4 3-3.6 3H13v4',
-          stroke: 'currentColor',
-          'stroke-width': '1.5',
-          'stroke-linecap': 'round',
-          'stroke-linejoin': 'round',
-        }),
-        h('circle', { cx: '21', cy: '11', r: '1.2', fill: 'currentColor' }),
-      ])
-    case 'player':
-      return h('g', [
-        h('rect', { x: '6', y: '8', width: '20', height: '16', rx: '2', stroke: 'currentColor', 'stroke-width': '1.5' }),
-        h('path', { d: 'M14 13l6 3.5L14 20v-7z', fill: 'currentColor' }),
-      ])
-  }
-}
+import { computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
+import {
+  WORKFLOW_PIPELINE_ARROW_URL as rightArrowUrl,
+  WORKFLOW_STEP_ICON_URL as workflowIconUrl,
+  type WorkflowStepIconKey as StepIcon,
+} from '~/utils/workflowPipelineAssets'
 
 const steps: Array<{
   id: string
@@ -239,26 +190,6 @@ onBeforeUnmount(() => {
 function goNext() {
   void navigateTo('/home')
 }
-
-const WorkflowIcon = defineComponent({
-  name: 'WorkflowIcon',
-  props: {
-    name: {
-      type: String as PropType<StepIcon>,
-      required: true,
-    },
-  },
-  setup(props) {
-    return () =>
-      h('svg', {
-        viewBox: '0 0 32 32',
-        fill: 'none',
-        xmlns: 'http://www.w3.org/2000/svg',
-        class: 'workflow__svg',
-        'aria-hidden': 'true',
-      }, [iconGraphic(props.name as StepIcon)])
-  },
-})
 
 useHead({
   title: 'Workflow — RDR',
@@ -363,7 +294,7 @@ useHead({
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  padding: clamp(1.25rem, 4vw, 2rem) clamp(1rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 2rem);
+  padding: clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 5.5vw, 3.5rem) clamp(1.25rem, 4vw, 2rem);
   max-width: min(100%, 1520px);
   margin: 0 auto;
 }
@@ -448,12 +379,13 @@ useHead({
   justify-content: center;
   width: clamp(2.75rem, 5.5vw, 3.25rem);
   height: clamp(2.75rem, 5.5vw, 3.25rem);
-  color: #fff;
 }
 
-.workflow__svg {
+.workflow__step-icon-img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .workflow__step-label {
@@ -467,9 +399,17 @@ useHead({
 .workflow__arrow {
   flex: 0 0 auto;
   align-self: center;
-  font-size: clamp(1rem, 1.8vw, 1.15rem);
-  color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   user-select: none;
+}
+
+.workflow__arrow-img {
+  display: block;
+  width: clamp(1.35rem, 2.6vw, 1.9rem);
+  height: auto;
+  object-fit: contain;
 }
 
 .workflow__detail {
