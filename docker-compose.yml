@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: rdr-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-rdr}
+      POSTGRES_USER: ${DB_USER:-rdr}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rdr_password}
+    ports:
+      - "${POSTGRES_PUBLISH_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rdr-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
+    ports:
+      - "${BACKEND_PUBLISH_PORT:-8000}:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-rdr}
+      DB_USER: ${DB_USER:-rdr}
+      DB_PASSWORD: ${DB_PASSWORD:-rdr_password}
+      CREATE_SCHEMA_ON_STARTUP: ${CREATE_SCHEMA_ON_STARTUP:-1}
+      SECRET_KEY: ${SECRET_KEY:-change-this-to-a-long-random-secret}
+
+  frontend:
+    profiles: [dev]
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rdr-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PUBLISH_PORT:-3000}:3000"
+    environment:
+      NUXT_API_PROXY_TARGET: http://backend:8000
+
+  frontend-prod:
+    profiles: [prod]
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: rdr-frontend-prod
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PROD_PUBLISH_PORT:-8080}:80"
+
+volumes:
+  postgres_data:
