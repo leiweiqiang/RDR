@@ -17,6 +17,8 @@
       </svg>
     </div>
 
+    <p class="home__watermark" aria-hidden="true">WORKSPACE</p>
+
     <div class="home__inner">
       <header class="home__header">
         <NuxtLink to="/" class="home__logo-link" aria-label="RDR home">
@@ -89,8 +91,6 @@
           </template>
         </div>
       </main>
-
-      <p class="home__watermark" aria-hidden="true">WORKSPACE</p>
 
       <footer class="home__footer">
         <span class="home__copyright">@ CSOT 2026</span>
@@ -394,7 +394,7 @@ useHead({
   text-align: right;
   pointer-events: none;
   user-select: none;
-  z-index: 3;
+  z-index: 1;
 }
 
 .home__footer {

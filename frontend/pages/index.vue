@@ -39,7 +39,8 @@
 
       <div class="landing__col landing__col--right">
         <p class="landing__copy">
-          RDR brings detail back where it belongs: Sharper Structure, Richer Texture, Cleaner Edges,
+          RDR brings detail back where it belongs:<br />
+          <span class="landing__copy-em">Sharper Structure, Richer Texture, Cleaner Edges,</span><br />
           without sacrificing realism or visual balance.
         </p>
         <NuxtLink to="/workflow" class="landing__cta">Start</NuxtLink>
@@ -57,7 +58,7 @@ useHead({
   link: [
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
     },
   ],
 })
@@ -210,6 +211,7 @@ useHead({
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
+  align-content: center;
   min-height: 100dvh;
   padding: clamp(1.5rem, 4vw, 3.5rem);
   gap: clamp(1rem, 3vw, 2.5rem);
@@ -229,6 +231,7 @@ useHead({
 
 .landing__col--right {
   flex-direction: column;
+  justify-content: center;
   align-items: flex-end;
   text-align: right;
   gap: 1.75rem;
@@ -254,10 +257,15 @@ useHead({
   margin: 0;
   max-width: 26rem;
   font-size: clamp(0.95rem, 1.25vw, 1.05rem);
-  font-weight: 500;
+  font-weight: 300;
   line-height: 1.55;
   letter-spacing: 0.01em;
   color: #fff;
+}
+
+.landing__copy-em {
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .landing__cta {
@@ -276,12 +284,18 @@ useHead({
   font-weight: 700;
   letter-spacing: 0.02em;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .landing__cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  background: #22c55e;
+  color: #fff;
+  box-shadow: 0 8px 28px rgba(34, 197, 94, 0.45);
 }
 
 .landing__cta:active {
@@ -291,9 +305,8 @@ useHead({
 @media (max-width: 768px) {
   .landing__grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    padding-top: 2.5rem;
-    padding-bottom: 2.5rem;
+    align-content: center;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
   }
 
   .landing__col--left {
@@ -317,9 +330,9 @@ useHead({
   }
 
   .landing__col--right {
+    justify-content: center;
     align-items: center;
     text-align: center;
-    margin-top: auto;
     padding-right: 0;
   }
 

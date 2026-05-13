@@ -17,6 +17,8 @@
       </svg>
     </div>
 
+    <p class="hsa__watermark" aria-hidden="true">WORKSPACE</p>
+
     <div class="hsa__inner">
       <header class="hsa__header">
         <div class="hsa__header-brand">
@@ -46,8 +48,6 @@
       </div>
 
       <slot />
-
-      <p class="hsa__watermark" aria-hidden="true">WORKSPACE</p>
 
       <footer class="hsa__footer">
         <span class="hsa__copyright">© CSOT 2023</span>
@@ -361,7 +361,7 @@ useHead({
   text-align: right;
   pointer-events: none;
   user-select: none;
-  z-index: 3;
+  z-index: 1;
 }
 
 .hsa__footer {

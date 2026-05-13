@@ -17,6 +17,8 @@
       </svg>
     </div>
 
+    <p class="hsa__watermark" aria-hidden="true">WORKSPACE</p>
+
     <div class="hsa__inner">
       <header class="hsa__header">
         <div class="hsa__header-brand">
@@ -139,8 +141,6 @@
           </ul>
         </section>
       </main>
-
-      <p class="hsa__watermark" aria-hidden="true">WORKSPACE</p>
 
       <footer class="hsa__footer">
         <span class="hsa__copyright">@ CSOT 2026</span>
@@ -604,7 +604,7 @@ a.hsa__card {
   text-align: right;
   pointer-events: none;
   user-select: none;
-  z-index: 3;
+  z-index: 1;
 }
 
 .hsa__footer {

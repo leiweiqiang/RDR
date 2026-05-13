@@ -21,47 +21,30 @@
       <div class="workflow__stage">
         <div class="workflow__column">
           <div class="workflow__track-wrap">
-            <div class="workflow__track">
-              <div
-                ref="trackInnerRef"
-                class="workflow__track-inner"
-                role="tablist"
-                aria-label="Pipeline steps"
-              >
-                <template v-for="(step, index) in steps" :key="step.id">
-                  <NuxtLink
-                    v-if="step.id === 'content'"
-                    to="/high-speed-action"
-                    role="tab"
-                    class="workflow__step"
-                    :class="{ 'workflow__step--active': index === activeIndex }"
-                    :aria-selected="index === activeIndex"
-                    @click="activeIndex = index"
-                  >
-                    <span class="workflow__step-icon" aria-hidden="true">
-                      <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
-                    </span>
-                    <span class="workflow__step-label">{{ step.label }}</span>
-                  </NuxtLink>
-                  <button
-                    v-else
-                    type="button"
-                    role="tab"
-                    class="workflow__step"
-                    :class="{ 'workflow__step--active': index === activeIndex }"
-                    :aria-selected="index === activeIndex"
-                    @click="activeIndex = index"
-                  >
-                    <span class="workflow__step-icon" aria-hidden="true">
-                      <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
-                    </span>
-                    <span class="workflow__step-label">{{ step.label }}</span>
-                  </button>
-                  <span v-if="index < steps.length - 1" class="workflow__arrow" aria-hidden="true">
-                    <img :src="rightArrowUrl" alt="" class="workflow__arrow-img" width="32" height="32" />
+            <div
+              ref="trackInnerRef"
+              class="workflow__track"
+              role="tablist"
+              aria-label="Pipeline steps"
+            >
+              <template v-for="(step, index) in steps" :key="step.id">
+                <button
+                  type="button"
+                  role="tab"
+                  class="workflow__step"
+                  :class="{ 'workflow__step--active': index === activeIndex }"
+                  :aria-selected="index === activeIndex"
+                  @click="activeIndex = index"
+                >
+                  <span class="workflow__step-icon" aria-hidden="true">
+                    <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
                   </span>
-                </template>
-              </div>
+                  <span class="workflow__step-label">{{ step.label }}</span>
+                </button>
+                <span v-if="index < steps.length - 1" class="workflow__arrow" aria-hidden="true">
+                  <img :src="rightArrowUrl" alt="" class="workflow__arrow-img" width="32" height="32" />
+                </span>
+              </template>
             </div>
           </div>
 
@@ -196,7 +179,7 @@ useHead({
   link: [
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
     },
   ],
 })
@@ -294,7 +277,8 @@ useHead({
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  padding: clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 5.5vw, 3.5rem) clamp(1.25rem, 4vw, 2rem);
+  --workflow-gutter-x: clamp(1.75rem, 7vw, 5rem);
+  padding: clamp(1.25rem, 4vw, 2rem) 0;
   max-width: min(100%, 1520px);
   margin: 0 auto;
 }
@@ -303,7 +287,7 @@ useHead({
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: stretch;
   min-height: 0;
 }
@@ -313,47 +297,47 @@ useHead({
   flex-direction: column;
   align-items: stretch;
   gap: clamp(1.75rem, 4.5vw, 3rem);
-  width: min(100%, var(--workflow-steps-width, 100%));
+  width: 100%;
+  max-width: 100%;
   margin-inline: auto;
   min-width: 0;
 }
 
 .workflow__track-wrap {
   flex: 0 0 auto;
-  width: 100%;
-  overflow-x: auto;
+  align-self: stretch;
+  overflow-x: hidden;
   overflow-y: visible;
+  margin-top: calc(100dvh / 3);
+  margin-inline: var(--workflow-gutter-x);
+  padding-inline: 0.5rem;
   padding-bottom: 0.5rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
 }
 
 .workflow__track {
   display: flex;
-  align-items: center;
+  flex-wrap: nowrap;
+  align-items: flex-start;
   justify-content: center;
-  min-width: min-content;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
   padding: 0.5rem 0;
-}
-
-.workflow__track-inner {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: clamp(0.5rem, 1.6vw, 1rem);
-  flex: 0 0 auto;
-  min-width: min-content;
+  box-sizing: border-box;
+  gap: clamp(0.08rem, 1.1vw, 0.65rem);
 }
 
 .workflow__step {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  width: clamp(6rem, 14vw, 9.5rem);
-  min-width: 5.75rem;
-  padding: 0.65rem 0.5rem 0.75rem;
+  gap: clamp(0.2rem, 0.65vw, 0.5rem);
+  box-sizing: border-box;
+  padding: clamp(0.35rem, 0.45vw + 0.2rem, 0.65rem) clamp(0.12rem, 0.35vw + 0.1rem, 0.5rem) clamp(0.4rem, 0.5vw + 0.25rem, 0.75rem);
   border: none;
   border-radius: 12px;
   background: transparent;
@@ -377,8 +361,9 @@ useHead({
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(2.75rem, 5.5vw, 3.25rem);
-  height: clamp(2.75rem, 5.5vw, 3.25rem);
+  flex-shrink: 0;
+  width: clamp(1.05rem, 4.2vw + 1.2rem, 3.25rem);
+  height: clamp(1.05rem, 4.2vw + 1.2rem, 3.25rem);
 }
 
 .workflow__step-icon-img {
@@ -389,15 +374,23 @@ useHead({
 }
 
 .workflow__step-label {
-  font-size: clamp(0.65rem, 1.5vw, 0.82rem);
-  font-weight: 500;
+  font-size: clamp(0.52rem, 0.9vw + 0.45rem, 0.82rem);
+  font-weight: 300;
   text-align: center;
   line-height: 1.25;
   max-width: 100%;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  /* Reserve 3 lines so wrapping never changes step / track vertical size */
+  min-height: calc(3 * 1.25 * 1em);
+  display: grid;
+  place-content: center;
+  box-sizing: border-box;
 }
 
 .workflow__arrow {
-  flex: 0 0 auto;
+  flex: 0 1 1.25rem;
+  min-width: 0;
   align-self: center;
   display: flex;
   align-items: center;
@@ -407,8 +400,9 @@ useHead({
 
 .workflow__arrow-img {
   display: block;
-  width: clamp(1.35rem, 2.6vw, 1.9rem);
+  width: clamp(0.55rem, 1.8vw + 0.35rem, 1.75rem);
   height: auto;
+  max-width: 100%;
   object-fit: contain;
 }
 
@@ -417,7 +411,7 @@ useHead({
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0;
+  padding: 0 var(--workflow-gutter-x);
   min-height: 0;
   min-width: 0;
   width: 100%;
@@ -433,7 +427,7 @@ useHead({
 .workflow__detail-body {
   margin: 0;
   font-size: clamp(0.9rem, 1.6vw, 1.05rem);
-  font-weight: 400;
+  font-weight: 300;
   line-height: 1.65;
   color: rgba(255, 255, 255, 0.92);
   min-width: 0;
@@ -443,7 +437,7 @@ useHead({
 .workflow__footer {
   flex: 0 0 auto;
   width: 100%;
-  padding-top: clamp(0.75rem, 2vw, 1.25rem);
+  padding: clamp(0.75rem, 2vw, 1.25rem) var(--workflow-gutter-x) 0;
 }
 
 .workflow__footer-inner {
@@ -477,11 +471,5 @@ useHead({
 
 .workflow__next:active {
   transform: translateY(0);
-}
-
-@media (max-width: 640px) {
-  .workflow__track {
-    justify-content: flex-start;
-  }
 }
 </style>

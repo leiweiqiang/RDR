@@ -17,6 +17,8 @@
       </svg>
     </div>
 
+    <p class="sf__watermark" aria-hidden="true">WORKSPACE</p>
+
     <div class="sf__inner">
       <header class="sf__header">
         <div class="sf__header-brand">
@@ -96,8 +98,6 @@
           </button>
         </div>
       </main>
-
-      <p class="sf__watermark" aria-hidden="true">WORKSPACE</p>
 
       <footer class="sf__footer">
         <span class="sf__copyright">© CSOT 2026</span>
@@ -460,7 +460,7 @@ useHead(() => ({
   text-align: right;
   pointer-events: none;
   user-select: none;
-  z-index: 3;
+  z-index: 1;
 }
 
 .sf__footer {
