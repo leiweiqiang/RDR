@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import {
   Select,
   SelectContent,
@@ -24,27 +25,49 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+/** Reka Select + Popper read `window` during SSR; mount it only after hydration. */
+const rekaSelectMounted = ref(false)
+onMounted(() => {
+  rekaSelectMounted.value = true
+})
+
 function onUpdate(v: unknown) {
   emit('update:modelValue', typeof v === 'string' ? v : '')
+}
+
+function onNativeChange(e: Event) {
+  const el = e.target as HTMLSelectElement
+  emit('update:modelValue', el.value)
 }
 </script>
 
 <template>
-  <!-- No #fallback: SSR used a div without the real trigger tree; hydrating into reka Select could leave a broken control after SSG. -->
-  <ClientOnly :class="triggerClass">
-    <Select
-      :model-value="modelValue || undefined"
-      :disabled="disabled"
-      @update:model-value="onUpdate"
-    >
-      <SelectTrigger :id="id" :class="triggerClass" :aria-label="ariaLabel">
-        <SelectValue :placeholder="placeholder" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem v-for="opt in options" :key="opt" :value="opt">
-          {{ opt }}
-        </SelectItem>
-      </SelectContent>
-    </Select>
-  </ClientOnly>
+  <Select
+    v-if="rekaSelectMounted"
+    :model-value="modelValue || undefined"
+    :disabled="disabled"
+    @update:model-value="onUpdate"
+  >
+    <SelectTrigger :id="id" :class="triggerClass" :aria-label="ariaLabel">
+      <SelectValue :placeholder="placeholder" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem v-for="opt in options" :key="opt" :value="opt">
+        {{ opt }}
+      </SelectItem>
+    </SelectContent>
+  </Select>
+  <select
+    v-else
+    :id="id"
+    :class="triggerClass"
+    :aria-label="ariaLabel"
+    :disabled="disabled"
+    :value="modelValue"
+    @change="onNativeChange"
+  >
+    <option v-for="opt in options" :key="opt" :value="opt">
+      {{ opt }}
+    </option>
+  </select>
 </template>
