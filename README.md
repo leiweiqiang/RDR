@@ -31,11 +31,11 @@ The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an
 
 3. Open:
 
-   - Frontend: http://localhost:3000
-   - Backend docs: http://localhost:8000/docs
+   - Frontend: http://localhost:3108
+   - Backend docs: http://localhost:8108/docs
    - PostgreSQL (host): localhost:5433
 
-**Production static frontend:** `docker compose --profile prod up --build` — Nginx serves the generated UI on http://localhost:8080 by default (`FRONTEND_PROD_PUBLISH_PORT`).
+**Production static frontend:** `docker compose --profile prod up --build` — Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`).
 
 ## Example endpoints
 
