@@ -1,6 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+  tailwindcss: {
+    cssPath: '~/assets/css/tailwind.css',
+    configPath: 'tailwind.config.ts',
+  },
+  shadcn: {
+    prefix: '',
+    componentDir: './components/ui',
+  },
   app: {
     pageTransition: {
       name: 'page',

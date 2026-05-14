@@ -45,23 +45,28 @@
               <path d="M20 20l-4-4" stroke-linecap="round" />
             </svg>
           </button>
-          <label v-for="f in filterLeft" :key="f" class="sf__select-wrap">
+          <div v-for="f in filterLeft" :key="f" class="sf__select-wrap">
             <span class="visually-hidden">{{ f }}</span>
-            <select class="sf__select" :aria-label="f">
-              <option>{{ f }}</option>
-              <option>Any</option>
-            </select>
-          </label>
+            <AppStringSelect
+              v-model="filterChoices[f]"
+              :options="filterOptionsFor(f)"
+              :placeholder="f"
+              :aria-label="f"
+              trigger-class="sf__select-trigger"
+            />
+          </div>
         </div>
         <div class="sf__toolbar-right">
-          <label class="sf__select-wrap">
+          <div class="sf__select-wrap">
             <span class="visually-hidden">Stacks by</span>
-            <select class="sf__select" aria-label="Stacks by">
-              <option>Stacks by</option>
-              <option>Name</option>
-              <option>Type</option>
-            </select>
-          </label>
+            <AppStringSelect
+              v-model="stacksBy"
+              :options="stacksByOptions"
+              placeholder="Stacks by"
+              aria-label="Stacks by"
+              trigger-class="sf__select-trigger"
+            />
+          </div>
         </div>
       </div>
 
@@ -135,6 +140,43 @@ const streamingTitle = computed(() => {
 })
 
 const filterLeft = ['Resolution', 'Frames', 'Mbps'] as const
+
+type FilterKey = (typeof filterLeft)[number]
+
+const resolutionFilterOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] as const
+const framesFilterOptions = [
+  'All',
+  'Less than 12fps',
+  '12 fps',
+  '24 fps',
+  '48 fps',
+  '64 fps',
+  '128 fps',
+  'Higher than 128 fps',
+] as const
+const bitrateFilterOptions = [
+  'All',
+  'Less than 8Mbps',
+  '24 Mbps',
+  '48 Mbps',
+  '100 Mbps',
+  'Higher than 100 Mbps',
+] as const
+
+const filterChoices = ref<Record<FilterKey, string>>({
+  Resolution: '2K',
+  Frames: '24 fps',
+  Mbps: '48 Mbps',
+})
+
+function filterOptionsFor(f: FilterKey) {
+  if (f === 'Resolution') return resolutionFilterOptions
+  if (f === 'Frames') return framesFilterOptions
+  return bitrateFilterOptions
+}
+
+const stacksByOptions = ['Stacks by', 'Name', 'Type'] as const
+const stacksBy = ref('Stacks by')
 
 const files: FileEntry[] = [
   { id: 'i1', kind: 'index', label: 'Name_index_1' },
@@ -325,7 +367,7 @@ useHead(() => ({
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.75rem 1.25rem;
   margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
 }
@@ -367,10 +409,17 @@ useHead(() => ({
   position: relative;
 }
 
-.sf__select {
+.sf__toolbar-left :deep(.sf__select-trigger) {
+  min-width: 8.25rem;
+  max-width: 12rem;
+}
+
+:deep(.sf__select-trigger) {
   appearance: none;
   min-width: 6.5rem;
-  padding: 0.45rem 1.85rem 0.45rem 0.65rem;
+  height: auto;
+  min-height: 2.1rem;
+  padding: 0.45rem 0.65rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   font-family: inherit;
@@ -379,9 +428,13 @@ useHead(() => ({
   color: #fff;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.45);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.5rem center;
+  box-shadow: none;
+  --ring: 214 32% 60%;
+}
+
+:deep(.sf__select-trigger svg) {
+  color: #a0a0a0;
+  opacity: 1;
 }
 
 .sf__main {

@@ -44,34 +44,46 @@
                   <path d="M20 20l-3-3" stroke-linecap="round" />
                 </svg>
               </button>
-              <label class="hsa__filter">
+              <div class="hsa__filter">
                 <span class="visually-hidden">Time</span>
-                <select v-model="poolFilters.time" class="hsa__select" aria-label="Time">
-                  <option value="" disabled>Time</option>
-                  <option v-for="o in timeOptions" :key="`pt-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
-              <label class="hsa__filter">
+                <AppStringSelect
+                  v-model="poolFilters.time"
+                  :options="timeOptions"
+                  placeholder="Time"
+                  aria-label="Time"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
+              <div class="hsa__filter">
                 <span class="visually-hidden">Resolution</span>
-                <select v-model="poolFilters.resolution" class="hsa__select" aria-label="Resolution">
-                  <option value="" disabled>Resolution</option>
-                  <option v-for="o in resolutionOptions" :key="`pr-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
-              <label class="hsa__filter">
+                <AppStringSelect
+                  v-model="poolFilters.resolution"
+                  :options="resolutionOptions"
+                  placeholder="Resolution"
+                  aria-label="Resolution"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
+              <div class="hsa__filter">
                 <span class="visually-hidden">Type</span>
-                <select v-model="poolFilters.type" class="hsa__select" aria-label="Type">
-                  <option value="" disabled>Type</option>
-                  <option v-for="o in typeOptions" :key="`py-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
-              <label class="hsa__filter">
+                <AppStringSelect
+                  v-model="poolFilters.type"
+                  :options="typeOptions"
+                  placeholder="Type"
+                  aria-label="Type"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
+              <div class="hsa__filter">
                 <span class="visually-hidden">Size</span>
-                <select v-model="poolFilters.size" class="hsa__select" aria-label="Size">
-                  <option value="" disabled>Size</option>
-                  <option v-for="o in sizeOptions" :key="`ps-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
+                <AppStringSelect
+                  v-model="poolFilters.size"
+                  :options="sizeOptions"
+                  placeholder="Size"
+                  aria-label="Size"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
             </div>
           </div>
           <ul class="hsa__grid hsa__grid--pool" role="list">
@@ -98,34 +110,46 @@
                   <path d="M20 20l-3-3" stroke-linecap="round" />
                 </svg>
               </button>
-              <label class="hsa__filter">
+              <div class="hsa__filter">
                 <span class="visually-hidden">Time</span>
-                <select v-model="streamFilters.time" class="hsa__select" aria-label="Time">
-                  <option value="" disabled>Time</option>
-                  <option v-for="o in timeOptions" :key="`st-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
-              <label class="hsa__filter">
+                <AppStringSelect
+                  v-model="streamFilters.time"
+                  :options="timeOptions"
+                  placeholder="Time"
+                  aria-label="Time"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
+              <div class="hsa__filter">
                 <span class="visually-hidden">Resolution</span>
-                <select v-model="streamFilters.resolution" class="hsa__select" aria-label="Resolution">
-                  <option value="" disabled>Resolution</option>
-                  <option v-for="o in resolutionOptions" :key="`sr-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
-              <label class="hsa__filter">
+                <AppStringSelect
+                  v-model="streamFilters.resolution"
+                  :options="resolutionOptions"
+                  placeholder="Resolution"
+                  aria-label="Resolution"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
+              <div class="hsa__filter">
                 <span class="visually-hidden">Type</span>
-                <select v-model="streamFilters.type" class="hsa__select" aria-label="Type">
-                  <option value="" disabled>Type</option>
-                  <option v-for="o in typeOptions" :key="`sy-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
-              <label class="hsa__filter">
+                <AppStringSelect
+                  v-model="streamFilters.type"
+                  :options="typeOptions"
+                  placeholder="Type"
+                  aria-label="Type"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
+              <div class="hsa__filter">
                 <span class="visually-hidden">Size</span>
-                <select v-model="streamFilters.size" class="hsa__select" aria-label="Size">
-                  <option value="" disabled>Size</option>
-                  <option v-for="o in sizeOptions" :key="`ss-${o}`" :value="o">{{ o }}</option>
-                </select>
-              </label>
+                <AppStringSelect
+                  v-model="streamFilters.size"
+                  :options="sizeOptions"
+                  placeholder="Size"
+                  aria-label="Size"
+                  trigger-class="hsa__select-trigger"
+                />
+              </div>
             </div>
           </div>
           <ul class="hsa__grid hsa__grid--stream" role="list">
@@ -196,23 +220,23 @@ const streamingFiles: StreamItem[] = [
   },
 ]
 
-const timeOptions = ['Last 24h', 'Last 7d', 'Last 30d', 'All time'] as const
-const resolutionOptions = ['4K', '1080p', '720p', 'SD'] as const
-const typeOptions = ['Mezzanine', 'Proxy', 'HLS', 'DASH'] as const
-const sizeOptions = ['< 5 GB', '5–20 GB', '20–100 GB', '> 100 GB'] as const
+const timeOptions = ['All', 'Last Week', 'Last Month', 'Last Year'] as const
+const resolutionOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] as const
+const typeOptions = ['All', '.mp4', '.mov'] as const
+const sizeOptions = ['All', 'Large to Small', 'Small to Large'] as const
 
 const poolFilters = ref({
-  time: '',
-  resolution: '',
-  type: '',
-  size: '',
+  time: 'All',
+  resolution: '2K',
+  type: '.mov',
+  size: 'Small to Large',
 })
 
 const streamFilters = ref({
-  time: '',
-  resolution: '',
-  type: '',
-  size: '',
+  time: 'All',
+  resolution: '2K',
+  type: '.mov',
+  size: 'Small to Large',
 })
 
 useHead({
@@ -411,7 +435,7 @@ useHead({
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.75rem 1rem;
 }
 
@@ -428,7 +452,7 @@ useHead({
   flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .hsa__icon-btn {
@@ -464,11 +488,13 @@ useHead({
   min-width: 0;
 }
 
-.hsa__select {
+:deep(.hsa__select-trigger) {
   appearance: none;
   min-width: 5.5rem;
   max-width: 8.5rem;
-  padding: 0.42rem 1.65rem 0.42rem 0.5rem;
+  height: auto;
+  min-height: 2.1rem;
+  padding: 0.42rem 0.5rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   font-family: inherit;
@@ -477,14 +503,13 @@ useHead({
   color: #e8e8e8;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.45);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.4rem center;
+  box-shadow: none;
+  --ring: 214 32% 60%;
 }
 
-.hsa__select option {
-  color: #111;
-  background: #fff;
+:deep(.hsa__select-trigger svg) {
+  color: #a0a0a0;
+  opacity: 1;
 }
 
 .hsa__grid {
@@ -640,7 +665,7 @@ a.hsa__card {
     justify-content: flex-start;
   }
 
-  .hsa__select {
+  :deep(.hsa__select-trigger) {
     max-width: none;
     flex: 1 1 calc(50% - 0.25rem);
   }

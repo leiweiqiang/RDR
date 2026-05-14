@@ -15,20 +15,28 @@
       <section class="pbt__step">
         <h3 class="pbt__step-label">Step 1: Upscaling</h3>
         <label class="visually-hidden" for="pbt-upscale">Upscaling</label>
-        <select id="pbt-upscale" v-model="upscale" class="pbt__select">
-          <option value="4K">4K</option>
-          <option value="1080p">1080p</option>
-          <option value="720p">720p</option>
-        </select>
+        <AppStringSelect
+          id="pbt-upscale"
+          v-model="upscale"
+          :options="upscaleOptions"
+          placeholder="Upscaling"
+          aria-label="Upscaling"
+          trigger-class="pbt__select-trigger"
+        />
       </section>
       <div class="pbt__connector" aria-hidden="true" />
       <section class="pbt__step pbt__step--disabled" aria-disabled="true">
         <h3 class="pbt__step-label">Step 2: Frame Interpolation</h3>
         <label class="visually-hidden" for="pbt-fps">Frame interpolation</label>
-        <select id="pbt-fps" v-model="fps" class="pbt__select" disabled>
-          <option value="120Hz">120Hz</option>
-          <option value="60Hz">60Hz</option>
-        </select>
+        <AppStringSelect
+          id="pbt-fps"
+          v-model="fps"
+          :options="fpsOptions"
+          placeholder="Frame interpolation"
+          aria-label="Frame interpolation"
+          disabled
+          trigger-class="pbt__select-trigger"
+        />
       </section>
     </aside>
 
@@ -51,6 +59,9 @@ const { previewImageUrl } = useContentPoolPreview(poolId)
 const scrub = ref(741)
 const upscale = ref('4K')
 const fps = ref('120Hz')
+
+const upscaleOptions = ['4K', '1080p', '720p'] as const
+const fpsOptions = ['120Hz', '60Hz'] as const
 
 function goNext() {
   router.push(`/content-pool/${poolId.value}/playback/decode-sr`)
@@ -119,20 +130,26 @@ useHead({
   color: #fff;
 }
 
-.pbt__select {
+:deep(.pbt__select-trigger) {
   width: 100%;
   max-width: 12rem;
+  height: auto;
+  min-height: 2.25rem;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  padding: 0.45rem 0.65rem;
   font-family: inherit;
   font-size: 0.82rem;
   font-weight: 600;
   color: #111;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
-    no-repeat right 0.55rem center;
-  appearance: none;
-  cursor: pointer;
+  background: #fff;
+  box-shadow: none;
+  --ring: 222 47% 30%;
+}
+
+:deep(.pbt__select-trigger svg) {
+  color: #333;
+  opacity: 1;
 }
 
 .pbt__connector {

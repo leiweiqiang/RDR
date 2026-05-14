@@ -35,27 +35,36 @@
               :aria-checked="isRowComplete(row)"
               :aria-label="isRowComplete(row) ? 'Target row complete' : 'Target row incomplete'"
             />
-            <label class="hsa__field">
+            <div class="hsa__field">
               <span class="visually-hidden">Resolution</span>
-              <select v-model="row.resolution" class="hsa__select hsa__select--panel" aria-label="Resolution">
-                <option value="" disabled>Resolution</option>
-                <option v-for="opt in resolutionOptions" :key="opt" :value="opt">{{ opt }}</option>
-              </select>
-            </label>
-            <label class="hsa__field">
+              <AppStringSelect
+                v-model="row.resolution"
+                :options="resolutionOptions"
+                placeholder="Resolution"
+                aria-label="Resolution"
+                trigger-class="hsa__select-trigger hsa__select-trigger--panel"
+              />
+            </div>
+            <div class="hsa__field">
               <span class="visually-hidden">Frames per second</span>
-              <select v-model="row.fps" class="hsa__select hsa__select--panel" aria-label="Frames per second">
-                <option value="" disabled>Frames</option>
-                <option v-for="opt in fpsOptions" :key="opt" :value="opt">{{ opt }}</option>
-              </select>
-            </label>
-            <label class="hsa__field">
+              <AppStringSelect
+                v-model="row.fps"
+                :options="fpsOptions"
+                placeholder="Frames"
+                aria-label="Frames per second"
+                trigger-class="hsa__select-trigger hsa__select-trigger--panel"
+              />
+            </div>
+            <div class="hsa__field">
               <span class="visually-hidden">Bitrate</span>
-              <select v-model="row.bitrate" class="hsa__select hsa__select--panel" aria-label="Bitrate in Mbps">
-                <option value="" disabled>Bits</option>
-                <option v-for="opt in bitrateOptions" :key="opt" :value="opt">{{ opt }}</option>
-              </select>
-            </label>
+              <AppStringSelect
+                v-model="row.bitrate"
+                :options="bitrateOptions"
+                placeholder="Bits"
+                aria-label="Bitrate in Mbps"
+                trigger-class="hsa__select-trigger hsa__select-trigger--panel"
+              />
+            </div>
             <div class="hsa__row-actions">
               <button type="button" class="hsa__icon-square hsa__icon-square--add" aria-label="Add target row" @click="addRowAfter(index)">
                 +
@@ -324,10 +333,12 @@ function goNext() {
   min-width: 0;
 }
 
-.hsa__select {
+:deep(.hsa__select-trigger) {
   appearance: none;
   width: 100%;
-  padding: 0.45rem 1.85rem 0.45rem 0.55rem;
+  height: auto;
+  min-height: 2rem;
+  padding: 0.45rem 0.55rem;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   font-family: inherit;
@@ -335,21 +346,19 @@ function goNext() {
   font-weight: 600;
   color: #fff;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.45rem center;
+  background-color: rgba(0, 0, 0, 0.25);
+  box-shadow: none;
 }
 
-.hsa__select--panel {
+:deep(.hsa__select-trigger--panel) {
   color: #111;
   background-color: #fff;
   border-color: rgba(0, 0, 0, 0.12);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
-.hsa__select option {
-  color: #111;
-  background: #fff;
+:deep(.hsa__select-trigger--panel svg) {
+  color: #222;
+  opacity: 1;
 }
 
 .hsa__row-actions {
