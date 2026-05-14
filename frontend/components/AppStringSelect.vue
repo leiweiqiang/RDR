@@ -30,7 +30,8 @@ function onUpdate(v: unknown) {
 </script>
 
 <template>
-  <ClientOnly>
+  <!-- No #fallback: SSR used a div without the real trigger tree; hydrating into reka Select could leave a broken control after SSG. -->
+  <ClientOnly :class="triggerClass">
     <Select
       :model-value="modelValue || undefined"
       :disabled="disabled"
@@ -45,15 +46,5 @@ function onUpdate(v: unknown) {
         </SelectItem>
       </SelectContent>
     </Select>
-    <template #fallback>
-      <div
-        :id="id"
-        :class="triggerClass"
-        :aria-label="ariaLabel"
-        role="status"
-      >
-        {{ modelValue || placeholder }}
-      </div>
-    </template>
   </ClientOnly>
 </template>
