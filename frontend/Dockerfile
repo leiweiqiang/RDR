@@ -1,6 +1,7 @@
 FROM node:22-alpine
 
-RUN npm install -g pnpm@10
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable
 
 WORKDIR /app
 
