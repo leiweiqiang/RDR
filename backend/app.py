@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from typing import List
+from typing import Awaitable, Callable, List
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,6 +28,27 @@ def _api_root_path() -> str:
     return raw if raw and raw != "/" else ""
 
 
+class RootPathMiddleware:
+    """Set ASGI ``root_path`` so Swagger/ReDoc embed ``/api/openapi.json`` behind a ``/api`` proxy."""
+
+    def __init__(self, app: Callable[..., Awaitable[None]], root_path: str):
+        self.app = app
+        rp = (root_path or "").strip().rstrip("/")
+        self.root_path = rp if rp else ""
+
+    async def __call__(
+        self,
+        scope: dict,
+        receive: Callable[[], Awaitable[dict]],
+        send: Callable[..., Awaitable[None]],
+    ) -> None:
+        if self.root_path and scope.get("type") == "http":
+            existing = (scope.get("root_path") or "").strip().rstrip("/")
+            if not existing:
+                scope = {**scope, "root_path": self.root_path}
+        await self.app(scope, receive, send)
+
+
 app = FastAPI(
     title="RDR API",
     description="Minimal API for RDR",
@@ -43,6 +64,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RootPathMiddleware, root_path=_api_root_path())
 
 
 @app.get("/")
