@@ -57,7 +57,8 @@
 
       <footer class="workflow__footer">
         <div class="workflow__footer-inner">
-          <button type="button" class="workflow__next" @click="goNext">Next</button>
+          <!-- Native <a> so navigation works even if this page fails to hydrate (e.g. bad chunk MIME behind a proxy). <button @click> requires JS. -->
+          <a href="/home" class="workflow__next">Next</a>
         </div>
       </footer>
     </div>
@@ -169,12 +170,6 @@ onBeforeUnmount(() => {
   trackInnerResizeObserver?.disconnect()
   trackInnerResizeObserver = null
 })
-
-function goNext() {
-  // Full navigation: client-side route to /home can fail behind some reverse proxies
-  // (lazy chunks wrong MIME/404) while a direct load of /home still works.
-  window.location.assign('/home')
-}
 
 useHead({
   title: 'Workflow — RDR',
@@ -434,6 +429,8 @@ useHead({
 }
 
 .workflow__footer {
+  position: relative;
+  z-index: 10;
   flex: 0 0 auto;
   width: 100%;
   padding: clamp(0.75rem, 2vw, 1.25rem) var(--workflow-gutter-x) 0;
@@ -448,6 +445,10 @@ useHead({
 }
 
 .workflow__next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   appearance: none;
   border: none;
   cursor: pointer;
@@ -459,6 +460,7 @@ useHead({
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
