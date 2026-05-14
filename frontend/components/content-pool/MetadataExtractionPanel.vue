@@ -25,8 +25,8 @@
           <span>Skeleton Keypoints</span>
         </label>
       </div>
-      <button type="button" class="meta__btn-generate">Generate RDR Metadata</button>
-      <div class="meta__next-row">
+      <div class="meta__actions">
+        <button type="button" class="meta__btn-generate">Generate RDR Metadata</button>
         <button type="button" class="meta__btn-next" @click="goNext">Next</button>
       </div>
     </div>
@@ -48,11 +48,11 @@
         </summary>
         <div class="meta__acc-body">
           <figure class="meta__thumb-block">
-            <img :src="previewImageUrl" alt="" class="meta__thumb-img meta__thumb-img--canny" />
+            <img :src="cannyImageUrl" alt="" class="meta__thumb-img meta__thumb-img--canny" />
             <figcaption class="meta__thumb-cap">Canny Edge Extraction</figcaption>
           </figure>
           <figure class="meta__thumb-block">
-            <img :src="previewImageUrl" alt="" class="meta__thumb-img meta__thumb-img--depth" />
+            <img :src="depthImageUrl" alt="" class="meta__thumb-img meta__thumb-img--depth" />
             <figcaption class="meta__thumb-cap">Spatial Depth</figcaption>
           </figure>
         </div>
@@ -76,6 +76,9 @@
 </template>
 
 <script setup lang="ts">
+import cannyImageUrl from '~/assets/canny.png?url'
+import depthImageUrl from '~/assets/depth.png?url'
+
 const props = defineProps<{
   previewImageUrl: string
   poolId: string
@@ -154,8 +157,15 @@ function goNext() {
     center / 0.65rem no-repeat;
 }
 
+.meta__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .meta__btn-generate {
-  align-self: flex-start;
   border: none;
   border-radius: 999px;
   padding: 0.55rem 1.5rem;
@@ -173,12 +183,6 @@ function goNext() {
 .meta__btn-generate:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
-}
-
-.meta__next-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.25rem;
 }
 
 .meta__btn-next {
@@ -314,12 +318,9 @@ function goNext() {
   background: #111;
 }
 
-.meta__thumb-img--canny {
-  filter: grayscale(1) contrast(2.8) brightness(1.15);
-}
-
+.meta__thumb-img--canny,
 .meta__thumb-img--depth {
-  filter: grayscale(1) contrast(0.85) brightness(1.1);
+  object-fit: contain;
 }
 
 .meta__thumb-cap {
