@@ -132,11 +132,8 @@ useHead({
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background-color: #000;
-  background-image:
-    radial-gradient(ellipse 100% 90% at 50% 100%, rgba(120, 8, 28, 0.85) 0%, rgba(55, 4, 14, 0.45) 42%, transparent 58%),
-    radial-gradient(ellipse 120% 85% at 0% 100%, rgba(110, 12, 32, 0.72) 0%, rgba(45, 6, 14, 0.35) 38%, transparent 62%),
-    linear-gradient(180deg, #000000 0%, #050204 38%, #120208 100%);
+  background-color: transparent;
+  background-image: none;
   color: #fff;
   font-family:
     Inter,
