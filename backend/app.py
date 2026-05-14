@@ -22,11 +22,18 @@ async def lifespan(app: FastAPI):
     yield
 
 
+def _api_root_path() -> str:
+    """External URL prefix when the API is reached via /api/... (Nuxt or Nginx proxy)."""
+    raw = os.getenv("API_ROOT_PATH", "").strip().rstrip("/")
+    return raw if raw and raw != "/" else ""
+
+
 app = FastAPI(
     title="RDR API",
     description="Minimal API for RDR",
     version="0.1.0",
     lifespan=lifespan,
+    root_path=_api_root_path(),
 )
 
 app.add_middleware(

@@ -49,6 +49,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-rdr_password}
       CREATE_SCHEMA_ON_STARTUP: ${CREATE_SCHEMA_ON_STARTUP:-1}
       SECRET_KEY: ${SECRET_KEY:-change-this-to-a-long-random-secret}
+      # So Swagger/ReDoc load /api/openapi.json when the browser uses the frontend /api proxy.
+      API_ROOT_PATH: ${API_ROOT_PATH:-/api}
 
   frontend:
     profiles: [dev]

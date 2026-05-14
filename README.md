@@ -32,8 +32,10 @@ The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an
 3. Open:
 
    - Frontend: http://localhost:3108
-   - Backend docs: http://localhost:8108/docs
+   - API docs (via frontend proxy): http://localhost:3108/api/docs
    - PostgreSQL (host): localhost:5433
+
+   The backend sets `API_ROOT_PATH=/api` in Compose so Swagger loads `/api/openapi.json` through the same proxy. For interactive docs on the published backend port only, run the backend with `API_ROOT_PATH` unset.
 
 **Production static frontend:** `docker compose --profile prod up --build` — Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`).
 
