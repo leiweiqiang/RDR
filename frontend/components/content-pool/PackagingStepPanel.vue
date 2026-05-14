@@ -19,6 +19,10 @@
           <span>Metadata in Video</span>
         </label>
       </div>
+      <div class="pkg__actions">
+        <button type="button" class="pkg__btn-primary" @click="goPackagingPlayback">Packaging</button>
+        <button type="button" class="pkg__btn-next" @click="goNext">Next</button>
+      </div>
     </div>
 
     <aside class="pkg__spec" aria-labelledby="pkg-spec-title">
@@ -67,11 +71,6 @@
         </dl>
       </section>
     </aside>
-
-    <div class="pkg__actions">
-      <button type="button" class="pkg__btn" @click="goPackagingPlayback">Packaging</button>
-      <button type="button" class="pkg__btn pkg__btn--secondary" @click="goNext">Next</button>
-    </div>
   </main>
 </template>
 
@@ -110,15 +109,12 @@ function goNext() {
 .pkg__main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  grid-template-rows: auto auto;
   gap: clamp(0.75rem, 2vw, 1.25rem);
   align-items: start;
   padding-bottom: clamp(1rem, 3vw, 2rem);
 }
 
 .pkg__left {
-  grid-column: 1;
-  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
@@ -126,8 +122,6 @@ function goNext() {
 }
 
 .pkg__spec {
-  grid-column: 2;
-  grid-row: 1;
   min-width: 0;
   border-radius: 12px;
   padding: clamp(0.85rem, 1.5vw, 1.15rem);
@@ -218,23 +212,21 @@ function goNext() {
 }
 
 .pkg__actions {
-  grid-column: 1 / -1;
-  grid-row: 2;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.pkg__btn {
+.pkg__btn-primary {
   border: none;
   border-radius: 999px;
-  padding: 0.5rem 1.45rem;
+  padding: 0.55rem 1.5rem;
   font-family: inherit;
   font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   color: #000;
   background: #00e676;
   cursor: pointer;
@@ -242,34 +234,34 @@ function goNext() {
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-.pkg__btn:hover {
+.pkg__btn-primary:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
 }
 
-.pkg__btn--secondary {
-  background: #d8d8d8;
-  color: #111;
-  box-shadow: none;
+.pkg__btn-next {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 1.35rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #000;
+  background: #00e676;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.35);
+  transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-.pkg__btn--secondary:hover {
-  filter: brightness(1.05);
+.pkg__btn-next:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 900px) {
   .pkg__main {
     grid-template-columns: 1fr;
-    grid-template-rows: auto;
-  }
-
-  .pkg__spec {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  .pkg__actions {
-    grid-column: 1;
   }
 }
 </style>
