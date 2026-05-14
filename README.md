@@ -9,6 +9,19 @@ Minimal full-stack app: FastAPI + SQLAlchemy, Nuxt 3 + Tailwind, PostgreSQL 16, 
 - **Database:** PostgreSQL 16
 - **Runtime:** Docker Compose (dev + prod profiles)
 
+## Host ports
+
+Published ports are driven by **`.env`** (copy from `.env.example`). Defaults match `docker-compose.yml` (`${VAR:-default}`).
+
+| Service | Variable | Default (host → container) |
+| --- | --- | --- |
+| Nuxt dev (profile `dev`) | `FRONTEND_PUBLISH_PORT` | **3108** → 3000 |
+| FastAPI (direct on host) | `BACKEND_PUBLISH_PORT` | **8108** → 8000 |
+| PostgreSQL | `POSTGRES_PUBLISH_PORT` | **5433** → 5432 |
+| Nginx static (profile `prod`) | `FRONTEND_PROD_PUBLISH_PORT` | **8188** → 80 |
+
+If you change a value in `.env`, use that port in the URLs below instead of the default.
+
 ## API conventions
 
 The browser calls the backend via **`/api/...`**. The `/api` prefix is stripped and requests are forwarded to the FastAPI service (`/` on the backend container).
@@ -23,21 +36,22 @@ The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an
 ## Quick start
 
 1. Copy environment template: `cp .env.example .env`
-2. Start services (`.env.example` sets `COMPOSE_PROFILES=dev` so Nuxt dev starts with `docker compose up`):
+2. Start services (`.env.example` sets `COMPOSE_PROFILES=dev` so a plain `docker compose up` also starts Nuxt, or pass the profile explicitly):
 
    ```bash
-   docker compose up --build
+   docker compose --profile dev up -d --build
    ```
 
-3. Open:
+3. Open (defaults from the table above; replace the port if you overrode it in `.env`):
 
    - Frontend: http://localhost:3108
    - API docs (via frontend proxy): http://localhost:3108/api/docs
+   - FastAPI only (host): http://localhost:8108/docs
    - PostgreSQL (host): localhost:5433
 
    The backend sets `API_ROOT_PATH=/api` in Compose so Swagger loads `/api/openapi.json` through the same proxy. For interactive docs on the published backend port only, run the backend with `API_ROOT_PATH` unset.
 
-**Production static frontend:** `docker compose --profile prod up --build` — Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`).
+**Production static frontend:** `docker compose --profile prod up -d --build` — Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`).
 
 ## Example endpoints
 
