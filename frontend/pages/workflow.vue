@@ -171,7 +171,9 @@ onBeforeUnmount(() => {
 })
 
 function goNext() {
-  void navigateTo('/home')
+  // Full navigation: client-side route to /home can fail behind some reverse proxies
+  // (lazy chunks wrong MIME/404) while a direct load of /home still works.
+  window.location.assign('/home')
 }
 
 useHead({
