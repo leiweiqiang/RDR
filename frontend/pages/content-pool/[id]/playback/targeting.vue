@@ -41,7 +41,7 @@
     </aside>
 
     <div class="pbt__actions">
-      <button type="button" class="pbt__btn-next" @click="goNext">Next</button>
+      <a :href="decodeSrHref" class="pbt__btn-next">Next</a>
     </div>
   </main>
 </template>
@@ -52,9 +52,10 @@ definePageMeta({
 })
 
 const route = useRoute()
-const router = useRouter()
 const poolId = computed(() => String(route.params.id))
 const { previewImageUrl } = useContentPoolPreview(poolId)
+
+const decodeSrHref = computed(() => `/content-pool/${poolId.value}/playback/decode-sr`)
 
 const scrub = ref(741)
 const upscale = ref('4K')
@@ -62,10 +63,6 @@ const fps = ref('120Hz')
 
 const upscaleOptions = ['4K', '1080p', '720p'] as const
 const fpsOptions = ['120Hz', '60Hz'] as const
-
-function goNext() {
-  router.push(`/content-pool/${poolId.value}/playback/decode-sr`)
-}
 
 useHead({
   title: 'High-Speed Action — Targeting — RDR',
@@ -166,6 +163,11 @@ useHead({
 }
 
 .pbt__btn-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-decoration: none;
   border: none;
   border-radius: 999px;
   padding: 0.5rem 1.45rem;

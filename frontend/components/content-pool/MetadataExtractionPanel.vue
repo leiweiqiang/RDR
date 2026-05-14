@@ -27,7 +27,7 @@
       </div>
       <div class="meta__actions">
         <button type="button" class="meta__btn-generate">Generate RDR Metadata</button>
-        <button type="button" class="meta__btn-next" @click="goNext">Next</button>
+        <a :href="packagingHref" class="meta__btn-next">Next</a>
       </div>
     </div>
 
@@ -84,7 +84,7 @@ const props = defineProps<{
   poolId: string
 }>()
 
-const router = useRouter()
+const packagingHref = computed(() => `/content-pool/${props.poolId}/packaging`)
 
 const scrubPosition = ref(741)
 
@@ -94,9 +94,6 @@ const opts = reactive({
   skeleton: false,
 })
 
-function goNext() {
-  router.push(`/content-pool/${props.poolId}/packaging`)
-}
 </script>
 
 <style scoped>
@@ -186,6 +183,11 @@ function goNext() {
 }
 
 .meta__btn-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-decoration: none;
   border: none;
   border-radius: 999px;
   padding: 0.45rem 1.35rem;

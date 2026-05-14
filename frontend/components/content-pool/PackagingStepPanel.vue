@@ -20,8 +20,8 @@
         </label>
       </div>
       <div class="pkg__actions">
-        <button type="button" class="pkg__btn-primary" @click="goPackagingPlayback">Packaging</button>
-        <button type="button" class="pkg__btn-next" @click="goNext">Next</button>
+        <a :href="packagingPlaybackHref" class="pkg__btn-primary">Packaging</a>
+        <a href="/home" class="pkg__btn-next">Next</a>
       </div>
     </div>
 
@@ -80,17 +80,11 @@ const props = defineProps<{
   poolId: string
 }>()
 
-const router = useRouter()
+const packagingPlaybackHref = computed(
+  () => `/content-pool/${props.poolId}/playback/targeting`,
+)
 
 const placement = ref<'manifest' | 'video'>('manifest')
-
-function goPackagingPlayback() {
-  router.push(`/content-pool/${props.poolId}/playback/targeting`)
-}
-
-function goNext() {
-  router.push('/home')
-}
 </script>
 
 <style scoped>
@@ -220,6 +214,11 @@ function goNext() {
 }
 
 .pkg__btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-decoration: none;
   border: none;
   border-radius: 999px;
   padding: 0.55rem 1.5rem;
@@ -240,6 +239,11 @@ function goNext() {
 }
 
 .pkg__btn-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-decoration: none;
   border: none;
   border-radius: 999px;
   padding: 0.45rem 1.35rem;

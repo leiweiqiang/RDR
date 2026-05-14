@@ -12,7 +12,7 @@
         </div>
         <div class="hsa__preview-meta-row">
           <p class="hsa__preview-meta">Original: 4K, 120 fps</p>
-          <button type="button" class="hsa__btn-next" @click="goNext">Next</button>
+          <a :href="metadataExtractionHref" class="hsa__btn-next">Next</a>
         </div>
       </div>
     </div>
@@ -92,7 +92,9 @@ const props = defineProps<{
   poolId: string
 }>()
 
-const router = useRouter()
+const metadataExtractionHref = computed(
+  () => `/content-pool/${props.poolId}/metadata-extraction`,
+)
 
 const resolutionOptions = ['720 X 405', '1920 X 1080', '360 X 203', '3840 X 2160'] as const
 const fpsOptions = ['120 fps', '60 fps', '30 fps', '10 fps'] as const
@@ -136,9 +138,6 @@ function removeRow(index: number) {
   targetRows.value.splice(index, 1)
 }
 
-function goNext() {
-  router.push(`/content-pool/${props.poolId}/metadata-extraction`)
-}
 </script>
 
 <style scoped>
@@ -236,6 +235,11 @@ function goNext() {
 }
 
 .hsa__btn-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-decoration: none;
   border: none;
   border-radius: 8px;
   padding: 0.45rem 1.35rem;

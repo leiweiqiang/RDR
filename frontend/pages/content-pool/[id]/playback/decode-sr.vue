@@ -33,7 +33,7 @@
     </section>
 
     <div class="pbd__actions">
-      <button type="button" class="pbd__btn-next" @click="goNext">Next</button>
+      <a :href="playerHref" class="pbd__btn-next">Next</a>
     </div>
   </main>
 </template>
@@ -44,8 +44,9 @@ definePageMeta({
 })
 
 const route = useRoute()
-const router = useRouter()
 const poolId = computed(() => String(route.params.id))
+
+const playerHref = computed(() => `/content-pool/${poolId.value}/playback/player`)
 
 const videoRows = [
   { pct: 100 },
@@ -89,10 +90,6 @@ const videoPct = computed(() =>
 const metaPct = computed(() =>
   Math.round(metaRows.reduce((a, r) => a + r.pct, 0) / metaRows.length),
 )
-
-function goNext() {
-  router.push(`/content-pool/${poolId.value}/playback/player`)
-}
 
 useHead({
   title: 'High-Speed Action — Decode & SR — RDR',
@@ -194,6 +191,11 @@ useHead({
 }
 
 .pbd__btn-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-decoration: none;
   border: none;
   border-radius: 999px;
   padding: 0.5rem 1.45rem;
