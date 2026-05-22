@@ -45,28 +45,34 @@
           </button>
         </div>
 
-        <p v-if="transcodedStreams.length === 0" class="meta__empty">
-          No metadata results yet. Generate RDR metadata to review outputs.
+        <p v-if="reviewerItems.length === 0" class="meta__empty">
+          No target resolutions selected. Configure targets on the Targeting step first.
         </p>
         <details
-          v-for="(stream, index) in transcodedStreams"
-          :key="stream.id"
+          v-for="item in reviewerItems"
+          :key="item.resolutionLabel"
           class="meta__acc"
-          :open="index === 0"
+          :open="openLabel === item.resolutionLabel"
         >
-          <summary class="meta__acc-sum">
+          <summary
+            class="meta__acc-sum"
+            @click.prevent="openLabel = item.resolutionLabel"
+          >
             <span
               class="meta__tri"
-              :class="{ 'meta__tri--closed': index !== 0 }"
+              :class="{ 'meta__tri--closed': openLabel !== item.resolutionLabel }"
               aria-hidden="true"
             />
-            {{ formatStreamSummary(stream) }}
+            {{ item.summary }}
           </summary>
           <div v-if="cannyCoverUrl && opts.canny" class="meta__acc-body">
             <figure class="meta__thumb-block">
               <img :src="cannyCoverUrl" alt="" class="meta__thumb-img meta__thumb-img--canny" />
               <figcaption class="meta__thumb-cap">Canny Edge Extraction</figcaption>
             </figure>
+            <p v-if="!item.stream" class="meta__acc-hint">
+              Generate RDR metadata to produce output for this target.
+            </p>
           </div>
         </details>
       </aside>
@@ -75,13 +81,12 @@
 </template>
 
 <script setup lang="ts">
-import { formatStreamSummary } from '~/composables/useMetadataExtraction'
-import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import type { MetadataReviewerItem } from '~/composables/useMetadataExtraction'
 
 const props = defineProps<{
   previewImageUrl: string
   cannyCoverUrl: string
-  transcodedStreams: VideoTranscodedStreamItem[]
+  reviewerItems: MetadataReviewerItem[]
   poolId: string
   pending?: boolean
   generating?: boolean
@@ -97,6 +102,22 @@ const opts = reactive({
   canny: true,
   skeleton: false,
 })
+
+const openLabel = ref<string | null>(null)
+
+watch(
+  () => props.reviewerItems,
+  (items) => {
+    if (items.length === 0) {
+      openLabel.value = null
+      return
+    }
+    if (!items.some((item) => item.resolutionLabel === openLabel.value)) {
+      openLabel.value = items[0].resolutionLabel
+    }
+  },
+  { immediate: true },
+)
 
 </script>
 
@@ -281,6 +302,14 @@ const opts = reactive({
   margin: 0 0 0.75rem;
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.55);
+}
+
+.meta__acc-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.35;
 }
 
 .meta__acc {

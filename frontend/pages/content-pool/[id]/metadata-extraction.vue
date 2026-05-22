@@ -2,7 +2,7 @@
   <ContentPoolMetadataExtractionPanel
     :preview-image-url="previewImageUrl"
     :canny-cover-url="cannyCoverUrl"
-    :transcoded-streams="transcodedStreams"
+    :reviewer-items="reviewerItems"
     :pool-id="poolId"
     :pending="pending"
     :generating="generating"
@@ -21,7 +21,7 @@ const poolId = computed(() => String(route.params.id))
 const {
   previewImageUrl,
   cannyCoverUrl,
-  transcodedStreams,
+  reviewerItems,
   pending,
   generating,
   video,

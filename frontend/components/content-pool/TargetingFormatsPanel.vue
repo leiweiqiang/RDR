@@ -81,6 +81,15 @@
 </template>
 
 <script setup lang="ts">
+import {
+  bitrateLabelForResolution,
+  FIXED_FPS_LABEL,
+  loadTargetingResolutionRows,
+  RESOLUTION_OPTION_LABELS,
+  RESOLUTION_PRESETS,
+  saveTargetingResolutionRows,
+} from '~/utils/contentPoolTargeting'
+
 const props = defineProps<{
   previewImageUrl: string
   originalMeta: string
@@ -91,31 +100,11 @@ const metadataExtractionHref = computed(
   () => `/content-pool/${props.poolId}/metadata-extraction`,
 )
 
-type ResolutionId = '720p' | '480p' | '360p'
-
-const RESOLUTION_PRESETS: ReadonlyArray<{ id: ResolutionId; label: string }> = [
-  { id: '720p', label: '720p (720 X 405)' },
-  { id: '480p', label: '480p (480 X 270)' },
-  { id: '360p', label: '360p (360 X 203)' },
-]
-
-const resolutionOptions = RESOLUTION_PRESETS.map((p) => p.label)
-const FIXED_FPS = '30 fps'
-
-const BITRATE_BY_RESOLUTION: Record<ResolutionId, string> = {
-  '720p': '3.5 Mbps',
-  '480p': '1 Mbps',
-  '360p': '600 kbps',
-}
-
-function resolutionId(resolution: string): ResolutionId | null {
-  return RESOLUTION_PRESETS.find((p) => p.label === resolution)?.id ?? null
-}
+const resolutionOptions = RESOLUTION_OPTION_LABELS
+const FIXED_FPS = FIXED_FPS_LABEL
 
 function bitrateLabel(resolution: string): string {
-  const id = resolutionId(resolution)
-  if (!id) return '—'
-  return BITRATE_BY_RESOLUTION[id]
+  return bitrateLabelForResolution(resolution)
 }
 
 function bitrateAriaLabel(resolution: string): string {
@@ -138,6 +127,36 @@ function makeRow(partial: Partial<TargetRow> = {}): TargetRow {
 }
 
 const targetRows = ref<TargetRow[]>([makeRow()])
+
+function restoreTargetRowsFromStorage() {
+  rowId = 0
+  const saved = loadTargetingResolutionRows(props.poolId)
+  if (saved == null || saved.length === 0) {
+    targetRows.value = [makeRow()]
+    return
+  }
+  targetRows.value = saved.map((resolution) => makeRow({ resolution }))
+}
+
+restoreTargetRowsFromStorage()
+
+watch(
+  () => props.poolId,
+  () => {
+    restoreTargetRowsFromStorage()
+  },
+)
+
+watch(
+  targetRows,
+  (rows) => {
+    saveTargetingResolutionRows(
+      props.poolId,
+      rows.map((row) => row.resolution),
+    )
+  },
+  { deep: true },
+)
 
 const canAddRow = computed(
   () => targetRows.value.length < RESOLUTION_PRESETS.length,

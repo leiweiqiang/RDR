@@ -3,6 +3,21 @@ import {
   listTranscodedStreamsByVideo,
 } from '~/api/videos'
 import type { TranscodeParams, VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import {
+  apiResolutionForLabel,
+  bitrateMbpsForLabel,
+  FIXED_TARGET_FPS,
+  formatTargetingSelectionSummary,
+  loadCompleteTargetingResolutions,
+  RESOLUTION_PRESETS,
+  streamMatchesTargetingLabel,
+} from '~/utils/contentPoolTargeting'
+
+export type MetadataReviewerItem = {
+  resolutionLabel: string
+  summary: string
+  stream: VideoTranscodedStreamItem | null
+}
 
 function parseVideoId(poolId: string): number | null {
   const n = Number.parseInt(poolId, 10)
@@ -38,6 +53,19 @@ export function useMetadataExtraction(poolId: MaybeRefOrGetter<string>) {
   const cannyCoverUrl = computed(() => video.value?.canny_cover ?? '')
   const pending = computed(() => videoPending.value || streamsPending.value)
   const error = computed(() => streamsError.value ?? videoError.value)
+
+  const targetingResolutions = computed(() => loadCompleteTargetingResolutions(id.value))
+
+  const reviewerItems = computed<MetadataReviewerItem[]>(() =>
+    targetingResolutions.value.map((label) => ({
+      resolutionLabel: label,
+      summary: formatTargetingSelectionSummary(label),
+      stream:
+        transcodedStreams.value.find((s) =>
+          streamMatchesTargetingLabel(s.resolution, label),
+        ) ?? null,
+    })),
+  )
 
   async function refreshStreams() {
     const vid = videoId.value
@@ -81,22 +109,35 @@ export function useMetadataExtraction(poolId: MaybeRefOrGetter<string>) {
     generating.value = true
     generateError.value = null
 
-    const params: TranscodeParams = {
-      transcode: {
-        resolution: '1280x720',
-        fps: 30,
-        bitrate: 3.5,
-      },
-      metadata_extractor: {
-        processor: 'canny',
-        canny_gaussian_sigma: 1.4,
-        canny_lower_factor: 0.1,
-        canny_upper_factor: 0.3,
-      },
-    }
+    const savedResolutions = loadCompleteTargetingResolutions(id.value)
+    const resolutionLabels =
+      savedResolutions.length > 0
+        ? savedResolutions
+        : [RESOLUTION_PRESETS[0].label]
+
+    const params: TranscodeParams[] = resolutionLabels.map((label) => {
+      const resolution = apiResolutionForLabel(label)
+      const bitrate = bitrateMbpsForLabel(label)
+      if (!resolution || bitrate == null) {
+        throw new Error(`Invalid targeting resolution: ${label}`)
+      }
+      return {
+        transcode: {
+          resolution,
+          fps: FIXED_TARGET_FPS,
+          bitrate,
+        },
+        metadata_extractor: {
+          processor: 'canny',
+          canny_gaussian_sigma: 1.4,
+          canny_lower_factor: 0.1,
+          canny_upper_factor: 0.3,
+        },
+      }
+    })
 
     try {
-      await createTranscodeTasks(vid, { params: [params] })
+      await createTranscodeTasks(vid, { params })
       await refreshStreams()
       return true
     } catch (err) {
@@ -112,6 +153,8 @@ export function useMetadataExtraction(poolId: MaybeRefOrGetter<string>) {
     previewImageUrl,
     cannyCoverUrl,
     transcodedStreams,
+    reviewerItems,
+    targetingResolutions,
     pending,
     error,
     generating,
