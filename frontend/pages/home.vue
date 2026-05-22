@@ -109,6 +109,10 @@
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 
+definePageMeta({
+  ssr: false,
+})
+
 const { categories, pending, error, refresh } = useCategories()
 
 const selectedId = ref<string>('')

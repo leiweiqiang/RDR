@@ -1,13 +1,14 @@
 import type { FetchOptions } from 'ofetch'
+import { getPublicApiKey } from '~/utils/api-key'
 
 export function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
-  const config = useRuntimeConfig()
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string> | undefined),
   }
 
-  if (config.public.apiKey) {
-    headers['X-API-Key'] = config.public.apiKey
+  const apiKey = getPublicApiKey()
+  if (apiKey) {
+    headers['X-API-Key'] = apiKey
   }
 
   return $fetch<T>(path, {

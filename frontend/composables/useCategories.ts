@@ -39,9 +39,9 @@ export function useCategories() {
     }
   }
 
-  onMounted(() => {
-    refresh()
-  })
+  if (import.meta.client) {
+    void refresh()
+  }
 
   return {
     categories,

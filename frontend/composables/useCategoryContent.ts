@@ -75,9 +75,9 @@ export function useCategoryContent(categoryName: string) {
     }
   }
 
-  onMounted(() => {
-    refresh()
-  })
+  if (import.meta.client) {
+    void refresh()
+  }
 
   return {
     categoryTitle,

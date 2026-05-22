@@ -135,6 +135,10 @@
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 
+definePageMeta({
+  ssr: false,
+})
+
 const CATEGORY_NAME = 'high-speed-action'
 
 const { categoryTitle, contentPool, streamingFiles, pending, error, refresh } =
