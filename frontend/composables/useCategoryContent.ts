@@ -20,12 +20,6 @@ export type StreamingFileItem = {
   to: string
 }
 
-type CategoryContentData = {
-  categoryTitle: string
-  contentPool: ContentPoolItem[]
-  streamingFiles: StreamingFileItem[]
-}
-
 function toContentPoolItem(video: RawVideoListItem): ContentPoolItem {
   return {
     id: video.id,
@@ -45,9 +39,17 @@ function toStreamingFileItem(stream: TranscodedStreamListItem): StreamingFileIte
 }
 
 export function useCategoryContent(categoryName: string) {
-  const { data, pending, error, refresh } = useLazyAsyncData(
-    `category-content-${categoryName}`,
-    async (): Promise<CategoryContentData> => {
+  const categoryTitle = ref('')
+  const contentPool = ref<ContentPoolItem[]>([])
+  const streamingFiles = ref<StreamingFileItem[]>([])
+  const pending = ref(true)
+  const error = ref<Error | null>(null)
+
+  async function refresh() {
+    pending.value = true
+    error.value = null
+
+    try {
       const categoriesResponse = await listCategories({ per_page: 100 })
       const category = categoriesResponse.data.find((item) => item.name === categoryName)
 
@@ -60,20 +62,22 @@ export function useCategoryContent(categoryName: string) {
         listTranscodedStreamsByCategory(category.id, { per_page: 100 }),
       ])
 
-      return {
-        categoryTitle: category.title,
-        contentPool: videosResponse.data.map(toContentPoolItem),
-        streamingFiles: streamsResponse.data.map(toStreamingFileItem),
-      }
-    },
-    {
-      server: false,
-    },
-  )
+      categoryTitle.value = category.title
+      contentPool.value = videosResponse.data.map(toContentPoolItem)
+      streamingFiles.value = streamsResponse.data.map(toStreamingFileItem)
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err))
+      categoryTitle.value = ''
+      contentPool.value = []
+      streamingFiles.value = []
+    } finally {
+      pending.value = false
+    }
+  }
 
-  const categoryTitle = computed(() => data.value?.categoryTitle ?? '')
-  const contentPool = computed(() => data.value?.contentPool ?? [])
-  const streamingFiles = computed(() => data.value?.streamingFiles ?? [])
+  onMounted(() => {
+    void refresh()
+  })
 
   return {
     categoryTitle,

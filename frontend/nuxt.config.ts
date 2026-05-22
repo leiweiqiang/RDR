@@ -57,4 +57,13 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2025-05-01',
+  devServer: {
+    host: '0.0.0.0',
+  },
+  vite: {
+    server: {
+      // Allow access via reverse proxy hostnames (e.g. rdr.tcl-research.us).
+      allowedHosts: true,
+    },
+  },
 })

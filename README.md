@@ -42,6 +42,8 @@ The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an
    docker compose --profile dev up -d --build
    ```
 
+   Or run `./build.sh` (same as above; loads `frontend/.env`).
+
 3. Open (defaults from the table above; replace the port if you overrode it in `.env`):
 
    - Frontend: http://localhost:3108
@@ -51,13 +53,16 @@ The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an
 
    The backend sets `API_ROOT_PATH=/api` in Compose so Swagger loads `/api/openapi.json` through the same proxy. For interactive docs on the published backend port only, run the backend with `API_ROOT_PATH` unset.
 
-**Production static frontend:** ensure API env vars are set (root `.env` or `frontend/.env`), then:
+**Production static frontend** (recommended for public URLs like `rdr.tcl-research.us`): ensure API env vars are in `frontend/.env`, then:
 
 ```bash
-docker compose --env-file frontend/.env --profile prod up -d --build
+./build-prod.sh
+# or: docker compose --env-file frontend/.env --profile prod up -d --build
 ```
 
-Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`). For dev, the same `--env-file frontend/.env` flag applies if variables are not in the project root `.env`.
+Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`).
+
+Use **`build.sh` / profile `dev`** only for local development (`localhost`). Do not expose the Nuxt dev server (`buildId: "dev"`) on a public domain — client-side API calls and Vite HMR are unreliable behind HTTPS reverse proxies.
 
 ## Example endpoints
 

@@ -20,19 +20,28 @@ function toCategoryCard(category: CategoryResponse): CategoryCard {
 }
 
 export function useCategories() {
-  const { data, pending, error, refresh } = useLazyAsyncData(
-    'categories-list',
-    async () => {
-      const response = await listCategories({ per_page: 100 })
-      return response.data.map(toCategoryCard)
-    },
-    {
-      server: false,
-      default: () => [] as CategoryCard[],
-    },
-  )
+  const categories = ref<CategoryCard[]>([])
+  const pending = ref(true)
+  const error = ref<Error | null>(null)
 
-  const categories = computed(() => data.value ?? [])
+  async function refresh() {
+    pending.value = true
+    error.value = null
+
+    try {
+      const response = await listCategories({ per_page: 100 })
+      categories.value = response.data.map(toCategoryCard)
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err))
+      categories.value = []
+    } finally {
+      pending.value = false
+    }
+  }
+
+  onMounted(() => {
+    void refresh()
+  })
 
   return {
     categories,
