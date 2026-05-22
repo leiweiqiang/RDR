@@ -27,9 +27,9 @@ If you change a value in `.env`, use that port in the URLs below instead of the 
 The browser calls the backend via **`/api/...`**. The `/api` prefix is stripped and requests are forwarded to the FastAPI service (`/` on the backend container).
 
 - **Development:** a Nitro handler in `frontend/server/api/[...path].ts` proxies to `NUXT_API_PROXY_TARGET` (Compose sets this to `http://backend:8000`).
-- **Production (Compose `prod` profile):** Nginx (`frontend/nginx.prod.conf`) proxies `/api/` to `http://backend:8000/`.
+- **Production (Compose `prod` profile):** Nginx (`frontend/nginx.prod.conf.template`) proxies `/api/` to `NUXT_API_PROXY_TARGET` (same strip rule as dev).
 
-Example: `GET /api/health` → upstream `GET http://backend:8000/health`.
+Example: `GET /api/v1/categories?per_page=100` with `NUXT_API_PROXY_TARGET=https://54.177.12.118/rdr-backend/api` → upstream `GET https://54.177.12.118/rdr-backend/api/v1/categories?per_page=100`.
 
 The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an extra `--` (using `pnpm run dev -- --host ...` would break routing).
 

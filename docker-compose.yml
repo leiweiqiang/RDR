@@ -73,6 +73,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
+      args:
+        NUXT_PUBLIC_API_KEY: ${NUXT_PUBLIC_API_KEY:-}
     container_name: rdr-frontend-prod
     restart: unless-stopped
     depends_on:
@@ -80,6 +82,8 @@ services:
         condition: service_healthy
     ports:
       - "${FRONTEND_PROD_PUBLISH_PORT:-8188}:80"
+    environment:
+      NUXT_API_PROXY_TARGET: ${NUXT_API_PROXY_TARGET:-http://backend:8000}
 
 volumes:
   postgres_data:
