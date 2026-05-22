@@ -367,8 +367,10 @@ useHead({
 
 .home__card-text {
   flex: 0 0 auto;
+  margin-top: auto;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 0.2rem;
   padding: clamp(0.65rem, 1.4vw, 0.9rem) clamp(0.5rem, 1.2vw, 0.65rem) clamp(0.75rem, 1.6vw, 1rem);
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%);

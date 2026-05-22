@@ -46,12 +46,41 @@
           <div class="hsa__section-head">
             <h2 id="hsa-pool-title" class="hsa__section-title">Content Pool</h2>
             <div class="hsa__toolbar" role="toolbar" aria-label="Content pool filters">
-              <button type="button" class="hsa__icon-btn" aria-label="Search content pool">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="M20 20l-3-3" stroke-linecap="round" />
-                </svg>
-              </button>
+              <div class="hsa__search-wrap">
+                <button
+                  type="button"
+                  class="hsa__icon-btn"
+                  :class="{ 'hsa__icon-btn--active': poolSearchOpen }"
+                  :aria-expanded="poolSearchOpen"
+                  aria-controls="hsa-pool-search"
+                  aria-label="Search content pool"
+                  @click="togglePoolSearch"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M20 20l-3-3" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <div
+                  id="hsa-pool-search"
+                  class="hsa__search-field"
+                  :class="{ 'hsa__search-field--open': poolSearchOpen }"
+                >
+                  <div class="hsa__search-field-inner">
+                    <label class="visually-hidden" for="hsa-pool-search-input">Search content pool</label>
+                    <input
+                      id="hsa-pool-search-input"
+                      ref="poolSearchInput"
+                      v-model="poolSearchQuery"
+                      type="search"
+                      class="hsa__search-input"
+                      placeholder="Search…"
+                      autocomplete="off"
+                      @keydown.esc="closePoolSearch"
+                    />
+                  </div>
+                </div>
+              </div>
               <div
                 v-for="field in filterFields"
                 :key="field.key"
@@ -70,7 +99,7 @@
             </div>
           </div>
           <ul class="hsa__grid hsa__grid--pool" role="list">
-            <li v-for="item in contentPool" :key="item.id" class="hsa__tile">
+            <li v-for="item in filteredContentPool" :key="item.id" class="hsa__tile">
               <NuxtLink :to="item.to" class="hsa__card">
                 <span class="hsa__card-visual">
                   <img :src="item.imageUrl" :alt="item.title" loading="lazy" decoding="async" />
@@ -87,12 +116,41 @@
           <div class="hsa__section-head">
             <h2 id="hsa-stream-title" class="hsa__section-title">Streaming Files</h2>
             <div class="hsa__toolbar" role="toolbar" aria-label="Streaming files filters">
-              <button type="button" class="hsa__icon-btn" aria-label="Search streaming files">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="M20 20l-3-3" stroke-linecap="round" />
-                </svg>
-              </button>
+              <div class="hsa__search-wrap">
+                <button
+                  type="button"
+                  class="hsa__icon-btn"
+                  :class="{ 'hsa__icon-btn--active': streamSearchOpen }"
+                  :aria-expanded="streamSearchOpen"
+                  aria-controls="hsa-stream-search"
+                  aria-label="Search streaming files"
+                  @click="toggleStreamSearch"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M20 20l-3-3" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <div
+                  id="hsa-stream-search"
+                  class="hsa__search-field"
+                  :class="{ 'hsa__search-field--open': streamSearchOpen }"
+                >
+                  <div class="hsa__search-field-inner">
+                    <label class="visually-hidden" for="hsa-stream-search-input">Search streaming files</label>
+                    <input
+                      id="hsa-stream-search-input"
+                      ref="streamSearchInput"
+                      v-model="streamSearchQuery"
+                      type="search"
+                      class="hsa__search-input"
+                      placeholder="Search…"
+                      autocomplete="off"
+                      @keydown.esc="closeStreamSearch"
+                    />
+                  </div>
+                </div>
+              </div>
               <div
                 v-for="field in filterFields"
                 :key="field.key"
@@ -111,7 +169,7 @@
             </div>
           </div>
           <ul class="hsa__grid hsa__grid--stream" role="list">
-            <li v-for="item in streamingFiles" :key="item.id" class="hsa__tile">
+            <li v-for="item in filteredStreamingFiles" :key="item.id" class="hsa__tile">
               <NuxtLink :to="item.to" class="hsa__card hsa__card--stream">
                 <span class="hsa__folder-tab" aria-hidden="true" />
                 <span class="hsa__card-visual">
@@ -171,6 +229,55 @@ const streamFilters = ref<Record<FilterKey, string>>({
   type: '.mov',
   size: 'Small to Large',
 })
+
+const poolSearchOpen = ref(false)
+const streamSearchOpen = ref(false)
+const poolSearchQuery = ref('')
+const streamSearchQuery = ref('')
+const poolSearchInput = ref<HTMLInputElement | null>(null)
+const streamSearchInput = ref<HTMLInputElement | null>(null)
+
+function filterByQuery<T extends { title: string }>(items: T[], query: string): T[] {
+  const q = query.trim().toLowerCase()
+  if (!q) return items
+  return items.filter((item) => item.title.toLowerCase().includes(q))
+}
+
+const filteredContentPool = computed(() =>
+  filterByQuery(contentPool.value, poolSearchQuery.value),
+)
+
+const filteredStreamingFiles = computed(() =>
+  filterByQuery(streamingFiles.value, streamSearchQuery.value),
+)
+
+function togglePoolSearch() {
+  poolSearchOpen.value = !poolSearchOpen.value
+  if (!poolSearchOpen.value) {
+    poolSearchQuery.value = ''
+    return
+  }
+  nextTick(() => poolSearchInput.value?.focus())
+}
+
+function closePoolSearch() {
+  poolSearchOpen.value = false
+  poolSearchQuery.value = ''
+}
+
+function toggleStreamSearch() {
+  streamSearchOpen.value = !streamSearchOpen.value
+  if (!streamSearchOpen.value) {
+    streamSearchQuery.value = ''
+    return
+  }
+  nextTick(() => streamSearchInput.value?.focus())
+}
+
+function closeStreamSearch() {
+  streamSearchOpen.value = false
+  streamSearchQuery.value = ''
+}
 
 useHead(() => ({
   title: `${categoryTitle.value || 'High-Speed Action'} — Content — RDR`,
@@ -296,7 +403,7 @@ useHead(() => ({
 .hsa__header-brand {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: clamp(0.75rem, 2vw, 1.5rem);
   min-width: 0;
 }
@@ -393,7 +500,7 @@ useHead(() => ({
 .hsa__section-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
   gap: 0.75rem 1rem;
 }
@@ -438,9 +545,70 @@ useHead(() => ({
   background: rgba(255, 255, 255, 0.06);
 }
 
+.hsa__icon-btn--active {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .hsa__icon-btn svg {
   width: 1rem;
   height: 1rem;
+}
+
+.hsa__search-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.hsa__search-field {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 0.22s ease;
+  align-items: flex-end;
+}
+
+.hsa__search-field--open {
+  grid-template-columns: 1fr;
+}
+
+.hsa__search-field-inner {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.hsa__search-input {
+  box-sizing: border-box;
+  min-width: 0;
+  width: clamp(8rem, 18vw, 12.5rem);
+  height: 2.1rem;
+  padding: 0 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.hsa__search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.hsa__search-input:focus {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.hsa__search-input::-webkit-search-cancel-button {
+  cursor: pointer;
 }
 
 .hsa__filter {
