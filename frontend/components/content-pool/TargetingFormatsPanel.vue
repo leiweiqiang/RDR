@@ -4,14 +4,9 @@
       <div class="hsa__preview-card">
         <div class="hsa__preview-thumb">
           <img :src="previewImageUrl" alt="Source video preview" loading="lazy" decoding="async" />
-          <button type="button" class="hsa__play" aria-label="Play preview">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M8 5v14l11-7L8 5z" />
-            </svg>
-          </button>
         </div>
         <div class="hsa__preview-meta-row">
-          <p class="hsa__preview-meta">Original: 4K, 120 fps</p>
+          <p class="hsa__preview-meta">{{ originalMeta }}</p>
           <a :href="metadataExtractionHref" class="hsa__btn-next">Next</a>
         </div>
       </div>
@@ -39,7 +34,7 @@
               <span class="visually-hidden">Resolution</span>
               <AppStringSelect
                 v-model="row.resolution"
-                :options="resolutionOptions"
+                :options="resolutionOptionsForRow(index)"
                 placeholder="Resolution"
                 aria-label="Resolution"
                 trigger-class="hsa__select-trigger hsa__select-trigger--panel"
@@ -47,30 +42,29 @@
             </div>
             <div class="hsa__field">
               <span class="visually-hidden">Frames per second</span>
-              <AppStringSelect
-                v-model="row.fps"
-                :options="fpsOptions"
-                placeholder="Frames"
-                aria-label="Frames per second"
-                trigger-class="hsa__select-trigger hsa__select-trigger--panel"
-              />
+              <div class="hsa__field-fixed" :aria-label="`Frames per second: ${FIXED_FPS}`">{{ FIXED_FPS }}</div>
             </div>
             <div class="hsa__field">
               <span class="visually-hidden">Bitrate</span>
-              <AppStringSelect
-                v-model="row.bitrate"
-                :options="bitrateOptions"
-                placeholder="Bits"
-                aria-label="Bitrate in Mbps"
-                trigger-class="hsa__select-trigger hsa__select-trigger--panel"
-              />
+              <div
+                class="hsa__field-fixed"
+                :aria-label="bitrateAriaLabel(row.resolution)"
+              >
+                {{ bitrateLabel(row.resolution) }}
+              </div>
             </div>
             <div class="hsa__row-actions">
-              <button type="button" class="hsa__icon-square hsa__icon-square--add" aria-label="Add target row" @click="addRowAfter(index)">
+              <button
+                type="button"
+                class="hsa__icon-square hsa__icon-square--add"
+                aria-label="Add target row"
+                :disabled="!canAddRow"
+                @click="addRowAfter(index)"
+              >
                 +
               </button>
               <button
-                v-if="index > 0"
+                v-if="targetRows.length > 1"
                 type="button"
                 class="hsa__icon-square hsa__icon-square--remove"
                 aria-label="Remove this row"
@@ -89,6 +83,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   previewImageUrl: string
+  originalMeta: string
   poolId: string
 }>()
 
@@ -96,15 +91,41 @@ const metadataExtractionHref = computed(
   () => `/content-pool/${props.poolId}/metadata-extraction`,
 )
 
-const resolutionOptions = ['720 X 405', '1920 X 1080', '360 X 203', '3840 X 2160'] as const
-const fpsOptions = ['120 fps', '60 fps', '30 fps', '10 fps'] as const
-const bitrateOptions = ['100 Mbps', '50 Mbps', '30 Mbps', '10 Mbps', '2 Mbps'] as const
+type ResolutionId = '720p' | '480p' | '360p'
+
+const RESOLUTION_PRESETS: ReadonlyArray<{ id: ResolutionId; label: string }> = [
+  { id: '720p', label: '720p (720 X 405)' },
+  { id: '480p', label: '480p (480 X 270)' },
+  { id: '360p', label: '360p (360 X 203)' },
+]
+
+const resolutionOptions = RESOLUTION_PRESETS.map((p) => p.label)
+const FIXED_FPS = '30 fps'
+
+const BITRATE_BY_RESOLUTION: Record<ResolutionId, string> = {
+  '720p': '3.5 Mbps',
+  '480p': '1 Mbps',
+  '360p': '600 kbps',
+}
+
+function resolutionId(resolution: string): ResolutionId | null {
+  return RESOLUTION_PRESETS.find((p) => p.label === resolution)?.id ?? null
+}
+
+function bitrateLabel(resolution: string): string {
+  const id = resolutionId(resolution)
+  if (!id) return '—'
+  return BITRATE_BY_RESOLUTION[id]
+}
+
+function bitrateAriaLabel(resolution: string): string {
+  const label = bitrateLabel(resolution)
+  return resolution ? `Bitrate: ${label}` : 'Bitrate'
+}
 
 type TargetRow = {
   id: string
   resolution: string
-  fps: string
-  bitrate: string
 }
 
 let rowId = 0
@@ -113,28 +134,35 @@ function makeRow(partial: Partial<TargetRow> = {}): TargetRow {
   return {
     id: `r-${rowId}`,
     resolution: partial.resolution ?? '',
-    fps: partial.fps ?? '',
-    bitrate: partial.bitrate ?? '',
   }
 }
 
-const targetRows = ref<TargetRow[]>([
-  makeRow({ resolution: '720 X 405', fps: '120 fps', bitrate: '100 Mbps' }),
-  makeRow({ resolution: '1920 X 1080', fps: '30 fps', bitrate: '30 Mbps' }),
-  makeRow({ resolution: '360 X 203', fps: '10 fps', bitrate: '2 Mbps' }),
-  makeRow(),
-])
+const targetRows = ref<TargetRow[]>([makeRow()])
+
+const canAddRow = computed(
+  () => targetRows.value.length < RESOLUTION_PRESETS.length,
+)
+
+function resolutionOptionsForRow(rowIndex: number): string[] {
+  const usedByOthers = new Set(
+    targetRows.value
+      .map((row, i) => (i !== rowIndex ? row.resolution : ''))
+      .filter(Boolean),
+  )
+  return resolutionOptions.filter((opt) => !usedByOthers.has(opt))
+}
 
 function isRowComplete(row: TargetRow) {
-  return !!(row.resolution && row.fps && row.bitrate)
+  return !!row.resolution
 }
 
 function addRowAfter(index: number) {
+  if (!canAddRow.value) return
   targetRows.value.splice(index + 1, 0, makeRow())
 }
 
 function removeRow(index: number) {
-  if (index <= 0 || targetRows.value.length <= 1) return
+  if (targetRows.value.length <= 1) return
   targetRows.value.splice(index, 1)
 }
 
@@ -187,36 +215,6 @@ function removeRow(index: number) {
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.hsa__play {
-  position: absolute;
-  left: 0.65rem;
-  bottom: 0.65rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  color: #111;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.hsa__play:hover {
-  transform: scale(1.04);
-  background: #fff;
-}
-
-.hsa__play svg {
-  width: 1rem;
-  height: 1rem;
-  margin-left: 2px;
 }
 
 .hsa__preview-meta-row {
@@ -365,6 +363,22 @@ function removeRow(index: number) {
   opacity: 1;
 }
 
+.hsa__field-fixed {
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #666;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+  cursor: not-allowed;
+  user-select: none;
+}
+
 .hsa__row-actions {
   display: flex;
   align-items: center;
@@ -391,6 +405,18 @@ function removeRow(index: number) {
   color: #000;
   background: #00e676;
   border-color: rgba(0, 230, 118, 0.65);
+}
+
+.hsa__icon-square--add:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.hsa__icon-square--add:disabled:hover {
+  filter: none;
+  transform: none;
 }
 
 .hsa__icon-square--remove {

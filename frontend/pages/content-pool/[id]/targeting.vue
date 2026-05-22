@@ -1,5 +1,9 @@
 <template>
-  <ContentPoolTargetingFormatsPanel :preview-image-url="previewImageUrl" :pool-id="poolId" />
+  <ContentPoolTargetingFormatsPanel
+    :preview-image-url="previewImageUrl"
+    :original-meta="originalMeta"
+    :pool-id="poolId"
+  />
 </template>
 
 <script setup lang="ts">
@@ -9,15 +13,17 @@ definePageMeta({
 
 const route = useRoute()
 const poolId = computed(() => String(route.params.id))
-const { previewImageUrl } = useContentPoolPreview(poolId)
+const { previewImageUrl, originalMeta, video } = useContentPoolVideo(poolId)
 
-useHead({
-  title: 'High-Speed Action — Targeting — RDR',
+useHead(() => ({
+  title: video.value?.name
+    ? `${video.value.name} — Targeting — RDR`
+    : 'High-Speed Action — Targeting — RDR',
   meta: [
     {
       name: 'description',
       content: 'Select target output formats (resolution, frame rate, bitrate) for high-speed action content.',
     },
   ],
-})
+}))
 </script>
