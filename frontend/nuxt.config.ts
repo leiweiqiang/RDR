@@ -52,5 +52,10 @@ export default defineNuxtConfig({
   routeRules: {
     '/api/**': { prerender: false },
   },
+  runtimeConfig: {
+    public: {
+      apiKey: process.env.NUXT_PUBLIC_API_KEY || '',
+    },
+  },
   compatibilityDate: '2025-05-01',
 })

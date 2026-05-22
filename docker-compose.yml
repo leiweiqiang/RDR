@@ -65,7 +65,8 @@ services:
     ports:
       - "${FRONTEND_PUBLISH_PORT:-3108}:3000"
     environment:
-      NUXT_API_PROXY_TARGET: http://backend:8000
+      NUXT_API_PROXY_TARGET: ${NUXT_API_PROXY_TARGET:-http://backend:8000}
+      NUXT_PUBLIC_API_KEY: ${NUXT_PUBLIC_API_KEY:-}
 
   frontend-prod:
     profiles: [prod]

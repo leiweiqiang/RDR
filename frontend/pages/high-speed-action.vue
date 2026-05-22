@@ -28,12 +28,20 @@
           <nav class="hsa__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="hsa__crumb">Home</NuxtLink>
             <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
-            <span class="hsa__crumb hsa__crumb--current">High-Speed Action</span>
+            <span class="hsa__crumb hsa__crumb--current">{{ categoryTitle || 'High-Speed Action' }}</span>
           </nav>
         </div>
       </header>
 
       <main class="hsa__main">
+        <div v-if="pending" class="hsa__status" role="status">
+          Loading content...
+        </div>
+        <div v-else-if="error" class="hsa__status hsa__status--error" role="alert">
+          <p>Failed to load content.</p>
+          <button type="button" class="hsa__retry" @click="refresh()">Retry</button>
+        </div>
+        <template v-else>
         <section class="hsa__section" aria-labelledby="hsa-pool-title">
           <div class="hsa__section-head">
             <h2 id="hsa-pool-title" class="hsa__section-title">Content Pool</h2>
@@ -44,43 +52,18 @@
                   <path d="M20 20l-3-3" stroke-linecap="round" />
                 </svg>
               </button>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Time</span>
+              <div
+                v-for="field in filterFields"
+                :key="field.key"
+                class="hsa__filter"
+              >
+                <label class="hsa__filter-label" :for="`pool-${field.key}`">{{ field.label }}</label>
                 <AppStringSelect
-                  v-model="poolFilters.time"
-                  :options="timeOptions"
-                  placeholder="Time"
-                  aria-label="Time"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Resolution</span>
-                <AppStringSelect
-                  v-model="poolFilters.resolution"
-                  :options="resolutionOptions"
-                  placeholder="Resolution"
-                  aria-label="Resolution"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Type</span>
-                <AppStringSelect
-                  v-model="poolFilters.type"
-                  :options="typeOptions"
-                  placeholder="Type"
-                  aria-label="Type"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Size</span>
-                <AppStringSelect
-                  v-model="poolFilters.size"
-                  :options="sizeOptions"
-                  placeholder="Size"
-                  aria-label="Size"
+                  :id="`pool-${field.key}`"
+                  v-model="poolFilters[field.key]"
+                  :options="field.options"
+                  :placeholder="field.label"
+                  :aria-label="field.label"
                   trigger-class="hsa__select-trigger"
                 />
               </div>
@@ -110,43 +93,18 @@
                   <path d="M20 20l-3-3" stroke-linecap="round" />
                 </svg>
               </button>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Time</span>
+              <div
+                v-for="field in filterFields"
+                :key="field.key"
+                class="hsa__filter"
+              >
+                <label class="hsa__filter-label" :for="`stream-${field.key}`">{{ field.label }}</label>
                 <AppStringSelect
-                  v-model="streamFilters.time"
-                  :options="timeOptions"
-                  placeholder="Time"
-                  aria-label="Time"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Resolution</span>
-                <AppStringSelect
-                  v-model="streamFilters.resolution"
-                  :options="resolutionOptions"
-                  placeholder="Resolution"
-                  aria-label="Resolution"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Type</span>
-                <AppStringSelect
-                  v-model="streamFilters.type"
-                  :options="typeOptions"
-                  placeholder="Type"
-                  aria-label="Type"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-              <div class="hsa__filter">
-                <span class="visually-hidden">Size</span>
-                <AppStringSelect
-                  v-model="streamFilters.size"
-                  :options="sizeOptions"
-                  placeholder="Size"
-                  aria-label="Size"
+                  :id="`stream-${field.key}`"
+                  v-model="streamFilters[field.key]"
+                  :options="field.options"
+                  :placeholder="field.label"
+                  :aria-label="field.label"
                   trigger-class="hsa__select-trigger"
                 />
               </div>
@@ -164,6 +122,7 @@
             </li>
           </ul>
         </section>
+        </template>
       </main>
 
       <footer class="hsa__footer">
@@ -175,79 +134,53 @@
 
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
-import nba1Url from '~/assets/nba1.png?url'
-import nba2Url from '~/assets/nba2.png?url'
-import nba3Url from '~/assets/nba3.png?url'
-import streaming1Url from '~/assets/streaming1.png?url'
-import streaming2Url from '~/assets/streaming2.png?url'
 
-type PoolItem = { id: string; title: string; imageUrl: string; to: string }
-type StreamItem = { id: string; title: string; imageUrl: string; to: string }
+const CATEGORY_NAME = 'high-speed-action'
 
-const contentPool: PoolItem[] = [
-  {
-    id: 'pool-1',
-    title: 'NBA All-Star Game 2026 1',
-    imageUrl: nba1Url,
-    to: '/content-pool/pool-1/targeting',
-  },
-  {
-    id: 'pool-2',
-    title: 'NBA All-Star Game 2026 2',
-    imageUrl: nba2Url,
-    to: '/content-pool/pool-2/targeting',
-  },
-  {
-    id: 'pool-3',
-    title: 'NBA All-Star Game 2026 3',
-    imageUrl: nba3Url,
-    to: '/content-pool/pool-3/targeting',
-  },
-]
-
-const streamingFiles: StreamItem[] = [
-  {
-    id: 'sf-1',
-    title: 'Streaming File Name_Gun…',
-    imageUrl: streaming1Url,
-    to: '/streaming_file/gunfight',
-  },
-  {
-    id: 'sf-2',
-    title: 'Streaming File Name_F1…',
-    imageUrl: streaming2Url,
-    to: '/streaming_file/f1',
-  },
-]
+const { categoryTitle, contentPool, streamingFiles, pending, error, refresh } =
+  useCategoryContent(CATEGORY_NAME)
 
 const timeOptions = ['All', 'Last Week', 'Last Month', 'Last Year'] as const
 const resolutionOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] as const
 const typeOptions = ['All', '.mp4', '.mov'] as const
 const sizeOptions = ['All', 'Large to Small', 'Small to Large'] as const
 
-const poolFilters = ref({
+type FilterKey = 'time' | 'resolution' | 'type' | 'size'
+
+const filterFields: Array<{
+  key: FilterKey
+  label: string
+  options: readonly string[]
+}> = [
+  { key: 'time', label: 'Time', options: timeOptions },
+  { key: 'resolution', label: 'Resolution', options: resolutionOptions },
+  { key: 'type', label: 'Type', options: typeOptions },
+  { key: 'size', label: 'Size', options: sizeOptions },
+]
+
+const poolFilters = ref<Record<FilterKey, string>>({
   time: 'All',
   resolution: '2K',
   type: '.mov',
   size: 'Small to Large',
 })
 
-const streamFilters = ref({
+const streamFilters = ref<Record<FilterKey, string>>({
   time: 'All',
   resolution: '2K',
   type: '.mov',
   size: 'Small to Large',
 })
 
-useHead({
-  title: 'High-Speed Action — Content — RDR',
+useHead(() => ({
+  title: `${categoryTitle.value || 'High-Speed Action'} — Content — RDR`,
   link: [
     {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
     },
   ],
-})
+}))
 </script>
 
 <style scoped>
@@ -428,6 +361,35 @@ useHead({
   min-width: 0;
 }
 
+.hsa__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 8rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.hsa__status--error p {
+  margin: 0;
+}
+
+.hsa__retry {
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hsa__retry:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .hsa__section-head {
   display: flex;
   flex-wrap: wrap;
@@ -447,7 +409,7 @@ useHead({
 .hsa__toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.45rem;
   justify-content: flex-start;
 }
@@ -482,7 +444,19 @@ useHead({
 }
 
 .hsa__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   min-width: 0;
+}
+
+.hsa__filter-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.2;
 }
 
 :deep(.hsa__select-trigger) {

@@ -36,16 +36,23 @@
       </header>
 
       <main class="home__main">
-        <div class="home__cards" role="listbox" aria-label="Video quality categories">
+        <div v-if="pending" class="home__status" role="status">
+          Loading categories...
+        </div>
+        <div v-else-if="error" class="home__status home__status--error" role="alert">
+          <p>Failed to load categories.</p>
+          <button type="button" class="home__retry" @click="refresh()">Retry</button>
+        </div>
+        <div v-else class="home__cards" role="listbox" aria-label="Video quality categories">
           <template v-for="cat in categories" :key="cat.id">
             <NuxtLink
-              v-if="cat.id === 'action'"
+              v-if="cat.name === 'high-speed-action'"
               to="/high-speed-action"
               role="option"
               class="home__card"
-              :class="{ 'home__card--selected': selectedId === cat.id }"
-              :aria-selected="selectedId === cat.id"
-              @click="selectedId = cat.id"
+              :class="{ 'home__card--selected': selectedId === cat.name }"
+              :aria-selected="selectedId === cat.name"
+              @click="selectedId = cat.name"
             >
               <div class="home__card-visual" :class="{ 'home__card-visual--single': cat.images.length === 1 }">
                 <img
@@ -68,9 +75,9 @@
               type="button"
               role="option"
               class="home__card"
-              :class="{ 'home__card--selected': selectedId === cat.id }"
-              :aria-selected="selectedId === cat.id"
-              @click="selectedId = cat.id"
+              :class="{ 'home__card--selected': selectedId === cat.name }"
+              :aria-selected="selectedId === cat.name"
+              @click="selectedId = cat.name"
             >
               <div class="home__card-visual" :class="{ 'home__card-visual--single': cat.images.length === 1 }">
                 <img
@@ -101,46 +108,20 @@
 
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
-import highSpeedActionUrl from '~/assets/high-speed-action.png?url'
-import complexTexturesUrl from '~/assets/complex-textures.png?url'
-import lowLightDarkGradientsUrl from '~/assets/low-light-dark-gradients.png?url'
-import randomParticlesStrobingUrl from '~/assets/random-particles-strobing.png?url'
 
-type Category = {
-  id: string
-  title: string
-  subtitle: string
-  images: string[]
-}
+const { categories, pending, error, refresh } = useCategories()
 
-const categories: Category[] = [
-  {
-    id: 'action',
-    title: 'High-Speed Action',
-    subtitle: '(Motion Blur & Stuttering)',
-    images: [highSpeedActionUrl],
-  },
-  {
-    id: 'textures',
-    title: 'Complex Textures',
-    subtitle: '(Graininess)',
-    images: [complexTexturesUrl],
-  },
-  {
-    id: 'lowlight',
-    title: 'Low-Light & Dark Gradients',
-    subtitle: '(Color Banding)',
-    images: [lowLightDarkGradientsUrl],
-  },
-  {
-    id: 'particles',
-    title: 'Random Particles & Strobing',
-    subtitle: '(Flicker/Noise)',
-    images: [randomParticlesStrobingUrl],
-  },
-]
+const selectedId = ref<string>('')
 
-const selectedId = ref<string>('action')
+watch(
+  categories,
+  (items) => {
+    if (items.length > 0 && !selectedId.value) {
+      selectedId.value = items[0].name
+    }
+  },
+  { immediate: true },
+)
 
 useHead({
   title: 'Home — RDR',
@@ -295,6 +276,35 @@ useHead({
   justify-content: center;
   min-height: 0;
   padding-block: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.home__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: min(68dvh, 720px);
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.home__status--error p {
+  margin: 0;
+}
+
+.home__retry {
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.home__retry:hover {
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .home__cards {
