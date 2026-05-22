@@ -45,21 +45,27 @@
               <path d="M20 20l-4-4" stroke-linecap="round" />
             </svg>
           </button>
-          <div v-for="f in filterLeft" :key="f" class="sf__select-wrap">
-            <span class="visually-hidden">{{ f }}</span>
+          <div
+            v-for="field in filterFields"
+            :key="field.key"
+            class="sf__filter"
+          >
+            <label class="sf__filter-label" :for="`sf-${field.key}`">{{ field.label }}</label>
             <AppStringSelect
-              v-model="filterChoices[f]"
-              :options="filterOptionsFor(f)"
-              :placeholder="f"
-              :aria-label="f"
+              :id="`sf-${field.key}`"
+              v-model="filterChoices[field.key]"
+              :options="field.options"
+              :placeholder="field.label"
+              :aria-label="field.label"
               trigger-class="sf__select-trigger"
             />
           </div>
         </div>
         <div class="sf__toolbar-right">
-          <div class="sf__select-wrap">
-            <span class="visually-hidden">Stacks by</span>
+          <div class="sf__filter">
+            <label class="sf__filter-label" for="sf-stacks-by">Stacks by</label>
             <AppStringSelect
+              id="sf-stacks-by"
               v-model="stacksBy"
               :options="stacksByOptions"
               placeholder="Stacks by"
@@ -139,10 +145,6 @@ const streamingTitle = computed(() => {
   return STREAMING_TITLES[id] ?? `Streaming File Name_${id}`
 })
 
-const filterLeft = ['Resolution', 'Frames', 'Mbps'] as const
-
-type FilterKey = (typeof filterLeft)[number]
-
 const resolutionFilterOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] as const
 const framesFilterOptions = [
   'All',
@@ -163,20 +165,26 @@ const bitrateFilterOptions = [
   'Higher than 100 Mbps',
 ] as const
 
+type FilterKey = 'resolution' | 'frames' | 'mbps'
+
+const filterFields: Array<{
+  key: FilterKey
+  label: string
+  options: readonly string[]
+}> = [
+  { key: 'resolution', label: 'Resolution', options: resolutionFilterOptions },
+  { key: 'frames', label: 'Frames', options: framesFilterOptions },
+  { key: 'mbps', label: 'Mbps', options: bitrateFilterOptions },
+]
+
 const filterChoices = ref<Record<FilterKey, string>>({
-  Resolution: '2K',
-  Frames: '24 fps',
-  Mbps: '48 Mbps',
+  resolution: '2K',
+  frames: '24 fps',
+  mbps: '48 Mbps',
 })
 
-function filterOptionsFor(f: FilterKey) {
-  if (f === 'Resolution') return resolutionFilterOptions
-  if (f === 'Frames') return framesFilterOptions
-  return bitrateFilterOptions
-}
-
-const stacksByOptions = ['Stacks by', 'Name', 'Type'] as const
-const stacksBy = ref('Stacks by')
+const stacksByOptions = ['Name', 'Type'] as const
+const stacksBy = ref('Name')
 
 const files: FileEntry[] = [
   { id: 'i1', kind: 'index', label: 'Name_index_1' },
@@ -197,18 +205,6 @@ useHead(() => ({
 </script>
 
 <style scoped>
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .sf {
   position: relative;
   min-height: 100dvh;
@@ -363,7 +359,7 @@ useHead(() => ({
 .sf__toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
   gap: 0.75rem 1.25rem;
   margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
@@ -373,8 +369,24 @@ useHead(() => ({
 .sf__toolbar-right {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.5rem;
+}
+
+.sf__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.sf__filter-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.2;
 }
 
 .sf__icon-btn {
@@ -400,10 +412,6 @@ useHead(() => ({
 .sf__icon {
   width: 1.1rem;
   height: 1.1rem;
-}
-
-.sf__select-wrap {
-  position: relative;
 }
 
 .sf__toolbar-left :deep(.sf__select-trigger) {
