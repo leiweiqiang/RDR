@@ -51,6 +51,8 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/api/**': { prerender: false },
+    '/home': { ssr: false },
+    '/high-speed-action': { ssr: false },
   },
   runtimeConfig: {
     public: {
