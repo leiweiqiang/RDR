@@ -5,6 +5,9 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Behind a reverse proxy, avoid absolute redirects to the container IP (http://10.x/home/).
+    absolute_redirect off;
+
     # Strip /api/ and forward to NUXT_API_PROXY_TARGET (query string preserved).
     # e.g. /api/v1/categories?per_page=100 -> ${NUXT_API_PROXY_TARGET}/v1/categories?per_page=100
     location /api/ {
@@ -19,6 +22,7 @@ server {
     }
 
     location / {
-        try_files $uri $uri/ /index.html;
+        # Serve /home/index.html for /home (no 301 to add trailing slash).
+        try_files $uri $uri/index.html /index.html;
     }
 }
