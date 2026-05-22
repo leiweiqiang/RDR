@@ -1,3 +1,3 @@
 #! /bin/bash
 
-docker compose --profile dev up -d --build
+docker compose --env-file frontend/.env --profile dev up -d --build

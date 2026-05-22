@@ -51,7 +51,13 @@ The dev image runs `pnpm exec nuxt dev ...` so CLI flags are not swallowed by an
 
    The backend sets `API_ROOT_PATH=/api` in Compose so Swagger loads `/api/openapi.json` through the same proxy. For interactive docs on the published backend port only, run the backend with `API_ROOT_PATH` unset.
 
-**Production static frontend:** `docker compose --profile prod up -d --build` — Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`).
+**Production static frontend:** ensure API env vars are set (root `.env` or `frontend/.env`), then:
+
+```bash
+docker compose --env-file frontend/.env --profile prod up -d --build
+```
+
+Nginx serves the generated UI on http://localhost:8188 by default (`FRONTEND_PROD_PUBLISH_PORT`). For dev, the same `--env-file frontend/.env` flag applies if variables are not in the project root `.env`.
 
 ## Example endpoints
 
