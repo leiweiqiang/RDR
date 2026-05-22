@@ -1,83 +1,98 @@
 <template>
   <main class="pkg__main">
-    <div class="pkg__left">
-      <ContentPoolVideoPreviewFrame
-        :image-url="previewImageUrl"
-        framed
-        show-meta-badge
-        :show-scrubber="false"
-      />
-      <div class="pkg__radios" role="radiogroup" aria-label="Metadata placement">
-        <label class="pkg__radio">
-          <input v-model="placement" class="pkg__radio-input" type="radio" value="manifest" />
-          <span class="pkg__radio-dot" :class="{ 'pkg__radio-dot--on': placement === 'manifest' }" aria-hidden="true" />
-          <span>Metadata in Manifest</span>
-        </label>
-        <label class="pkg__radio">
-          <input v-model="placement" class="pkg__radio-input" type="radio" value="video" />
-          <span class="pkg__radio-dot" :class="{ 'pkg__radio-dot--on': placement === 'video' }" aria-hidden="true" />
-          <span>Metadata in Video</span>
-        </label>
+    <div v-if="pending" class="pkg__status" role="status">Loading packaging…</div>
+    <template v-else>
+      <div class="pkg__left">
+        <ContentPoolVideoPreviewFrame
+          :image-url="previewImageUrl"
+          framed
+          show-meta-badge
+          :show-play="false"
+          :show-scrubber="false"
+        />
+        <div class="pkg__radios" role="radiogroup" aria-label="Metadata placement">
+          <label class="pkg__radio">
+            <input v-model="placement" class="pkg__radio-input" type="radio" value="manifest" />
+            <span class="pkg__radio-dot" :class="{ 'pkg__radio-dot--on': placement === 'manifest' }" aria-hidden="true" />
+            <span>Metadata in Manifest</span>
+          </label>
+          <label class="pkg__radio">
+            <input v-model="placement" class="pkg__radio-input" type="radio" value="video" />
+            <span class="pkg__radio-dot" :class="{ 'pkg__radio-dot--on': placement === 'video' }" aria-hidden="true" />
+            <span>Metadata in Video</span>
+          </label>
+        </div>
+        <div class="pkg__actions">
+          <a :href="packagingPlaybackHref" class="pkg__btn-primary">Packaging</a>
+          <a href="/home" class="pkg__btn-next">Next</a>
+        </div>
       </div>
-      <div class="pkg__actions">
-        <a :href="packagingPlaybackHref" class="pkg__btn-primary">Packaging</a>
-        <a href="/home" class="pkg__btn-next">Next</a>
-      </div>
-    </div>
 
-    <aside class="pkg__spec" aria-labelledby="pkg-spec-title">
-      <h2 id="pkg-spec-title" class="visually-hidden">Output specifications</h2>
-      <section class="pkg__block">
-        <h3 class="pkg__block-title">Original</h3>
-        <dl class="pkg__dl">
-          <div class="pkg__row">
-            <dt>Resolution</dt>
-            <dd>4K</dd>
-          </div>
-          <div class="pkg__row">
-            <dt>Bitrate</dt>
-            <dd><span class="pkg__val">100 Mbps</span></dd>
-          </div>
-          <div class="pkg__row">
-            <dt>Frame Rate</dt>
-            <dd><span class="pkg__val">120Hz</span></dd>
-          </div>
-        </dl>
-      </section>
-      <section class="pkg__block">
-        <h3 class="pkg__block-title">Final Result (720p)</h3>
-        <dl class="pkg__dl">
-          <div class="pkg__row">
-            <dt>Bitrate</dt>
-            <dd><span class="pkg__val">100 Mbps</span></dd>
-          </div>
-          <div class="pkg__row">
-            <dt>Frame Rate</dt>
-            <dd><span class="pkg__val">30Hz</span></dd>
-          </div>
-        </dl>
-      </section>
-      <section class="pkg__block">
-        <h3 class="pkg__block-title">Final Result (360p)</h3>
-        <dl class="pkg__dl">
-          <div class="pkg__row">
-            <dt>Bitrate</dt>
-            <dd><span class="pkg__val">10 Mbps</span></dd>
-          </div>
-          <div class="pkg__row">
-            <dt>Frame Rate</dt>
-            <dd><span class="pkg__val">30Hz</span></dd>
-          </div>
-        </dl>
-      </section>
-    </aside>
+      <aside class="pkg__spec" aria-labelledby="pkg-spec-title">
+        <h2 id="pkg-spec-title" class="visually-hidden">Output specifications</h2>
+        <section v-if="video" class="pkg__block">
+          <h3 class="pkg__block-title">Original</h3>
+          <dl class="pkg__dl">
+            <div class="pkg__row">
+              <dt>Resolution</dt>
+              <dd>{{ formatResolutionLabel(video.resolution) }}</dd>
+            </div>
+            <div class="pkg__row">
+              <dt>Bitrate</dt>
+              <dd>
+                <span class="pkg__val">{{ formatBitrate(video.bitrate) }}</span>
+              </dd>
+            </div>
+            <div class="pkg__row">
+              <dt>Frame Rate</dt>
+              <dd>
+                <span class="pkg__val">{{ formatFrameRate(video.fps) }}</span>
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <section
+          v-for="stream in transcodedStreams"
+          :key="stream.id"
+          class="pkg__block"
+        >
+          <h3 class="pkg__block-title">
+            Final Result ({{ formatResolutionLabel(stream.resolution) }})
+          </h3>
+          <dl class="pkg__dl">
+            <div class="pkg__row">
+              <dt>Bitrate</dt>
+              <dd>
+                <span class="pkg__val">{{ formatBitrate(stream.bitrate) }}</span>
+              </dd>
+            </div>
+            <div class="pkg__row">
+              <dt>Frame Rate</dt>
+              <dd>
+                <span class="pkg__val">{{ formatFrameRate(stream.fps) }}</span>
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <p v-if="video && transcodedStreams.length === 0" class="pkg__empty">
+          No transcoded outputs yet.
+        </p>
+      </aside>
+    </template>
   </main>
 </template>
 
 <script setup lang="ts">
+import { formatResolutionLabel } from '~/composables/useContentPoolVideo'
+import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import type { RawVideoListItem } from '~/types/api/video'
+
 const props = defineProps<{
   previewImageUrl: string
+  video: RawVideoListItem | null
+  transcodedStreams: VideoTranscodedStreamItem[]
   poolId: string
+  pending?: boolean
 }>()
 
 const packagingPlaybackHref = computed(
@@ -85,6 +100,17 @@ const packagingPlaybackHref = computed(
 )
 
 const placement = ref<'manifest' | 'video'>('manifest')
+
+function formatBitrate(bitrate: number | null | undefined): string {
+  if (bitrate == null) return '—'
+  return `${bitrate} Mbps`
+}
+
+function formatFrameRate(fps: number | null | undefined): string {
+  if (fps == null) return '—'
+  return `${fps}Hz`
+}
+
 </script>
 
 <style scoped>
@@ -106,6 +132,16 @@ const placement = ref<'manifest' | 'video'>('manifest')
   gap: clamp(0.75rem, 2vw, 1.25rem);
   align-items: start;
   padding-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.pkg__status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .pkg__left {
@@ -137,6 +173,12 @@ const placement = ref<'manifest' | 'video'>('manifest')
   letter-spacing: 0.04em;
   color: #fff;
   text-transform: none;
+}
+
+.pkg__empty {
+  margin: 0.75rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .pkg__dl {

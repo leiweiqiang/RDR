@@ -4,6 +4,7 @@ export type RawVideoListItem = {
   id: number
   name: string
   cover: string
+  canny_cover: string | null
   provider: string | null
   storage_path: string
   duration: number

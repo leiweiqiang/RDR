@@ -1,96 +1,100 @@
 <template>
   <main class="meta__main">
-    <div class="meta__left">
-      <ContentPoolVideoPreviewFrame
-        :image-url="previewImageUrl"
-        framed
-        show-meta-badge
-        show-scrubber
-        v-model:scrub-position="scrubPosition"
-      />
-      <div class="meta__checks" role="group" aria-label="AI enhancement options">
-        <label class="meta__check">
-          <input v-model="opts.canny" type="checkbox" class="meta__check-input" />
-          <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.canny }" aria-hidden="true" />
-          <span>Canny Edge Extraction</span>
-        </label>
-        <label class="meta__check">
-          <input v-model="opts.spatial" type="checkbox" class="meta__check-input" />
-          <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.spatial }" aria-hidden="true" />
-          <span>Spatial Depth</span>
-        </label>
-        <label class="meta__check">
-          <input v-model="opts.skeleton" type="checkbox" class="meta__check-input" />
-          <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.skeleton }" aria-hidden="true" />
-          <span>Skeleton Keypoints</span>
-        </label>
-      </div>
-      <div class="meta__actions">
-        <button type="button" class="meta__btn-generate">Generate RDR Metadata</button>
-        <a :href="packagingHref" class="meta__btn-next">Next</a>
-      </div>
-    </div>
-
-    <aside class="meta__right" aria-labelledby="meta-reviewer-title">
-      <div class="meta__panel-head">
-        <h2 id="meta-reviewer-title" class="meta__panel-title">Metadata Result Reviewer</h2>
-        <button type="button" class="meta__icon-edit" aria-label="Edit">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L8 18l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </button>
-      </div>
-
-      <details class="meta__acc" open>
-        <summary class="meta__acc-sum">
-          <span class="meta__tri" aria-hidden="true" />
-          720 X 405, 120 fps, 100Mbps
-        </summary>
-        <div class="meta__acc-body">
-          <figure class="meta__thumb-block">
-            <img :src="cannyImageUrl" alt="" class="meta__thumb-img meta__thumb-img--canny" />
-            <figcaption class="meta__thumb-cap">Canny Edge Extraction</figcaption>
-          </figure>
-          <figure class="meta__thumb-block">
-            <img :src="depthImageUrl" alt="" class="meta__thumb-img meta__thumb-img--depth" />
-            <figcaption class="meta__thumb-cap">Spatial Depth</figcaption>
-          </figure>
+    <div v-if="pending" class="meta__status" role="status">Loading metadata…</div>
+    <template v-else>
+      <div class="meta__left">
+        <ContentPoolVideoPreviewFrame
+          :image-url="previewImageUrl"
+          framed
+          show-meta-badge
+          :show-play="false"
+          :show-scrubber="false"
+        />
+        <div class="meta__checks" role="group" aria-label="AI enhancement options">
+          <label class="meta__check">
+            <input v-model="opts.canny" type="checkbox" class="meta__check-input" />
+            <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.canny }" aria-hidden="true" />
+            <span>Canny Edge Extraction</span>
+          </label>
+          <label class="meta__check">
+            <input v-model="opts.skeleton" type="checkbox" class="meta__check-input" />
+            <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.skeleton }" aria-hidden="true" />
+            <span>Skeleton Keypoints</span>
+          </label>
         </div>
-      </details>
-      <details class="meta__acc">
-        <summary class="meta__acc-sum">
-          <span class="meta__tri meta__tri--closed" aria-hidden="true" />
-          1920 X 1080, 30 fps, 30Mbps
-        </summary>
-        <div class="meta__acc-body" />
-      </details>
-      <details class="meta__acc">
-        <summary class="meta__acc-sum">
-          <span class="meta__tri meta__tri--closed" aria-hidden="true" />
-          360 X 203, 10 fps, 2Mbps
-        </summary>
-        <div class="meta__acc-body" />
-      </details>
-    </aside>
+        <div class="meta__actions">
+          <button
+            type="button"
+            class="meta__btn-generate"
+            :disabled="generating || !opts.canny"
+            @click="emit('generate', opts.canny)"
+          >
+            {{ generating ? 'Generating…' : 'Generate RDR Metadata' }}
+          </button>
+          <a :href="packagingHref" class="meta__btn-next">Next</a>
+        </div>
+      </div>
+
+      <aside class="meta__right" aria-labelledby="meta-reviewer-title">
+        <div class="meta__panel-head">
+          <h2 id="meta-reviewer-title" class="meta__panel-title">Metadata Result Reviewer</h2>
+          <button type="button" class="meta__icon-edit" aria-label="Edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L8 18l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <p v-if="transcodedStreams.length === 0" class="meta__empty">
+          No metadata results yet. Generate RDR metadata to review outputs.
+        </p>
+        <details
+          v-for="(stream, index) in transcodedStreams"
+          :key="stream.id"
+          class="meta__acc"
+          :open="index === 0"
+        >
+          <summary class="meta__acc-sum">
+            <span
+              class="meta__tri"
+              :class="{ 'meta__tri--closed': index !== 0 }"
+              aria-hidden="true"
+            />
+            {{ formatStreamSummary(stream) }}
+          </summary>
+          <div v-if="cannyCoverUrl && opts.canny" class="meta__acc-body">
+            <figure class="meta__thumb-block">
+              <img :src="cannyCoverUrl" alt="" class="meta__thumb-img meta__thumb-img--canny" />
+              <figcaption class="meta__thumb-cap">Canny Edge Extraction</figcaption>
+            </figure>
+          </div>
+        </details>
+      </aside>
+    </template>
   </main>
 </template>
 
 <script setup lang="ts">
-import cannyImageUrl from '~/assets/canny.png?url'
-import depthImageUrl from '~/assets/depth.png?url'
+import { formatStreamSummary } from '~/composables/useMetadataExtraction'
+import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
 
 const props = defineProps<{
   previewImageUrl: string
+  cannyCoverUrl: string
+  transcodedStreams: VideoTranscodedStreamItem[]
   poolId: string
+  pending?: boolean
+  generating?: boolean
+}>()
+
+const emit = defineEmits<{
+  generate: [includeCanny: boolean]
 }>()
 
 const packagingHref = computed(() => `/content-pool/${props.poolId}/packaging`)
 
-const scrubPosition = ref(741)
-
 const opts = reactive({
   canny: true,
-  spatial: false,
   skeleton: false,
 })
 
@@ -105,6 +109,16 @@ const opts = reactive({
   flex: 1;
   min-height: 0;
   padding-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.meta__status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .meta__left {
@@ -177,9 +191,15 @@ const opts = reactive({
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-.meta__btn-generate:hover {
+.meta__btn-generate:hover:not(:disabled) {
   filter: brightness(1.08);
   transform: translateY(-1px);
+}
+
+.meta__btn-generate:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .meta__btn-next {
@@ -257,6 +277,12 @@ const opts = reactive({
   height: 1.1rem;
 }
 
+.meta__empty {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
 .meta__acc {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.35rem 0;
@@ -301,9 +327,10 @@ const opts = reactive({
 
 .meta__acc-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.65rem;
   padding: 0.5rem 0 0.65rem 1.35rem;
+  max-width: 28rem;
 }
 
 .meta__thumb-block {
@@ -320,9 +347,10 @@ const opts = reactive({
   background: #111;
 }
 
-.meta__thumb-img--canny,
-.meta__thumb-img--depth {
+.meta__thumb-img--canny {
   object-fit: contain;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-sizing: border-box;
 }
 
 .meta__thumb-cap {
@@ -334,10 +362,6 @@ const opts = reactive({
 
 @media (max-width: 900px) {
   .meta__main {
-    grid-template-columns: 1fr;
-  }
-
-  .meta__acc-body {
     grid-template-columns: 1fr;
   }
 }

@@ -1,7 +1,7 @@
 import { getVideo } from '~/api/videos'
 import type { RawVideoListItem } from '~/types/api/video'
 
-function formatResolutionLabel(resolution: string): string {
+export function formatResolutionLabel(resolution: string): string {
   const match = resolution.trim().toLowerCase().match(/^(\d+)\s*x\s*(\d+)$/)
   if (!match) return resolution
   const width = Number.parseInt(match[1], 10)

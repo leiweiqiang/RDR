@@ -1,8 +1,16 @@
 <template>
   <div class="cvf" :class="{ 'cvf--framed': framed, 'cvf--has-scrub': showScrubber }">
     <div class="cvf__thumb">
-      <img :src="imageUrl" alt="" loading="lazy" decoding="async" />
-      <span v-if="showMetaBadge" class="cvf__badge" aria-hidden="true">D</span>
+      <img class="cvf__cover" :src="imageUrl" alt="" loading="lazy" decoding="async" />
+      <img
+        v-if="showMetaBadge"
+        class="cvf__badge"
+        :src="rdrBadgeIconUrl"
+        width="23"
+        height="23"
+        alt=""
+        aria-hidden="true"
+      />
       <button
         v-if="showPlay"
         type="button"
@@ -33,6 +41,8 @@
 </template>
 
 <script setup lang="ts">
+import rdrBadgeIconUrl from '~/assets/icon-rdr-small-highlight.svg?url'
+
 const props = withDefaults(
   defineProps<{
     imageUrl: string
@@ -82,7 +92,7 @@ const tipStyle = computed(() => {
   bottom: 2.75rem;
 }
 
-.cvf__thumb img {
+.cvf__cover {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -93,18 +103,15 @@ const tipStyle = computed(() => {
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
-  width: 1.35rem;
-  height: 1.35rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #000;
-  background: #00e5ff;
-  line-height: 1;
+  width: 23px;
+  height: 23px;
+  max-width: 23px;
+  max-height: 23px;
+  flex: none;
+  display: block;
+  object-fit: contain;
   z-index: 2;
+  pointer-events: none;
 }
 
 .cvf__play {
