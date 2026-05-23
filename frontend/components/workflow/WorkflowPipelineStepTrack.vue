@@ -4,7 +4,7 @@
       <li class="hsa__step" :class="stepClassForId(step.id)">
         <NuxtLink :to="step.to" class="hsa__step-link">
           <span class="hsa__step-icon" aria-hidden="true">
-            <img :src="WORKFLOW_STEP_ICON_URL[step.icon]" alt="" class="hsa__step-icon-img" />
+            <WorkflowStepIcon :icon="step.icon" class="hsa__step-icon-img" />
           </span>
           <span class="hsa__step-label">{{ step.label }}</span>
         </NuxtLink>
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { WORKFLOW_PIPELINE_ARROW_URL, WORKFLOW_STEP_ICON_URL, type WorkflowStepIconKey } from '~/utils/workflowPipelineAssets'
+import { WORKFLOW_PIPELINE_ARROW_URL, type WorkflowStepIconKey } from '~/utils/workflowPipelineAssets'
 
 defineProps<{
   steps: Array<{ id: string; label: string; to: string; icon: WorkflowStepIconKey }>
@@ -80,8 +80,6 @@ defineProps<{
 .hsa__step-icon-img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  display: block;
 }
 
 .hsa__step-label {
@@ -103,6 +101,10 @@ defineProps<{
   color: rgba(255, 255, 255, 0.92);
 }
 
+.hsa__step--done .hsa__step-icon {
+  color: rgba(255, 255, 255, 0.92);
+}
+
 .hsa__step--current {
   color: #00e5ff;
 }
@@ -114,11 +116,19 @@ defineProps<{
     0 0 28px rgba(0, 229, 255, 0.12);
 }
 
+.hsa__step--current .hsa__step-icon {
+  color: #00f0ff;
+}
+
 .hsa__step--upcoming {
   color: #5c5c5c;
 }
 
 .hsa__step--upcoming .hsa__step-label {
+  color: #6a6a6a;
+}
+
+.hsa__step--upcoming .hsa__step-icon {
   color: #6a6a6a;
 }
 
