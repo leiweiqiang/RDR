@@ -41,7 +41,7 @@
     </aside>
 
     <div class="pbt__actions">
-      <a :href="decodeSrHref" class="pbt__btn-next">Next</a>
+      <NuxtLink :to="decodeSrHref" class="pbt__btn-next">Next</NuxtLink>
     </div>
   </main>
 </template>

@@ -22,7 +22,7 @@ server {
     }
 
     location / {
-        # Serve /home/index.html for /home (no 301 to add trailing slash).
-        try_files $uri $uri/index.html /index.html;
+        # Unknown routes: serve Nuxt SPA shell (200.html), not the prerendered landing (index.html).
+        try_files $uri $uri/index.html /200.html;
     }
 }

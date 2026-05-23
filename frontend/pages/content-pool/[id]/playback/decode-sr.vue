@@ -33,7 +33,7 @@
     </section>
 
     <div class="pbd__actions">
-      <a :href="playerHref" class="pbd__btn-next">Next</a>
+      <NuxtLink :to="playerHref" class="pbd__btn-next">Next</NuxtLink>
     </div>
   </main>
 </template>

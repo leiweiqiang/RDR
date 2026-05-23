@@ -7,7 +7,7 @@
         </div>
         <div class="hsa__preview-meta-row">
           <p class="hsa__preview-meta">{{ originalMeta }}</p>
-          <a :href="metadataExtractionHref" class="hsa__btn-next">Next</a>
+          <NuxtLink :to="metadataExtractionHref" class="hsa__btn-next">Next</NuxtLink>
         </div>
       </div>
     </div>
@@ -19,8 +19,15 @@
     </div>
 
     <section class="hsa__targets" aria-labelledby="hsa-targets-title">
-      <h2 id="hsa-targets-title" class="visually-hidden">Target formats</h2>
       <div class="hsa__targets-panel">
+        <h2 id="hsa-targets-title" class="visually-hidden">Target formats</h2>
+        <div class="hsa__target-list-head" aria-hidden="true">
+          <span class="hsa__target-list-head-spacer" />
+          <span class="hsa__target-list-head-label">Resolution</span>
+          <span class="hsa__target-list-head-label">Frame Rate</span>
+          <span class="hsa__target-list-head-label">Bitrate</span>
+          <span class="hsa__target-list-head-spacer" />
+        </div>
         <ul class="hsa__target-list">
           <li v-for="(row, index) in targetRows" :key="row.id" class="hsa__target-row">
             <span
@@ -315,6 +322,29 @@ function removeRow(index: number) {
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
+.hsa__target-list-head {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr auto;
+  align-items: end;
+  gap: 0.45rem;
+  margin-bottom: 0.45rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hsa__target-list-head-spacer {
+  width: 1rem;
+}
+
+.hsa__target-list-head-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.2;
+}
+
 .hsa__target-list {
   margin: 0;
   padding: 0;
@@ -467,6 +497,10 @@ function removeRow(index: number) {
     min-height: 0;
     flex: 1;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  }
+
+  .hsa__target-list-head {
+    display: none;
   }
 
   .hsa__target-row {

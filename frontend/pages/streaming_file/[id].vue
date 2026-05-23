@@ -50,7 +50,10 @@
             :key="field.key"
             class="sf__filter"
           >
-            <label class="sf__filter-label" :for="`sf-${field.key}`">{{ field.label }}</label>
+            <label class="sf__filter-label" :for="`sf-${field.key}`">
+              <component :is="field.icon" class="sf__filter-icon" aria-hidden="true" />
+              {{ field.label }}
+            </label>
             <AppStringSelect
               :id="`sf-${field.key}`"
               v-model="filterChoices[field.key]"
@@ -63,7 +66,10 @@
         </div>
         <div class="sf__toolbar-right">
           <div class="sf__filter">
-            <label class="sf__filter-label" for="sf-stacks-by">Stacks by</label>
+            <label class="sf__filter-label" for="sf-stacks-by">
+              <Layers class="sf__filter-icon" aria-hidden="true" />
+              Stacks by
+            </label>
             <AppStringSelect
               id="sf-stacks-by"
               v-model="stacksBy"
@@ -118,6 +124,7 @@
 </template>
 
 <script setup lang="ts">
+import { Film, Gauge, Layers, Monitor } from 'lucide-vue-next'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 
 type FileEntry = {
@@ -167,14 +174,10 @@ const bitrateFilterOptions = [
 
 type FilterKey = 'resolution' | 'frames' | 'mbps'
 
-const filterFields: Array<{
-  key: FilterKey
-  label: string
-  options: readonly string[]
-}> = [
-  { key: 'resolution', label: 'Resolution', options: resolutionFilterOptions },
-  { key: 'frames', label: 'Frames', options: framesFilterOptions },
-  { key: 'mbps', label: 'Mbps', options: bitrateFilterOptions },
+const filterFields = [
+  { key: 'resolution' as FilterKey, label: 'Resolution', options: resolutionFilterOptions, icon: Monitor },
+  { key: 'frames' as FilterKey, label: 'Frames', options: framesFilterOptions, icon: Film },
+  { key: 'mbps' as FilterKey, label: 'Mbps', options: bitrateFilterOptions, icon: Gauge },
 ]
 
 const filterChoices = ref<Record<FilterKey, string>>({
@@ -381,12 +384,22 @@ useHead(() => ({
 }
 
 .sf__filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.2;
+}
+
+.sf__filter-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .sf__icon-btn {

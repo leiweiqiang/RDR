@@ -86,7 +86,10 @@
                 :key="field.key"
                 class="hsa__filter"
               >
-                <label class="hsa__filter-label" :for="`pool-${field.key}`">{{ field.label }}</label>
+                <label class="hsa__filter-label" :for="`pool-${field.key}`">
+                  <component :is="field.icon" class="hsa__filter-icon" aria-hidden="true" />
+                  {{ field.label }}
+                </label>
                 <AppStringSelect
                   :id="`pool-${field.key}`"
                   v-model="poolFilters[field.key]"
@@ -156,7 +159,10 @@
                 :key="field.key"
                 class="hsa__filter"
               >
-                <label class="hsa__filter-label" :for="`stream-${field.key}`">{{ field.label }}</label>
+                <label class="hsa__filter-label" :for="`stream-${field.key}`">
+                  <component :is="field.icon" class="hsa__filter-icon" aria-hidden="true" />
+                  {{ field.label }}
+                </label>
                 <AppStringSelect
                   :id="`stream-${field.key}`"
                   v-model="streamFilters[field.key]"
@@ -191,6 +197,7 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowUpDown, Clock, FileVideo, Monitor } from 'lucide-vue-next'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 
 const CATEGORY_NAME = 'high-speed-action'
@@ -205,15 +212,11 @@ const sizeOptions = ['All', 'Large to Small', 'Small to Large'] as const
 
 type FilterKey = 'time' | 'resolution' | 'type' | 'size'
 
-const filterFields: Array<{
-  key: FilterKey
-  label: string
-  options: readonly string[]
-}> = [
-  { key: 'time', label: 'Time', options: timeOptions },
-  { key: 'resolution', label: 'Resolution', options: resolutionOptions },
-  { key: 'type', label: 'Type', options: typeOptions },
-  { key: 'size', label: 'Size', options: sizeOptions },
+const filterFields = [
+  { key: 'time' as FilterKey, label: 'Time', options: timeOptions, icon: Clock },
+  { key: 'resolution' as FilterKey, label: 'Resolution', options: resolutionOptions, icon: Monitor },
+  { key: 'type' as FilterKey, label: 'Type', options: typeOptions, icon: FileVideo },
+  { key: 'size' as FilterKey, label: 'Size', options: sizeOptions, icon: ArrowUpDown },
 ]
 
 const poolFilters = ref<Record<FilterKey, string>>({
@@ -619,12 +622,22 @@ useHead(() => ({
 }
 
 .hsa__filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.2;
+}
+
+.hsa__filter-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 :deep(.hsa__select-trigger) {

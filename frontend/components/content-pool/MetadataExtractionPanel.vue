@@ -31,7 +31,7 @@
           >
             {{ generating ? 'Generating…' : 'Generate RDR Metadata' }}
           </button>
-          <a :href="packagingHref" class="meta__btn-next">Next</a>
+          <NuxtLink :to="packagingHref" class="meta__btn-next">Next</NuxtLink>
         </div>
       </div>
 
