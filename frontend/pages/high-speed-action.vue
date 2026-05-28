@@ -196,6 +196,11 @@
 
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
+import {
+  filterHighSpeedActionItems,
+  type HighSpeedActionFilterKey,
+  type HighSpeedActionFilters,
+} from '~/utils/highSpeedActionFilters'
 
 const CATEGORY_NAME = 'high-speed-action'
 
@@ -207,7 +212,7 @@ const resolutionOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] a
 const typeOptions = ['All', '.mp4', '.mov'] as const
 const sizeOptions = ['All', 'Large to Small', 'Small to Large'] as const
 
-type FilterKey = 'time' | 'resolution' | 'type' | 'size'
+type FilterKey = HighSpeedActionFilterKey
 
 const filterFields = [
   { key: 'time' as FilterKey, label: 'Time', options: timeOptions },
@@ -216,18 +221,18 @@ const filterFields = [
   { key: 'size' as FilterKey, label: 'Size', options: sizeOptions },
 ]
 
-const poolFilters = ref<Record<FilterKey, string>>({
+const poolFilters = reactive<HighSpeedActionFilters>({
   time: 'All',
-  resolution: '2K',
-  type: '.mov',
-  size: 'Small to Large',
+  resolution: 'All',
+  type: 'All',
+  size: 'All',
 })
 
-const streamFilters = ref<Record<FilterKey, string>>({
+const streamFilters = reactive<HighSpeedActionFilters>({
   time: 'All',
-  resolution: '2K',
-  type: '.mov',
-  size: 'Small to Large',
+  resolution: 'All',
+  type: 'All',
+  size: 'All',
 })
 
 const poolSearchOpen = ref(false)
@@ -237,18 +242,22 @@ const streamSearchQuery = ref('')
 const poolSearchInput = ref<HTMLInputElement | null>(null)
 const streamSearchInput = ref<HTMLInputElement | null>(null)
 
-function filterByQuery<T extends { title: string }>(items: T[], query: string): T[] {
-  const q = query.trim().toLowerCase()
-  if (!q) return items
-  return items.filter((item) => item.title.toLowerCase().includes(q))
-}
-
 const filteredContentPool = computed(() =>
-  filterByQuery(contentPool.value, poolSearchQuery.value),
+  filterHighSpeedActionItems(contentPool.value, poolSearchQuery.value, {
+    time: poolFilters.time,
+    resolution: poolFilters.resolution,
+    type: poolFilters.type,
+    size: poolFilters.size,
+  }),
 )
 
 const filteredStreamingFiles = computed(() =>
-  filterByQuery(streamingFiles.value, streamSearchQuery.value),
+  filterHighSpeedActionItems(streamingFiles.value, streamSearchQuery.value, {
+    time: streamFilters.time,
+    resolution: streamFilters.resolution,
+    type: streamFilters.type,
+    size: streamFilters.size,
+  }),
 )
 
 function togglePoolSearch() {

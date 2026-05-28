@@ -5,12 +5,18 @@ import {
 } from '~/api/categories'
 import type { RawVideoListItem } from '~/types/api/video'
 import type { TranscodedStreamListItem } from '~/types/api/transcoded-stream'
+import { extractFileType } from '~/utils/highSpeedActionFilters'
 
 export type ContentPoolItem = {
   id: number
   title: string
   imageUrl: string
   to: string
+  createdAt: string
+  resolution: string
+  fileType: string
+  bitrate: number | null
+  duration: number | null
 }
 
 export type StreamingFileItem = {
@@ -18,6 +24,11 @@ export type StreamingFileItem = {
   title: string
   imageUrl: string
   to: string
+  createdAt: string
+  resolution: string
+  fileType: string
+  bitrate: number | null
+  duration: number | null
 }
 
 function toContentPoolItem(video: RawVideoListItem): ContentPoolItem {
@@ -26,6 +37,11 @@ function toContentPoolItem(video: RawVideoListItem): ContentPoolItem {
     title: video.name,
     imageUrl: video.cover,
     to: `/content-pool/${video.id}/targeting`,
+    createdAt: video.created_at,
+    resolution: video.resolution,
+    fileType: extractFileType(video.name, video.storage_path, video.video_type),
+    bitrate: video.bitrate,
+    duration: video.duration,
   }
 }
 
@@ -35,6 +51,11 @@ function toStreamingFileItem(stream: TranscodedStreamListItem): StreamingFileIte
     title: stream.name,
     imageUrl: stream.cover,
     to: `/streaming_file/${stream.id}`,
+    createdAt: stream.created_at,
+    resolution: stream.resolution,
+    fileType: extractFileType(stream.name, stream.stream_url),
+    bitrate: stream.bitrate,
+    duration: stream.duration,
   }
 }
 
