@@ -82,11 +82,22 @@ useHead({
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
+  --landing-blur-wide: clamp(13rem, 30vw, 21rem);
+  --landing-blur-narrow: clamp(7rem, 14vw, 11.5rem);
+  --landing-blur-divider: 1px;
+  --landing-side-inset: calc(
+    var(--landing-blur-wide) + var(--landing-blur-divider) +
+      var(--landing-blur-narrow) + var(--landing-blur-divider)
+  );
+  --landing-hourglass-height: clamp(22rem, 72vh, 44rem);
 }
 
 .landing__hourglass {
   position: fixed;
-  inset: 0;
+  top: calc((100dvh - var(--landing-hourglass-height)) / 2);
+  left: var(--landing-side-inset);
+  right: var(--landing-side-inset);
+  height: var(--landing-hourglass-height);
   z-index: 0;
   pointer-events: none;
 }
@@ -172,11 +183,11 @@ useHead({
 }
 
 .landing__blur-col--wide {
-  width: clamp(13rem, 30vw, 21rem);
+  width: var(--landing-blur-wide);
 }
 
 .landing__blur-col--narrow {
-  width: clamp(7rem, 14vw, 11.5rem);
+  width: var(--landing-blur-narrow);
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(18px) saturate(1.1);
   -webkit-backdrop-filter: blur(18px) saturate(1.1);
@@ -184,7 +195,7 @@ useHead({
 
 .landing__blur-divider {
   flex-shrink: 0;
-  width: 1px;
+  width: var(--landing-blur-divider);
   align-self: stretch;
   background: linear-gradient(
     180deg,
@@ -332,6 +343,15 @@ useHead({
 }
 
 @media (max-width: 768px) {
+  .landing {
+    --landing-side-inset: clamp(1rem, 4vw, 1.5rem);
+    --landing-hourglass-height: min(52vh, 440px);
+  }
+
+  .landing__hourglass {
+    top: calc((100dvh - var(--landing-hourglass-height)) / 2);
+  }
+
   .landing__grid {
     grid-template-columns: 1fr;
     align-content: center;
