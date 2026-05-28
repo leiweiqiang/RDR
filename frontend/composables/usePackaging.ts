@@ -1,5 +1,22 @@
 import { listTranscodedStreamsByVideo } from '~/api/videos'
 import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import {
+  findResolutionPreset,
+  FIXED_TARGET_FPS,
+  loadCompleteTargetingResolutions,
+  RESOLUTION_PRESETS,
+  streamMatchesTargetingLabel,
+} from '~/utils/contentPoolTargeting'
+
+export const PACKAGING_METADATA_TYPE = 'Canny Edge Extraction'
+
+export type PackagingResultItem = {
+  resolutionLabel: string
+  resolutionDisplay: string
+  stream: VideoTranscodedStreamItem | null
+  bitrate: number | null
+  fps: number | null
+}
 
 function parseVideoId(poolId: string): number | null {
   const n = Number.parseInt(poolId, 10)
@@ -7,7 +24,8 @@ function parseVideoId(poolId: string): number | null {
 }
 
 export function usePackaging(poolId: MaybeRefOrGetter<string>) {
-  const videoId = computed(() => parseVideoId(toValue(poolId)))
+  const poolIdRef = poolId
+  const videoId = computed(() => parseVideoId(toValue(poolIdRef)))
 
   const {
     video,
@@ -23,6 +41,33 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
 
   const pending = computed(() => videoPending.value || streamsPending.value)
   const error = computed(() => streamsError.value ?? videoError.value)
+
+  const resultItems = computed<PackagingResultItem[]>(() => {
+    const poolId = toValue(poolIdRef)
+    const selectedLabels = loadCompleteTargetingResolutions(poolId)
+    const labels =
+      selectedLabels.length > 0
+        ? selectedLabels
+        : RESOLUTION_PRESETS.map((preset) => preset.label)
+
+    return labels.map((label) => {
+      const preset = findResolutionPreset(label)
+      const stream =
+        transcodedStreams.value.find((item) =>
+          streamMatchesTargetingLabel(item.resolution, label),
+        ) ?? null
+
+      return {
+        resolutionLabel: label,
+        resolutionDisplay:
+          stream?.resolution ??
+          (preset ? `${preset.width}x${preset.height}` : label),
+        stream,
+        bitrate: stream?.bitrate ?? preset?.bitrateMbps ?? null,
+        fps: stream?.fps ?? FIXED_TARGET_FPS,
+      }
+    })
+  })
 
   async function refreshStreams() {
     const vid = videoId.value
@@ -63,6 +108,8 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     video,
     previewImageUrl,
     transcodedStreams,
+    resultItems,
+    metadataType: PACKAGING_METADATA_TYPE,
     pending,
     error,
     refresh,

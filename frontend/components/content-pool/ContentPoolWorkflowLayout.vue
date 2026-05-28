@@ -87,7 +87,7 @@ const steps = computed(() => {
       to: `/content-pool/${id}/metadata-extraction`,
       icon: 'metadata' satisfies WorkflowStepIconKey,
     },
-    { id: 'packaging' as const, label: 'Packaging', to: `/content-pool/${id}/packaging`, icon: 'packaging' satisfies WorkflowStepIconKey },
+    { id: 'packaging' as const, label: 'Metadata Generation and Packaging', to: `/content-pool/${id}/packaging`, icon: 'packaging' satisfies WorkflowStepIconKey },
   ]
 })
 

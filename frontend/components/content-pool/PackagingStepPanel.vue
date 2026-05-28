@@ -16,15 +16,15 @@
             <span class="pkg__radio-dot" :class="{ 'pkg__radio-dot--on': placement === 'manifest' }" aria-hidden="true" />
             <span>Metadata in Manifest</span>
           </label>
-          <label class="pkg__radio">
-            <input v-model="placement" class="pkg__radio-input" type="radio" value="video" />
-            <span class="pkg__radio-dot" :class="{ 'pkg__radio-dot--on': placement === 'video' }" aria-hidden="true" />
+          <label class="pkg__radio pkg__radio--disabled">
+            <input class="pkg__radio-input" type="radio" value="video" disabled />
+            <span class="pkg__radio-dot" aria-hidden="true" />
             <span>Metadata in Video</span>
           </label>
         </div>
         <div class="pkg__actions">
-          <a :href="packagingPlaybackHref" class="pkg__btn-primary">Packaging</a>
-          <a href="/home" class="pkg__btn-next">Next</a>
+          <a :href="packagingPlaybackHref" class="pkg__btn-primary">Metadata Generation and Packaging</a>
+          <NuxtLink to="/high-speed-action" class="pkg__btn-next">Next</NuxtLink>
         </div>
       </div>
 
@@ -35,7 +35,7 @@
           <dl class="pkg__dl">
             <div class="pkg__row">
               <dt>Resolution</dt>
-              <dd>{{ formatResolutionLabel(video.resolution) }}</dd>
+              <dd>{{ video.resolution }}</dd>
             </div>
             <div class="pkg__row">
               <dt>Bitrate</dt>
@@ -49,33 +49,45 @@
                 <span class="pkg__val">{{ formatFrameRate(video.fps) }}</span>
               </dd>
             </div>
+            <div class="pkg__row">
+              <dt>Metadata Type</dt>
+              <dd>
+                <span class="pkg__val">{{ metadataType }}</span>
+              </dd>
+            </div>
           </dl>
         </section>
         <section
-          v-for="stream in transcodedStreams"
-          :key="stream.id"
+          v-for="item in resultItems"
+          :key="item.resolutionLabel"
           class="pkg__block"
         >
           <h3 class="pkg__block-title">
-            Final Result ({{ formatResolutionLabel(stream.resolution) }})
+            Low Resolution Streaming ({{ item.resolutionDisplay }})
           </h3>
           <dl class="pkg__dl">
             <div class="pkg__row">
               <dt>Bitrate</dt>
               <dd>
-                <span class="pkg__val">{{ formatBitrate(stream.bitrate) }}</span>
+                <span class="pkg__val">{{ formatBitrate(item.bitrate) }}</span>
               </dd>
             </div>
             <div class="pkg__row">
               <dt>Frame Rate</dt>
               <dd>
-                <span class="pkg__val">{{ formatFrameRate(stream.fps) }}</span>
+                <span class="pkg__val">{{ formatFrameRate(item.fps) }}</span>
+              </dd>
+            </div>
+            <div class="pkg__row">
+              <dt>Metadata Type</dt>
+              <dd>
+                <span class="pkg__val">{{ metadataType }}</span>
               </dd>
             </div>
           </dl>
         </section>
-        <p v-if="video && transcodedStreams.length === 0" class="pkg__empty">
-          No transcoded outputs yet.
+        <p v-if="video && resultItems.length === 0" class="pkg__empty">
+          No target resolutions selected. Configure targets on the Targeting step first.
         </p>
       </aside>
     </template>
@@ -83,14 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { formatResolutionLabel } from '~/composables/useContentPoolVideo'
-import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import type { PackagingResultItem } from '~/composables/usePackaging'
 import type { RawVideoListItem } from '~/types/api/video'
 
 const props = defineProps<{
   previewImageUrl: string
   video: RawVideoListItem | null
-  transcodedStreams: VideoTranscodedStreamItem[]
+  resultItems: PackagingResultItem[]
+  metadataType: string
   poolId: string
   pending?: boolean
 }>()
@@ -245,6 +257,16 @@ function formatFrameRate(fps: number | null | undefined): string {
 .pkg__radio-dot--on {
   background: #00e676;
   box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.55);
+}
+
+.pkg__radio--disabled {
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+}
+
+.pkg__radio--disabled .pkg__radio-dot {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .pkg__actions {

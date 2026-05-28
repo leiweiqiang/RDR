@@ -5,20 +5,6 @@
       <div class="landing__tri landing__tri--right" />
     </div>
 
-    <div class="landing__canvas-wrap" aria-hidden="true">
-      <ClientOnly>
-        <LandingScene class="landing__canvas" />
-        <template #fallback>
-          <div class="landing__fallback">
-            <div class="landing__fallback-glow landing__fallback-glow--red" />
-            <div class="landing__fallback-glow landing__fallback-glow--center" />
-          </div>
-        </template>
-      </ClientOnly>
-    </div>
-
-    <div class="landing__blur" aria-hidden="true" />
-
     <div class="landing__spotlight" aria-hidden="true" />
 
     <div class="landing__noise" aria-hidden="true">
@@ -62,7 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import LandingScene from '~/components/landing/LandingScene.vue'
 import rdrLogoUrl from '~/assets/icon-rdr-large.svg?url'
 
 useHead({
@@ -133,89 +118,10 @@ useHead({
   );
 }
 
-.landing__canvas-wrap {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: auto;
-}
-
-.landing__canvas {
-  width: 100%;
-  height: 100%;
-}
-
-.landing__fallback {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: transparent;
-}
-
-.landing__fallback-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  pointer-events: none;
-}
-
-.landing__fallback-glow--red {
-  width: min(95vw, 980px);
-  height: min(95vw, 980px);
-  left: -22%;
-  bottom: -35%;
-  opacity: 0.55;
-  background: radial-gradient(
-    circle,
-    rgba(160, 24, 48, 0.55) 0%,
-    rgba(90, 8, 28, 0.38) 42%,
-    transparent 76%
-  );
-}
-
-.landing__fallback-glow--center {
-  width: min(120vw, 1400px);
-  height: min(70vh, 900px);
-  left: 50%;
-  bottom: -40%;
-  transform: translateX(-50%);
-  opacity: 0.7;
-  filter: blur(140px);
-  background: radial-gradient(
-    ellipse 55% 45% at 50% 100%,
-    rgba(200, 28, 48, 0.5) 0%,
-    rgba(80, 6, 22, 0.28) 50%,
-    transparent 72%
-  );
-}
-
-.landing__blur {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  backdrop-filter: blur(3px) saturate(1.1);
-  -webkit-backdrop-filter: blur(3px) saturate(1.1);
-  mask-image: linear-gradient(
-    to right,
-    black 0%,
-    black 48%,
-    transparent 52%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    black 0%,
-    black 48%,
-    transparent 52%,
-    transparent 100%
-  );
-}
-
 .landing__spotlight {
   position: fixed;
   inset: 0;
-  z-index: 3;
+  z-index: 1;
   pointer-events: none;
   background: radial-gradient(
     ellipse 58% 46% at 50% 38%,
@@ -228,7 +134,7 @@ useHead({
 .landing__noise {
   position: fixed;
   inset: 0;
-  z-index: 4;
+  z-index: 2;
   pointer-events: none;
   opacity: 0.12;
   mix-blend-mode: overlay;
@@ -241,7 +147,7 @@ useHead({
 
 .landing__grid {
   position: relative;
-  z-index: 5;
+  z-index: 3;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;

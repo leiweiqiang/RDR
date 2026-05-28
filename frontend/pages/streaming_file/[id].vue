@@ -51,7 +51,6 @@
             class="sf__filter"
           >
             <label class="sf__filter-label" :for="`sf-${field.key}`">
-              <component :is="field.icon" class="sf__filter-icon" aria-hidden="true" />
               {{ field.label }}
             </label>
             <AppStringSelect
@@ -67,7 +66,6 @@
         <div class="sf__toolbar-right">
           <div class="sf__filter">
             <label class="sf__filter-label" for="sf-stacks-by">
-              <Layers class="sf__filter-icon" aria-hidden="true" />
               Stacks by
             </label>
             <AppStringSelect
@@ -124,7 +122,6 @@
 </template>
 
 <script setup lang="ts">
-import { Film, Gauge, Layers, Monitor } from 'lucide-vue-next'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 
 type FileEntry = {
@@ -175,9 +172,9 @@ const bitrateFilterOptions = [
 type FilterKey = 'resolution' | 'frames' | 'mbps'
 
 const filterFields = [
-  { key: 'resolution' as FilterKey, label: 'Resolution', options: resolutionFilterOptions, icon: Monitor },
-  { key: 'frames' as FilterKey, label: 'Frames', options: framesFilterOptions, icon: Film },
-  { key: 'mbps' as FilterKey, label: 'Mbps', options: bitrateFilterOptions, icon: Gauge },
+  { key: 'resolution' as FilterKey, label: 'Resolution', options: resolutionFilterOptions },
+  { key: 'frames' as FilterKey, label: 'Frames', options: framesFilterOptions },
+  { key: 'mbps' as FilterKey, label: 'Mbps', options: bitrateFilterOptions },
 ]
 
 const filterChoices = ref<Record<FilterKey, string>>({
@@ -393,13 +390,6 @@ useHead(() => ({
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.2;
-}
-
-.sf__filter-icon {
-  width: 0.65rem;
-  height: 0.65rem;
-  flex-shrink: 0;
-  opacity: 0.85;
 }
 
 .sf__icon-btn {

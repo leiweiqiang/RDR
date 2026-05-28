@@ -87,7 +87,6 @@
                 class="hsa__filter"
               >
                 <label class="hsa__filter-label" :for="`pool-${field.key}`">
-                  <component :is="field.icon" class="hsa__filter-icon" aria-hidden="true" />
                   {{ field.label }}
                 </label>
                 <AppStringSelect
@@ -160,7 +159,6 @@
                 class="hsa__filter"
               >
                 <label class="hsa__filter-label" :for="`stream-${field.key}`">
-                  <component :is="field.icon" class="hsa__filter-icon" aria-hidden="true" />
                   {{ field.label }}
                 </label>
                 <AppStringSelect
@@ -197,7 +195,6 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowUpDown, Clock, FileVideo, Monitor } from 'lucide-vue-next'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 
 const CATEGORY_NAME = 'high-speed-action'
@@ -213,10 +210,10 @@ const sizeOptions = ['All', 'Large to Small', 'Small to Large'] as const
 type FilterKey = 'time' | 'resolution' | 'type' | 'size'
 
 const filterFields = [
-  { key: 'time' as FilterKey, label: 'Time', options: timeOptions, icon: Clock },
-  { key: 'resolution' as FilterKey, label: 'Resolution', options: resolutionOptions, icon: Monitor },
-  { key: 'type' as FilterKey, label: 'Type', options: typeOptions, icon: FileVideo },
-  { key: 'size' as FilterKey, label: 'Size', options: sizeOptions, icon: ArrowUpDown },
+  { key: 'time' as FilterKey, label: 'Time', options: timeOptions },
+  { key: 'resolution' as FilterKey, label: 'Resolution', options: resolutionOptions },
+  { key: 'type' as FilterKey, label: 'Type', options: typeOptions },
+  { key: 'size' as FilterKey, label: 'Size', options: sizeOptions },
 ]
 
 const poolFilters = ref<Record<FilterKey, string>>({
@@ -631,13 +628,6 @@ useHead(() => ({
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.2;
-}
-
-.hsa__filter-icon {
-  width: 0.65rem;
-  height: 0.65rem;
-  flex-shrink: 0;
-  opacity: 0.85;
 }
 
 :deep(.hsa__select-trigger) {

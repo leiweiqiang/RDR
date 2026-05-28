@@ -5,8 +5,6 @@
     :reviewer-items="reviewerItems"
     :pool-id="poolId"
     :pending="pending"
-    :generating="generating"
-    @generate="onGenerate"
   />
 </template>
 
@@ -23,14 +21,8 @@ const {
   cannyCoverUrl,
   reviewerItems,
   pending,
-  generating,
   video,
-  generateMetadata,
 } = useMetadataExtraction(poolId)
-
-async function onGenerate(includeCanny: boolean) {
-  await generateMetadata(includeCanny)
-}
 
 useHead(() => ({
   title: video.value?.name

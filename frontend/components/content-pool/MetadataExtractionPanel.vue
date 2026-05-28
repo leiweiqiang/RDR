@@ -16,21 +16,13 @@
             <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.canny }" aria-hidden="true" />
             <span>Canny Edge Extraction</span>
           </label>
-          <label class="meta__check">
-            <input v-model="opts.skeleton" type="checkbox" class="meta__check-input" />
-            <span class="meta__check-ui" :class="{ 'meta__check-ui--on': opts.skeleton }" aria-hidden="true" />
+          <label class="meta__check meta__check--disabled">
+            <input type="checkbox" disabled class="meta__check-input" />
+            <span class="meta__check-ui" aria-hidden="true" />
             <span>Skeleton Keypoints</span>
           </label>
         </div>
         <div class="meta__actions">
-          <button
-            type="button"
-            class="meta__btn-generate"
-            :disabled="generating || !opts.canny"
-            @click="emit('generate', opts.canny)"
-          >
-            {{ generating ? 'Generating…' : 'Generate RDR Metadata' }}
-          </button>
           <NuxtLink :to="packagingHref" class="meta__btn-next">Next</NuxtLink>
         </div>
       </div>
@@ -46,21 +38,21 @@
         </div>
 
         <p v-if="reviewerItems.length === 0" class="meta__empty">
-          No target resolutions selected. Configure targets on the Targeting step first.
+          Video metadata is not available yet.
         </p>
         <details
           v-for="item in reviewerItems"
-          :key="item.resolutionLabel"
+          :key="item.key"
           class="meta__acc"
-          :open="openLabel === item.resolutionLabel"
+          :open="openKey === item.key"
         >
           <summary
             class="meta__acc-sum"
-            @click.prevent="openLabel = item.resolutionLabel"
+            @click.prevent="openKey = item.key"
           >
             <span
               class="meta__tri"
-              :class="{ 'meta__tri--closed': openLabel !== item.resolutionLabel }"
+              :class="{ 'meta__tri--closed': openKey !== item.key }"
               aria-hidden="true"
             />
             {{ item.summary }}
@@ -70,9 +62,6 @@
               <img :src="cannyCoverUrl" alt="" class="meta__thumb-img meta__thumb-img--canny" />
               <figcaption class="meta__thumb-cap">Canny Edge Extraction</figcaption>
             </figure>
-            <p v-if="!item.stream" class="meta__acc-hint">
-              Generate RDR metadata to produce output for this target.
-            </p>
           </div>
         </details>
       </aside>
@@ -89,31 +78,25 @@ const props = defineProps<{
   reviewerItems: MetadataReviewerItem[]
   poolId: string
   pending?: boolean
-  generating?: boolean
-}>()
-
-const emit = defineEmits<{
-  generate: [includeCanny: boolean]
 }>()
 
 const packagingHref = computed(() => `/content-pool/${props.poolId}/packaging`)
 
 const opts = reactive({
   canny: true,
-  skeleton: false,
 })
 
-const openLabel = ref<string | null>(null)
+const openKey = ref<string | null>(null)
 
 watch(
   () => props.reviewerItems,
   (items) => {
     if (items.length === 0) {
-      openLabel.value = null
+      openKey.value = null
       return
     }
-    if (!items.some((item) => item.resolutionLabel === openLabel.value)) {
-      openLabel.value = items[0].resolutionLabel
+    if (!items.some((item) => item.key === openKey.value)) {
+      openKey.value = items[0].key
     }
   },
   { immediate: true },
@@ -189,38 +172,21 @@ watch(
     center / 0.65rem no-repeat;
 }
 
+.meta__check--disabled {
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+}
+
+.meta__check--disabled .meta__check-ui {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
 .meta__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 0.75rem;
   flex-wrap: wrap;
-}
-
-.meta__btn-generate {
-  border: none;
-  border-radius: 999px;
-  padding: 0.55rem 1.5rem;
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: #000;
-  background: #00e676;
-  cursor: pointer;
-  box-shadow: 0 0 18px rgba(0, 230, 118, 0.35);
-  transition: filter 0.15s ease, transform 0.15s ease;
-}
-
-.meta__btn-generate:hover:not(:disabled) {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-}
-
-.meta__btn-generate:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
 }
 
 .meta__btn-next {
@@ -302,14 +268,6 @@ watch(
   margin: 0 0 0.75rem;
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.55);
-}
-
-.meta__acc-hint {
-  margin: 0.5rem 0 0;
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.45);
-  line-height: 1.35;
 }
 
 .meta__acc {

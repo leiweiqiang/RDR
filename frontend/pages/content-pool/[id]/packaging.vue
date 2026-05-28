@@ -2,7 +2,8 @@
   <ContentPoolPackagingStepPanel
     :preview-image-url="previewImageUrl"
     :video="video"
-    :transcoded-streams="transcodedStreams"
+    :result-items="resultItems"
+    :metadata-type="metadataType"
     :pool-id="poolId"
     :pending="pending"
   />
@@ -16,16 +17,16 @@ definePageMeta({
 const route = useRoute()
 const poolId = computed(() => String(route.params.id))
 
-const { previewImageUrl, video, transcodedStreams, pending } = usePackaging(poolId)
+const { previewImageUrl, video, resultItems, metadataType, pending } = usePackaging(poolId)
 
 useHead(() => ({
   title: video.value?.name
-    ? `${video.value.name} — Packaging — RDR`
-    : 'High-Speed Action — Packaging — RDR',
+    ? `${video.value.name} — Metadata Generation and Packaging — RDR`
+    : 'High-Speed Action — Metadata Generation and Packaging — RDR',
   meta: [
     {
       name: 'description',
-      content: 'Package RDR metadata with the source video for downstream TCON processing.',
+      content: 'Generate RDR metadata and package it with the source video for downstream TCON processing.',
     },
   ],
 }))

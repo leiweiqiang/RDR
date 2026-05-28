@@ -7,7 +7,21 @@
         </div>
         <div class="hsa__preview-meta-row">
           <p class="hsa__preview-meta">{{ originalMeta }}</p>
-          <NuxtLink :to="metadataExtractionHref" class="hsa__btn-next">Next</NuxtLink>
+          <NuxtLink
+            v-if="canProceed"
+            :to="metadataExtractionHref"
+            class="hsa__btn-next"
+          >
+            Next
+          </NuxtLink>
+          <button
+            v-else
+            type="button"
+            class="hsa__btn-next hsa__btn-next--disabled"
+            disabled
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
@@ -182,6 +196,10 @@ function isRowComplete(row: TargetRow) {
   return !!row.resolution
 }
 
+const canProceed = computed(
+  () => targetRows.value.length > 0 && targetRows.value.every(isRowComplete),
+)
+
 function addRowAfter(index: number) {
   if (!canAddRow.value) return
   targetRows.value.splice(index + 1, 0, makeRow())
@@ -281,6 +299,15 @@ function removeRow(index: number) {
 .hsa__btn-next:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
+}
+
+.hsa__btn-next--disabled,
+.hsa__btn-next--disabled:hover {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+  transform: none;
 }
 
 .hsa__bridge {
