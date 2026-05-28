@@ -100,9 +100,14 @@
               </div>
             </div>
           </div>
-          <p v-if="filteredContentPool.length === 0" class="hsa__empty">
-            No content matches your search or filters.
-          </p>
+          <HighSpeedActionEmptyResultsState
+            v-if="filteredContentPool.length === 0"
+            scope="content"
+            :search-query="poolSearchQuery.trim()"
+            :has-active-filters="poolHasActiveFilters"
+            :has-source-items="contentPool.length > 0"
+            @reset="resetPoolQuery"
+          />
           <ul v-else class="hsa__grid hsa__grid--pool" role="list">
             <li v-for="item in filteredContentPool" :key="item.id" class="hsa__tile">
               <NuxtLink :to="item.to" class="hsa__card">
@@ -175,9 +180,14 @@
               </div>
             </div>
           </div>
-          <p v-if="filteredStreamingFiles.length === 0" class="hsa__empty">
-            No streaming files match your search or filters.
-          </p>
+          <HighSpeedActionEmptyResultsState
+            v-if="filteredStreamingFiles.length === 0"
+            scope="streaming files"
+            :search-query="streamSearchQuery.trim()"
+            :has-active-filters="streamHasActiveFilters"
+            :has-source-items="streamingFiles.length > 0"
+            @reset="resetStreamQuery"
+          />
           <ul v-else class="hsa__grid hsa__grid--stream" role="list">
             <li v-for="item in filteredStreamingFiles" :key="item.id" class="hsa__tile">
               <NuxtLink :to="item.to" class="hsa__card hsa__card--stream">
@@ -265,6 +275,36 @@ const filteredStreamingFiles = computed(() =>
     size: streamFilters.size,
   }),
 )
+
+function filtersAreActive(filters: HighSpeedActionFilters): boolean {
+  return (
+    filters.time !== 'All' ||
+    filters.resolution !== 'All' ||
+    filters.type !== 'All' ||
+    filters.size !== 'All'
+  )
+}
+
+const poolHasActiveFilters = computed(() => filtersAreActive(poolFilters))
+const streamHasActiveFilters = computed(() => filtersAreActive(streamFilters))
+
+function resetPoolQuery() {
+  poolSearchQuery.value = ''
+  poolSearchOpen.value = false
+  poolFilters.time = 'All'
+  poolFilters.resolution = 'All'
+  poolFilters.type = 'All'
+  poolFilters.size = 'All'
+}
+
+function resetStreamQuery() {
+  streamSearchQuery.value = ''
+  streamSearchOpen.value = false
+  streamFilters.time = 'All'
+  streamFilters.resolution = 'All'
+  streamFilters.type = 'All'
+  streamFilters.size = 'All'
+}
 
 function togglePoolSearch() {
   poolSearchOpen.value = !poolSearchOpen.value
@@ -520,13 +560,6 @@ useHead(() => ({
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #fff;
-}
-
-.hsa__empty {
-  margin: 0;
-  padding: 1.25rem 0;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.55);
 }
 
 .hsa__toolbar {
