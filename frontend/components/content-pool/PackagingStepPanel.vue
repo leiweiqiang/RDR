@@ -23,7 +23,7 @@
           </label>
         </div>
         <div class="pkg__actions">
-          <a :href="packagingPlaybackHref" class="pkg__btn-primary">Metadata Generation and Packaging</a>
+          <button type="button" class="pkg__btn-primary">Metadata Generation and Packaging</button>
           <NuxtLink to="/high-speed-action" class="pkg__btn-next">Next</NuxtLink>
         </div>
       </div>
@@ -106,10 +106,6 @@ const props = defineProps<{
   poolId: string
   pending?: boolean
 }>()
-
-const packagingPlaybackHref = computed(
-  () => `/content-pool/${props.poolId}/playback/targeting`,
-)
 
 const placement = ref<'manifest' | 'video'>('manifest')
 

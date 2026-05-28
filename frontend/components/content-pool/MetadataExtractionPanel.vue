@@ -23,7 +23,21 @@
           </label>
         </div>
         <div class="meta__actions">
-          <NuxtLink :to="packagingHref" class="meta__btn-next">Next</NuxtLink>
+          <NuxtLink
+            v-if="canProceed"
+            :to="packagingHref"
+            class="meta__btn-next"
+          >
+            Next
+          </NuxtLink>
+          <button
+            v-else
+            type="button"
+            class="meta__btn-next meta__btn-next--disabled"
+            disabled
+          >
+            Next
+          </button>
         </div>
       </div>
 
@@ -85,6 +99,8 @@ const packagingHref = computed(() => `/content-pool/${props.poolId}/packaging`)
 const opts = reactive({
   canny: true,
 })
+
+const canProceed = computed(() => opts.canny)
 
 const openKey = ref<string | null>(null)
 
@@ -212,6 +228,15 @@ watch(
 .meta__btn-next:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
+}
+
+.meta__btn-next--disabled,
+.meta__btn-next--disabled:hover {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+  transform: none;
 }
 
 .meta__right {
