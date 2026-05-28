@@ -52,6 +52,8 @@ export default defineNuxtConfig({
     '/api/**': { prerender: false },
   },
   runtimeConfig: {
+    apiKey: process.env.NUXT_PUBLIC_API_KEY || '',
+    apiProxyTarget: process.env.NUXT_API_PROXY_TARGET || 'http://127.0.0.1:8000',
     public: {
       apiKey: process.env.NUXT_PUBLIC_API_KEY || '',
     },

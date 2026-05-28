@@ -1,19 +1,14 @@
 import type { FetchOptions } from 'ofetch'
-import { getPublicApiKey } from '~/utils/api-key'
+import { API_V1_BASE, withApiKeyHeaders } from '~/utils/api-config'
 
 export function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
-  const headers: Record<string, string> = {
-    ...(options.headers as Record<string, string> | undefined),
-  }
-
-  const apiKey = getPublicApiKey()
-  if (apiKey) {
-    headers['X-API-Key'] = apiKey
-  }
+  const headers = withApiKeyHeaders(
+    (options.headers as Record<string, string> | undefined) ?? {},
+  )
 
   return $fetch<T>(path, {
     ...options,
-    baseURL: '/api/v1',
+    baseURL: API_V1_BASE,
     headers,
   })
 }

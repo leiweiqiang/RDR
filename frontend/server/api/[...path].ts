@@ -1,13 +1,3 @@
-import { getRequestURL, proxyRequest } from 'h3'
+import { proxyToBackend } from '~/server/utils/api-proxy'
 
-export default defineEventHandler((event) => {
-  const url = getRequestURL(event)
-  const upstreamPath = url.pathname.replace(/^\/api/, '') || '/'
-  const base = (process.env.NUXT_API_PROXY_TARGET || 'http://127.0.0.1:8000').replace(
-    /\/$/,
-    '',
-  )
-  const target = `${base}${upstreamPath}${url.search}`
-
-  return proxyRequest(event, target)
-})
+export default defineEventHandler((event) => proxyToBackend(event))

@@ -1,6 +1,6 @@
 import type {
-  TranscodeParams,
   TranscodeTaskBatchResponse,
+  TranscodeTaskCreateBody,
 } from '~/types/api/transcode-task'
 import {
   apiResolutionForLabel,
@@ -26,14 +26,14 @@ export function createClosedPackagingNotice(): PackagingNotice {
   }
 }
 
-export function buildPackagingTranscodeParams(poolId: string): TranscodeParams[] {
+export function buildPackagingTranscodeBody(poolId: string): TranscodeTaskCreateBody {
   const savedResolutions = loadCompleteTargetingResolutions(poolId)
   const resolutionLabels =
     savedResolutions.length > 0
       ? savedResolutions
       : [RESOLUTION_PRESETS[0].label]
 
-  return resolutionLabels.map((label) => {
+  const targets = resolutionLabels.map((label) => {
     const resolution = apiResolutionForLabel(label)
     const bitrate = bitrateMbpsForLabel(label)
     if (!resolution || bitrate == null) {
@@ -41,19 +41,19 @@ export function buildPackagingTranscodeParams(poolId: string): TranscodeParams[]
     }
 
     return {
-      transcode: {
-        resolution,
-        fps: FIXED_TARGET_FPS,
-        bitrate,
-      },
-      metadata_extractor: {
-        processor: 'canny',
-        canny_gaussian_sigma: 1.4,
-        canny_lower_factor: 0.1,
-        canny_upper_factor: 0.3,
-      },
+      resolution,
+      fps: FIXED_TARGET_FPS,
+      bitrate,
     }
   })
+
+  return {
+    targets,
+    metadata_extractor: {
+      processor: 'canny',
+    },
+    metadata_storage: 'metadata_in_manifest',
+  }
 }
 
 function isBatchItemSuccessful(status: number): boolean {
@@ -97,12 +97,35 @@ export function summarizeTranscodeBatchResponse(
   }
 }
 
+function formatApiErrorMessage(data: Record<string, unknown>): string | null {
+  const details = data.details
+  if (Array.isArray(details) && details.length > 0) {
+    const lines = details
+      .map((detail) => {
+        if (!detail || typeof detail !== 'object') return null
+        const field = 'field' in detail && typeof detail.field === 'string' ? detail.field : null
+        const message =
+          'message' in detail && typeof detail.message === 'string' ? detail.message : null
+        if (field && message) return `${field}: ${message}`
+        return message
+      })
+      .filter((line): line is string => Boolean(line?.trim()))
+
+    if (lines.length > 0) {
+      return lines.join('\n')
+    }
+  }
+
+  const message = data.message
+  return typeof message === 'string' && message.trim() ? message : null
+}
+
 export function packagingNoticeFromError(error: unknown): Pick<PackagingNotice, 'title' | 'message' | 'success'> {
   if (error && typeof error === 'object' && 'data' in error) {
     const data = (error as { data?: unknown }).data
-    if (data && typeof data === 'object' && 'message' in data) {
-      const message = (data as { message?: unknown }).message
-      if (typeof message === 'string' && message.trim()) {
+    if (data && typeof data === 'object') {
+      const message = formatApiErrorMessage(data as Record<string, unknown>)
+      if (message) {
         return {
           success: false,
           title: 'Packaging failed',

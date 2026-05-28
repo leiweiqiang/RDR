@@ -1,7 +1,14 @@
 import type { PaginationMeta } from './common'
 
-export type MetadataExtractorConfig = {
-  processor: string
+export type MetadataExtractorProcess = 'canny' | 'spatial_depth' | 'skeleton_keypoints'
+
+export type MetadataExtractorRequest = {
+  processor: MetadataExtractorProcess
+}
+
+export type MetadataStorage = 'metadata_in_manifest' | 'metadata_in_video'
+
+export type MetadataExtractorConfig = MetadataExtractorRequest & {
   canny_gaussian_sigma?: number | null
   canny_lower_factor?: number | null
   canny_upper_factor?: number | null
@@ -9,18 +16,20 @@ export type MetadataExtractorConfig = {
 
 export type TranscodeConfig = {
   resolution: string
-  fps?: number | null
+  fps: number
   bitrate: number
 }
 
 export type TranscodeParams = {
   transcode: TranscodeConfig
   metadata_extractor: MetadataExtractorConfig
+  metadata_storage?: MetadataStorage
 }
 
 export type TranscodeTaskCreateBody = {
-  params: TranscodeParams[]
-  force?: boolean
+  targets: TranscodeConfig[]
+  metadata_extractor: MetadataExtractorRequest
+  metadata_storage: MetadataStorage
 }
 
 export type TranscodeTaskResponse = {

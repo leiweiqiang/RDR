@@ -1,7 +1,7 @@
 import { createTranscodeTasks, listTranscodedStreamsByVideo } from '~/api/videos'
 import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
 import {
-  buildPackagingTranscodeParams,
+  buildPackagingTranscodeBody,
   createClosedPackagingNotice,
   packagingNoticeFromError,
   summarizeTranscodeBatchResponse,
@@ -126,8 +126,8 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     packagingPending.value = true
 
     try {
-      const params = buildPackagingTranscodeParams(poolId)
-      const response = await createTranscodeTasks(vid, { params })
+      const body = buildPackagingTranscodeBody(poolId)
+      const response = await createTranscodeTasks(vid, body)
       packagingNotice.value = {
         open: true,
         ...summarizeTranscodeBatchResponse(response),
