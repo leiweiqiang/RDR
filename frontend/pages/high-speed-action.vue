@@ -217,16 +217,25 @@ import {
   type HighSpeedActionFilterKey,
   type HighSpeedActionFilters,
 } from '~/utils/highSpeedActionFilters'
+import {
+  DEFAULT_HIGH_SPEED_ACTION_FILTERS,
+  HIGH_SPEED_ACTION_RESOLUTION_OPTIONS,
+  HIGH_SPEED_ACTION_SIZE_OPTIONS,
+  HIGH_SPEED_ACTION_TIME_OPTIONS,
+  HIGH_SPEED_ACTION_TYPE_OPTIONS,
+  loadHighSpeedActionPageQueryState,
+  saveHighSpeedActionPageQueryState,
+} from '~/utils/highSpeedActionFilterStorage'
 
 const CATEGORY_NAME = 'high-speed-action'
 
 const { categoryTitle, contentPool, streamingFiles, pending, error, refresh } =
   useCategoryContent(CATEGORY_NAME)
 
-const timeOptions = ['All', 'Last Week', 'Last Month', 'Last Year'] as const
-const resolutionOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] as const
-const typeOptions = ['All', '.mp4', '.mov'] as const
-const sizeOptions = ['All', 'Large to Small', 'Small to Large'] as const
+const timeOptions = HIGH_SPEED_ACTION_TIME_OPTIONS
+const resolutionOptions = HIGH_SPEED_ACTION_RESOLUTION_OPTIONS
+const typeOptions = HIGH_SPEED_ACTION_TYPE_OPTIONS
+const sizeOptions = HIGH_SPEED_ACTION_SIZE_OPTIONS
 
 type FilterKey = HighSpeedActionFilterKey
 
@@ -238,17 +247,11 @@ const filterFields = [
 ]
 
 const poolFilters = reactive<HighSpeedActionFilters>({
-  time: 'All',
-  resolution: 'All',
-  type: 'All',
-  size: 'All',
+  ...DEFAULT_HIGH_SPEED_ACTION_FILTERS,
 })
 
 const streamFilters = reactive<HighSpeedActionFilters>({
-  time: 'All',
-  resolution: 'All',
-  type: 'All',
-  size: 'All',
+  ...DEFAULT_HIGH_SPEED_ACTION_FILTERS,
 })
 
 const poolSearchOpen = ref(false)
@@ -291,20 +294,51 @@ const streamHasActiveFilters = computed(() => filtersAreActive(streamFilters))
 function resetPoolQuery() {
   poolSearchQuery.value = ''
   poolSearchOpen.value = false
-  poolFilters.time = 'All'
-  poolFilters.resolution = 'All'
-  poolFilters.type = 'All'
-  poolFilters.size = 'All'
+  Object.assign(poolFilters, DEFAULT_HIGH_SPEED_ACTION_FILTERS)
 }
 
 function resetStreamQuery() {
   streamSearchQuery.value = ''
   streamSearchOpen.value = false
-  streamFilters.time = 'All'
-  streamFilters.resolution = 'All'
-  streamFilters.type = 'All'
-  streamFilters.size = 'All'
+  Object.assign(streamFilters, DEFAULT_HIGH_SPEED_ACTION_FILTERS)
 }
+
+watch(
+  [poolFilters, poolSearchQuery, streamFilters, streamSearchQuery],
+  () => {
+    saveHighSpeedActionPageQueryState(CATEGORY_NAME, {
+      pool: {
+        searchQuery: poolSearchQuery.value,
+        filters: {
+          time: poolFilters.time,
+          resolution: poolFilters.resolution,
+          type: poolFilters.type,
+          size: poolFilters.size,
+        },
+      },
+      stream: {
+        searchQuery: streamSearchQuery.value,
+        filters: {
+          time: streamFilters.time,
+          resolution: streamFilters.resolution,
+          type: streamFilters.type,
+          size: streamFilters.size,
+        },
+      },
+    })
+  },
+  { deep: true },
+)
+
+onMounted(() => {
+  const saved = loadHighSpeedActionPageQueryState(CATEGORY_NAME)
+  if (!saved) return
+
+  Object.assign(poolFilters, saved.pool.filters)
+  poolSearchQuery.value = saved.pool.searchQuery
+  Object.assign(streamFilters, saved.stream.filters)
+  streamSearchQuery.value = saved.stream.searchQuery
+})
 
 function togglePoolSearch() {
   poolSearchOpen.value = !poolSearchOpen.value
