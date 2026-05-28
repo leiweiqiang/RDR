@@ -23,7 +23,14 @@
           </label>
         </div>
         <div class="pkg__actions">
-          <button type="button" class="pkg__btn-primary">Metadata Generation and Packaging</button>
+          <button
+            type="button"
+            class="pkg__btn-primary"
+            :disabled="packagingPending"
+            @click="emit('run-packaging')"
+          >
+            {{ packagingPending ? 'Packaging…' : 'Metadata Generation and Packaging' }}
+          </button>
           <NuxtLink to="/high-speed-action" class="pkg__btn-next">Next</NuxtLink>
         </div>
       </div>
@@ -91,21 +98,57 @@
         </p>
       </aside>
     </template>
+
+    <div
+      v-if="packagingNotice.open"
+      class="pkg__dialog-backdrop"
+      @click.self="emit('close-packaging-notice')"
+    >
+      <div
+        class="pkg__dialog"
+        role="alertdialog"
+        aria-modal="true"
+        :aria-labelledby="dialogTitleId"
+        :aria-describedby="dialogMessageId"
+      >
+        <h3 :id="dialogTitleId" class="pkg__dialog-title">{{ packagingNotice.title }}</h3>
+        <p :id="dialogMessageId" class="pkg__dialog-message">{{ packagingNotice.message }}</p>
+        <button
+          type="button"
+          class="pkg__dialog-btn"
+          :class="{ 'pkg__dialog-btn--error': !packagingNotice.success }"
+          @click="emit('close-packaging-notice')"
+        >
+          OK
+        </button>
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
 import type { PackagingResultItem } from '~/composables/usePackaging'
+import type { PackagingNotice } from '~/utils/packagingTranscode'
 import type { RawVideoListItem } from '~/types/api/video'
 
-const props = defineProps<{
+defineProps<{
   previewImageUrl: string
   video: RawVideoListItem | null
   resultItems: PackagingResultItem[]
   metadataType: string
   poolId: string
   pending?: boolean
+  packagingPending?: boolean
+  packagingNotice: PackagingNotice
 }>()
+
+const emit = defineEmits<{
+  'run-packaging': []
+  'close-packaging-notice': []
+}>()
+
+const dialogTitleId = 'pkg-dialog-title'
+const dialogMessageId = 'pkg-dialog-message'
 
 const placement = ref<'manifest' | 'video'>('manifest')
 
@@ -296,6 +339,68 @@ function formatFrameRate(fps: number | null | undefined): string {
 .pkg__btn-primary:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
+}
+
+.pkg__btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.pkg__dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.pkg__dialog {
+  width: min(100%, 24rem);
+  border-radius: 12px;
+  padding: 1.15rem 1.2rem 1rem;
+  background: rgba(22, 22, 26, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.pkg__dialog-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.pkg__dialog-message {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: pre-line;
+}
+
+.pkg__dialog-btn {
+  margin-top: 1rem;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #000;
+  background: #00e676;
+  cursor: pointer;
+}
+
+.pkg__dialog-btn--error {
+  background: #ff5252;
+  color: #fff;
 }
 
 .pkg__btn-next {

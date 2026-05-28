@@ -6,6 +6,10 @@
     :metadata-type="metadataType"
     :pool-id="poolId"
     :pending="pending"
+    :packaging-pending="packagingPending"
+    :packaging-notice="packagingNotice"
+    @run-packaging="runPackaging"
+    @close-packaging-notice="closePackagingNotice"
   />
 </template>
 
@@ -17,7 +21,17 @@ definePageMeta({
 const route = useRoute()
 const poolId = computed(() => String(route.params.id))
 
-const { previewImageUrl, video, resultItems, metadataType, pending } = usePackaging(poolId)
+const {
+  previewImageUrl,
+  video,
+  resultItems,
+  metadataType,
+  pending,
+  packagingPending,
+  packagingNotice,
+  runPackaging,
+  closePackagingNotice,
+} = usePackaging(poolId)
 
 useHead(() => ({
   title: video.value?.name

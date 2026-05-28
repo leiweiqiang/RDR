@@ -1,5 +1,12 @@
-import { listTranscodedStreamsByVideo } from '~/api/videos'
+import { createTranscodeTasks, listTranscodedStreamsByVideo } from '~/api/videos'
 import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import {
+  buildPackagingTranscodeParams,
+  createClosedPackagingNotice,
+  packagingNoticeFromError,
+  summarizeTranscodeBatchResponse,
+  type PackagingNotice,
+} from '~/utils/packagingTranscode'
 import {
   findResolutionPreset,
   FIXED_TARGET_FPS,
@@ -38,6 +45,8 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
   const transcodedStreams = ref<VideoTranscodedStreamItem[]>([])
   const streamsPending = ref(false)
   const streamsError = ref<Error | null>(null)
+  const packagingPending = ref(false)
+  const packagingNotice = ref<PackagingNotice>(createClosedPackagingNotice())
 
   const pending = computed(() => videoPending.value || streamsPending.value)
   const error = computed(() => streamsError.value ?? videoError.value)
@@ -96,6 +105,46 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     await Promise.all([refreshVideo(), refreshStreams()])
   }
 
+  function closePackagingNotice() {
+    packagingNotice.value = createClosedPackagingNotice()
+  }
+
+  async function runPackaging() {
+    const vid = videoId.value
+    const poolId = toValue(poolIdRef)
+
+    if (vid == null) {
+      packagingNotice.value = {
+        open: true,
+        success: false,
+        title: 'Packaging failed',
+        message: 'Video is not available.',
+      }
+      return
+    }
+
+    packagingPending.value = true
+
+    try {
+      const params = buildPackagingTranscodeParams(poolId)
+      const response = await createTranscodeTasks(vid, { params })
+      packagingNotice.value = {
+        open: true,
+        ...summarizeTranscodeBatchResponse(response),
+      }
+      if (packagingNotice.value.success) {
+        await refreshStreams()
+      }
+    } catch (err) {
+      packagingNotice.value = {
+        open: true,
+        ...packagingNoticeFromError(err),
+      }
+    } finally {
+      packagingPending.value = false
+    }
+  }
+
   watch(
     videoId,
     () => {
@@ -112,6 +161,10 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     metadataType: PACKAGING_METADATA_TYPE,
     pending,
     error,
+    packagingPending,
+    packagingNotice,
+    runPackaging,
+    closePackagingNotice,
     refresh,
   }
 }
