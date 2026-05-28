@@ -20,6 +20,13 @@
       </svg>
     </div>
 
+    <div class="landing__blur-edge" aria-hidden="true">
+      <div class="landing__blur-col landing__blur-col--wide" />
+      <span class="landing__blur-divider" />
+      <div class="landing__blur-col landing__blur-col--narrow" />
+      <span class="landing__blur-divider" />
+    </div>
+
     <div class="landing__grid">
       <div class="landing__col landing__col--left">
         <div class="landing__brand landing__reveal landing__reveal--1">
@@ -145,9 +152,52 @@ useHead({
   height: 100%;
 }
 
+.landing__blur-edge {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.landing__blur-col {
+  flex-shrink: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(22px) saturate(1.15);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
+}
+
+.landing__blur-col--wide {
+  width: clamp(13rem, 30vw, 21rem);
+}
+
+.landing__blur-col--narrow {
+  width: clamp(7rem, 14vw, 11.5rem);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.landing__blur-divider {
+  flex-shrink: 0;
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 18%,
+    rgba(255, 255, 255, 0.5) 82%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
 .landing__grid {
   position: relative;
-  z-index: 3;
+  z-index: 4;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -286,6 +336,15 @@ useHead({
     grid-template-columns: 1fr;
     align-content: center;
     padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .landing__blur-edge {
+    top: 50%;
+    left: 50%;
+    bottom: auto;
+    height: min(52vh, 440px);
+    transform: translate(-50%, -50%);
+    opacity: 0.92;
   }
 
   .landing__col--left {
