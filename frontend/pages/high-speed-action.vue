@@ -50,7 +50,7 @@
                 <button
                   type="button"
                   class="hsa__icon-btn"
-                  :class="{ 'hsa__icon-btn--active': poolSearchOpen }"
+                  :class="{ 'hsa__icon-btn--active': poolSearchOpen || poolSearchQuery }"
                   :aria-expanded="poolSearchOpen"
                   aria-controls="hsa-pool-search"
                   aria-label="Search content pool"
@@ -100,7 +100,10 @@
               </div>
             </div>
           </div>
-          <ul class="hsa__grid hsa__grid--pool" role="list">
+          <p v-if="filteredContentPool.length === 0" class="hsa__empty">
+            No content matches your search or filters.
+          </p>
+          <ul v-else class="hsa__grid hsa__grid--pool" role="list">
             <li v-for="item in filteredContentPool" :key="item.id" class="hsa__tile">
               <NuxtLink :to="item.to" class="hsa__card">
                 <span class="hsa__card-visual">
@@ -122,7 +125,7 @@
                 <button
                   type="button"
                   class="hsa__icon-btn"
-                  :class="{ 'hsa__icon-btn--active': streamSearchOpen }"
+                  :class="{ 'hsa__icon-btn--active': streamSearchOpen || streamSearchQuery }"
                   :aria-expanded="streamSearchOpen"
                   aria-controls="hsa-stream-search"
                   aria-label="Search streaming files"
@@ -172,7 +175,10 @@
               </div>
             </div>
           </div>
-          <ul class="hsa__grid hsa__grid--stream" role="list">
+          <p v-if="filteredStreamingFiles.length === 0" class="hsa__empty">
+            No streaming files match your search or filters.
+          </p>
+          <ul v-else class="hsa__grid hsa__grid--stream" role="list">
             <li v-for="item in filteredStreamingFiles" :key="item.id" class="hsa__tile">
               <NuxtLink :to="item.to" class="hsa__card hsa__card--stream">
                 <span class="hsa__folder-tab" aria-hidden="true" />
@@ -262,10 +268,7 @@ const filteredStreamingFiles = computed(() =>
 
 function togglePoolSearch() {
   poolSearchOpen.value = !poolSearchOpen.value
-  if (!poolSearchOpen.value) {
-    poolSearchQuery.value = ''
-    return
-  }
+  if (!poolSearchOpen.value) return
   nextTick(() => poolSearchInput.value?.focus())
 }
 
@@ -276,10 +279,7 @@ function closePoolSearch() {
 
 function toggleStreamSearch() {
   streamSearchOpen.value = !streamSearchOpen.value
-  if (!streamSearchOpen.value) {
-    streamSearchQuery.value = ''
-    return
-  }
+  if (!streamSearchOpen.value) return
   nextTick(() => streamSearchInput.value?.focus())
 }
 
@@ -520,6 +520,13 @@ useHead(() => ({
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #fff;
+}
+
+.hsa__empty {
+  margin: 0;
+  padding: 1.25rem 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .hsa__toolbar {

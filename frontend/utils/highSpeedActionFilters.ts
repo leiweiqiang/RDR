@@ -107,17 +107,29 @@ function applySizeSort<T extends HighSpeedActionFilterableItem>(
   })
 }
 
+function matchesSearchQuery(item: HighSpeedActionFilterableItem, query: string): boolean {
+  const normalizedQuery = query.trim().toLowerCase()
+  if (!normalizedQuery) return true
+
+  const haystack = [
+    item.title,
+    item.resolution,
+    item.fileType,
+    resolutionFilterLabel(item.resolution),
+  ]
+    .join(' ')
+    .toLowerCase()
+
+  return haystack.includes(normalizedQuery)
+}
+
 export function filterHighSpeedActionItems<T extends HighSpeedActionFilterableItem>(
   items: T[],
   query: string,
   filters: HighSpeedActionFilters,
 ): T[] {
-  const normalizedQuery = query.trim().toLowerCase()
-
   let result = items.filter((item) => {
-    if (normalizedQuery && !item.title.toLowerCase().includes(normalizedQuery)) {
-      return false
-    }
+    if (!matchesSearchQuery(item, query)) return false
     if (!matchesTimeFilter(item.createdAt, filters.time)) return false
     if (!matchesResolutionFilter(item.resolution, filters.resolution)) return false
     if (!matchesTypeFilter(item.fileType, filters.type)) return false
