@@ -1,6 +1,6 @@
 <template>
   <AppWorkspaceShell>
-    <div class="sf__inner">
+    <div class="app-page-inner">
       <header class="sf__header">
         <div class="sf__header-brand">
           <NuxtLink to="/" class="sf__logo-link">
@@ -184,17 +184,6 @@ useHead(() => ({
 </script>
 
 <style scoped>
-.sf__inner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  max-width: min(100%, 1440px);
-  margin: 0 auto;
-  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1rem, 3vw, 2.25rem) clamp(0.75rem, 2vw, 1.25rem);
-}
-
 .sf__header-brand {
   display: flex;
   flex-wrap: wrap;
@@ -352,7 +341,6 @@ useHead(() => ({
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(0.85rem, 2vw, 1.35rem);
-  max-width: 920px;
 }
 
 .sf__file-card {

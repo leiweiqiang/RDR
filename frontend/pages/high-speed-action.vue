@@ -1,6 +1,6 @@
 <template>
   <AppWorkspaceShell>
-    <div class="hsa__inner">
+    <div class="app-page-inner">
       <header class="hsa__header">
         <div class="hsa__header-brand">
           <NuxtLink to="/" class="hsa__logo-link">
@@ -365,17 +365,6 @@ useHead(() => ({
   border: 0;
 }
 
-.hsa__inner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  max-width: min(100%, 1280px);
-  margin: 0 auto;
-  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1rem, 3vw, 2.25rem) clamp(0.75rem, 2vw, 1.25rem);
-}
-
 .hsa__header {
   display: block;
 }
@@ -647,8 +636,7 @@ useHead(() => ({
 }
 
 .hsa__grid--stream {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: calc(66.666% + 0.5rem);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .hsa__tile {
@@ -736,17 +724,6 @@ a.hsa__card {
   margin: 0;
   background: rgba(255, 255, 255, 0.12);
   border: none;
-}
-
-@media (max-width: 900px) {
-  .hsa__grid--pool {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .hsa__grid--stream {
-    max-width: none;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 560px) {

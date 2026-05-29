@@ -23,7 +23,7 @@ useHead({
       <AdminSiteHeader @menu="mobileSidebarOpen = true" />
 
       <div class="flex flex-1 flex-col gap-2">
-        <div class="flex flex-1 flex-col gap-4 px-4 py-4 md:gap-6 md:px-6 md:py-6">
+        <div class="flex flex-1 flex-col gap-4 px-[var(--page-gutter-x)] py-4 md:gap-6 md:py-6">
           <AdminSectionCards />
           <AdminDataTable :data="adminTableData" />
         </div>

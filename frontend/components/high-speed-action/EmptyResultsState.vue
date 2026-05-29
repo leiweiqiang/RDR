@@ -71,7 +71,7 @@ const showReset = computed(
   justify-content: center;
   gap: 0.55rem;
   min-height: clamp(8rem, 22vw, 11rem);
-  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem);
+  padding: clamp(1.25rem, 3vw, 2rem) var(--page-gutter-x);
   border-radius: 12px;
   text-align: center;
   background:

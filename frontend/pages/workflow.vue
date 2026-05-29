@@ -1,6 +1,6 @@
 <template>
   <AppWorkspaceShell :show-watermark="false">
-    <div class="workflow__inner" :style="stepsWidthVar">
+    <div class="app-page-inner workflow__inner" :style="stepsWidthVar">
       <div class="workflow__stage">
         <div class="workflow__column">
           <div class="workflow__track-wrap">
@@ -166,18 +166,6 @@ useHead({
 </script>
 
 <style scoped>
-.workflow__inner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  --workflow-gutter-x: clamp(1.75rem, 7vw, 5rem);
-  padding: clamp(1.25rem, 4vw, 2rem) 0;
-  max-width: min(100%, 1520px);
-  margin: 0 auto;
-}
-
 .workflow__stage {
   flex: 1;
   display: flex;
@@ -204,7 +192,6 @@ useHead({
   overflow-x: hidden;
   overflow-y: visible;
   margin-top: calc(100dvh / 3);
-  margin-inline: var(--workflow-gutter-x);
   padding-inline: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -306,7 +293,7 @@ useHead({
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0 var(--workflow-gutter-x);
+  padding: 0;
   min-height: 0;
   min-width: 0;
   width: 100%;
@@ -334,7 +321,7 @@ useHead({
   z-index: 10;
   flex: 0 0 auto;
   width: 100%;
-  padding: clamp(0.75rem, 2vw, 1.25rem) var(--workflow-gutter-x) 0;
+  padding: clamp(0.75rem, 2vw, 1.25rem) 0 0;
 }
 
 .workflow__footer-inner {

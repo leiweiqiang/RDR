@@ -1,6 +1,6 @@
 <template>
   <AppWorkspaceShell>
-    <div class="home__inner">
+    <div class="app-page-inner">
       <header class="home__header">
         <NuxtLink to="/" class="home__logo-link" aria-label="RDR home">
           <img
@@ -114,17 +114,6 @@ useHead({
 </script>
 
 <style scoped>
-.home__inner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1rem, 3vw, 2.25rem) clamp(0.75rem, 2vw, 1.25rem);
-  max-width: min(100%, 1440px);
-  margin: 0 auto;
-}
-
 .home__header {
   flex: 0 0 auto;
   display: flex;

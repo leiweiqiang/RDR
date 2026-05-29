@@ -48,7 +48,22 @@
 
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
+
+    --page-gutter-x: clamp(1.5rem, 4.5vw, 3.25rem);
+    --page-gutter-y-top: clamp(1rem, 2.5vw, 1.5rem);
+    --page-gutter-y-bottom: clamp(0.75rem, 2vw, 1.25rem);
   }
+}
+
+.app-page-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: var(--page-gutter-y-top) var(--page-gutter-x) var(--page-gutter-y-bottom);
 }
 
 @layer base {

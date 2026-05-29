@@ -206,7 +206,7 @@ useHead({
   align-items: center;
   align-content: center;
   min-height: 100dvh;
-  padding: clamp(1.5rem, 4vw, 3.5rem);
+  padding: clamp(1.5rem, 4vw, 3.5rem) var(--page-gutter-x);
   gap: clamp(1rem, 3vw, 2.5rem);
   pointer-events: none;
 }

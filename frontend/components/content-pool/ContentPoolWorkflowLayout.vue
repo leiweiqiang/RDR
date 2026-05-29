@@ -1,6 +1,6 @@
 <template>
   <AppWorkspaceShell>
-    <div class="hsa__inner">
+    <div class="app-page-inner">
       <header class="hsa__header">
         <div class="hsa__header-brand">
           <NuxtLink to="/" class="hsa__logo-link">
@@ -116,17 +116,6 @@ useHead({
 </script>
 
 <style scoped>
-.hsa__inner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  max-width: min(100%, 1280px);
-  margin: 0 auto;
-  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1rem, 3vw, 2.25rem) clamp(0.75rem, 2vw, 1.25rem);
-}
-
 .hsa__header {
   display: block;
 }
@@ -195,7 +184,7 @@ useHead({
   flex-direction: row;
   align-items: stretch;
   gap: clamp(0.2rem, 1vw, 0.55rem);
-  max-width: min(100%, calc(920px + clamp(18px, 3vw, 28px)));
+  width: 100%;
   margin-left: 0;
   margin-right: 0;
   margin-bottom: clamp(1.25rem, 3vw, 2rem);
@@ -230,7 +219,6 @@ useHead({
 .hsa__stepper-panel {
   position: relative;
   width: 100%;
-  max-width: 920px;
   margin: 0;
   padding: clamp(0.65rem, 1.8vw, 0.95rem) clamp(0.75rem, 2vw, 1.35rem) clamp(0.35rem, 1vw, 0.5rem);
   background: transparent;
@@ -243,7 +231,6 @@ useHead({
   font-size: clamp(0.78rem, 1.15vw, 0.92rem);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.78);
-  max-width: min(100%, 52rem);
   margin-left: 0;
   margin-right: 0;
   line-height: 1.5;
@@ -252,12 +239,7 @@ useHead({
 }
 
 @media (max-width: 900px) {
-  .hsa__stepper-wrap {
-    max-width: 100%;
-  }
-
   .hsa__stepper-panel {
-    max-width: 100%;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
