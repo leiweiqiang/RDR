@@ -99,9 +99,7 @@
         </div>
       </main>
 
-      <footer class="home__footer">
-        <span class="home__copyright">@ CSOT 2026</span>
-      </footer>
+      <AppSiteFooter />
     </div>
   </div>
 </template>
@@ -404,17 +402,6 @@ useHead({
   pointer-events: none;
   user-select: none;
   z-index: 1;
-}
-
-.home__footer {
-  flex: 0 0 auto;
-  padding-top: clamp(0.5rem, 1.5vw, 0.85rem);
-}
-
-.home__copyright {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.32);
-  letter-spacing: 0.02em;
 }
 
 @media (max-width: 960px) {

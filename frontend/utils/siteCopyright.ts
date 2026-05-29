@@ -1,0 +1,1 @@
+export const SITE_COPYRIGHT_TEXT = '@ CSOT 2026'

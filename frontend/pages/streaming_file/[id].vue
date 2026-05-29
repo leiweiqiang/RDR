@@ -114,9 +114,7 @@
         </div>
       </main>
 
-      <footer class="sf__footer">
-        <span class="sf__copyright">© CSOT 2026</span>
-      </footer>
+      <AppSiteFooter />
     </div>
   </div>
 </template>
@@ -522,17 +520,6 @@ useHead(() => ({
   pointer-events: none;
   user-select: none;
   z-index: 1;
-}
-
-.sf__footer {
-  margin-top: auto;
-  padding-top: 0.5rem;
-}
-
-.sf__copyright {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.32);
-  letter-spacing: 0.02em;
 }
 
 @media (max-width: 900px) {

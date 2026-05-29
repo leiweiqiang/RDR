@@ -49,9 +49,7 @@
 
       <slot />
 
-      <footer class="hsa__footer">
-        <span class="hsa__copyright">{{ copyrightText }}</span>
-      </footer>
+      <AppSiteFooter />
     </div>
   </div>
 </template>
@@ -125,8 +123,6 @@ const stepperHint = computed(() => {
       return ''
   }
 })
-
-const copyrightText = computed(() => (activeStepId.value === 'packaging' ? '© CSOT 2024' : '© CSOT 2023'))
 
 useHead({
   link: [
@@ -370,17 +366,6 @@ useHead({
   pointer-events: none;
   user-select: none;
   z-index: 1;
-}
-
-.hsa__footer {
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.hsa__copyright {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.32);
-  letter-spacing: 0.02em;
 }
 
 @media (max-width: 900px) {
