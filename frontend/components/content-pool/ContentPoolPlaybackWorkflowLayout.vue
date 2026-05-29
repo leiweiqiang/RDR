@@ -1,24 +1,5 @@
 <template>
-  <div class="hsa">
-    <div class="hsa__glow hsa__glow--red" aria-hidden="true" />
-    <div class="hsa__glow hsa__glow--red-center" aria-hidden="true" />
-    <div class="hsa__spotlight" aria-hidden="true" />
-
-    <div class="hsa__noise" aria-hidden="true">
-      <svg class="hsa__noise-svg" xmlns="http://www.w3.org/2000/svg">
-        <filter id="cpb-noise" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch" result="n" />
-          <feColorMatrix type="saturate" values="0" in="n" result="g" />
-          <feComponentTransfer in="g" result="c">
-            <feFuncA type="linear" slope="0.35" />
-          </feComponentTransfer>
-        </filter>
-        <rect width="100%" height="100%" filter="url(#cpb-noise)" />
-      </svg>
-    </div>
-
-    <p class="hsa__watermark" aria-hidden="true">WORKSPACE</p>
-
+  <AppWorkspaceShell>
     <div class="hsa__inner">
       <header class="hsa__header">
         <div class="hsa__header-brand">
@@ -51,7 +32,7 @@
 
       <AppSiteFooter />
     </div>
-  </div>
+  </AppWorkspaceShell>
 </template>
 
 <script setup lang="ts">
@@ -126,88 +107,6 @@ useHead({
 </script>
 
 <style scoped>
-.hsa {
-  position: relative;
-  min-height: 100dvh;
-  overflow: hidden;
-  background-color: transparent;
-  background-image: none;
-  color: #fff;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-}
-
-.hsa__glow {
-  position: absolute;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 50%;
-  filter: blur(120px);
-}
-
-.hsa__glow--red {
-  width: min(95vw, 980px);
-  height: min(95vw, 980px);
-  left: -22%;
-  bottom: -35%;
-  opacity: 0.55;
-  background: radial-gradient(
-    circle,
-    rgba(160, 24, 48, 0.55) 0%,
-    rgba(90, 8, 28, 0.38) 42%,
-    rgba(30, 0, 10, 0.12) 68%,
-    transparent 76%
-  );
-}
-
-.hsa__glow--red-center {
-  width: min(120vw, 1400px);
-  height: min(70vh, 900px);
-  left: 50%;
-  bottom: -40%;
-  transform: translateX(-50%);
-  opacity: 0.7;
-  filter: blur(140px);
-  background: radial-gradient(
-    ellipse 55% 45% at 50% 100%,
-    rgba(200, 28, 48, 0.5) 0%,
-    rgba(80, 6, 22, 0.28) 50%,
-    transparent 72%
-  );
-}
-
-.hsa__spotlight {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 58% 46% at 50% 38%,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 240, 245, 0.02) 45%,
-    transparent 74%
-  );
-}
-
-.hsa__noise {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.16;
-  mix-blend-mode: overlay;
-}
-
-.hsa__noise-svg {
-  width: 100%;
-  height: 100%;
-}
-
 .hsa__inner {
   position: relative;
   z-index: 2;
@@ -341,22 +240,6 @@ useHead({
   line-height: 1.5;
   text-align: left;
   letter-spacing: 0.01em;
-}
-
-.hsa__watermark {
-  position: fixed;
-  right: clamp(0.75rem, 3vw, 2rem);
-  bottom: max(clamp(0.75rem, 2vw, 1.25rem), env(safe-area-inset-bottom, 0px));
-  margin: 0;
-  font-size: clamp(2.25rem, 7vw, 4rem);
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: rgba(90, 12, 22, 0.38);
-  line-height: 1;
-  text-align: right;
-  pointer-events: none;
-  user-select: none;
-  z-index: 1;
 }
 
 @media (max-width: 900px) {
