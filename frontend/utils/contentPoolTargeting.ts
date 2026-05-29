@@ -34,14 +34,14 @@ export const RESOLUTION_PRESETS: readonly ResolutionPreset[] = [
     bitrateMbps: 5,
     bitrateLabel: '5 Mbps',
   },
-  {
-    id: '4k',
-    label: '4K (3840 X 2160)',
-    width: 3840,
-    height: 2160,
-    bitrateMbps: 15,
-    bitrateLabel: '15 Mbps',
-  },
+  // {
+  //   id: '4k',
+  //   label: '4K (3840 X 2160)',
+  //   width: 3840,
+  //   height: 2160,
+  //   bitrateMbps: 15,
+  //   bitrateLabel: '15 Mbps',
+  // },
 ]
 
 export const FIXED_TARGET_FPS = 30
