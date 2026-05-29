@@ -1,4 +1,4 @@
-export type ResolutionId = '720p' | '480p' | '360p'
+export type ResolutionId = '4k' | '1080p' | '720p' | '360p'
 
 export type ResolutionPreset = {
   id: ResolutionId
@@ -11,28 +11,36 @@ export type ResolutionPreset = {
 
 export const RESOLUTION_PRESETS: readonly ResolutionPreset[] = [
   {
+    id: '360p',
+    label: '360p (640 X 360)',
+    width: 640,
+    height: 360,
+    bitrateMbps: 0.6,
+    bitrateLabel: '600 kbps',
+  },
+  {
     id: '720p',
-    label: '720p (720 X 405)',
-    width: 720,
-    height: 405,
+    label: '720p (1280 X 720)',
+    width: 1280,
+    height: 720,
     bitrateMbps: 3.5,
     bitrateLabel: '3.5 Mbps',
   },
   {
-    id: '480p',
-    label: '480p (480 X 270)',
-    width: 480,
-    height: 270,
-    bitrateMbps: 1,
-    bitrateLabel: '1 Mbps',
+    id: '1080p',
+    label: '1080p (1920 X 1080)',
+    width: 1920,
+    height: 1080,
+    bitrateMbps: 5,
+    bitrateLabel: '5 Mbps',
   },
   {
-    id: '360p',
-    label: '360p (360 X 203)',
-    width: 360,
-    height: 203,
-    bitrateMbps: 0.6,
-    bitrateLabel: '600 kbps',
+    id: '4k',
+    label: '4K (3840 X 2160)',
+    width: 3840,
+    height: 2160,
+    bitrateMbps: 15,
+    bitrateLabel: '15 Mbps',
   },
 ]
 
@@ -103,7 +111,7 @@ export function loadCompleteTargetingResolutions(poolId: string): string[] {
   return rows.filter((r) => r && isValidResolutionLabel(r))
 }
 
-/** Display form e.g. `720p(720x405)`. */
+/** Display form e.g. `720p(1280x720)`. */
 export function formatResolutionCompact(label: string): string {
   const preset = findResolutionPreset(label)
   if (!preset) return label

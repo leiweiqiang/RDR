@@ -41,11 +41,10 @@ export function resolutionFilterLabel(resolution: string): string {
 
   const width = Number.parseInt(match[1], 10)
   if (width >= 3840) return '4K'
-  if (width >= 2560) return '2K'
   if (width >= 1920) return '1080P'
   if (width >= 1280) return '720P'
-  if (width >= 640) return '480P'
-  return '360P'
+  if (width >= 640) return '360P'
+  return resolution.toUpperCase()
 }
 
 function parseResolutionPixels(resolution: string): number {

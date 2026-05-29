@@ -149,7 +149,7 @@ const streamingTitle = computed(() => {
   return STREAMING_TITLES[id] ?? `Streaming File Name_${id}`
 })
 
-const resolutionFilterOptions = ['All', '4K', '2K', '1080P', '720P', '480P', '360P'] as const
+const resolutionFilterOptions = ['All', '4K', '1080P', '720P', '360P'] as const
 const framesFilterOptions = [
   'All',
   'Less than 12fps',
@@ -178,7 +178,7 @@ const filterFields = [
 ]
 
 const filterChoices = ref<Record<FilterKey, string>>({
-  resolution: '2K',
+  resolution: 'All',
   frames: '24 fps',
   mbps: '48 Mbps',
 })

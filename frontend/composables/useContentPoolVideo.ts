@@ -6,9 +6,9 @@ export function formatResolutionLabel(resolution: string): string {
   if (!match) return resolution
   const width = Number.parseInt(match[1], 10)
   if (width >= 3840) return '4K'
-  if (width >= 2560) return '2K'
   if (width >= 1920) return '1080p'
   if (width >= 1280) return '720p'
+  if (width >= 640) return '360p'
   return resolution
 }
 

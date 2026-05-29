@@ -10,10 +10,8 @@ export const HIGH_SPEED_ACTION_TIME_OPTIONS = [
 export const HIGH_SPEED_ACTION_RESOLUTION_OPTIONS = [
   'All',
   '4K',
-  '2K',
   '1080P',
   '720P',
-  '480P',
   '360P',
 ] as const
 
