@@ -31,7 +31,6 @@
           >
             {{ packagingPending ? 'Packaging…' : 'Metadata Generation and Packaging' }}
           </button>
-          <NuxtLink to="/high-speed-action" class="pkg__btn-next">Next</NuxtLink>
         </div>
       </div>
 
@@ -56,13 +55,11 @@
                 <span class="pkg__val">{{ formatFrameRate(video.fps) }}</span>
               </dd>
             </div>
-            <div class="pkg__row">
-              <dt>Metadata Type</dt>
-              <dd>
-                <span class="pkg__val">{{ metadataType }}</span>
-              </dd>
-            </div>
           </dl>
+        </section>
+        <section v-if="video" class="pkg__block pkg__block--meta">
+          <h3 class="pkg__block-title">Metadata Type</h3>
+          <span class="pkg__val pkg__meta-val">{{ metadataType }}</span>
         </section>
         <section
           v-for="item in resultItems"
@@ -83,12 +80,6 @@
               <dt>Frame Rate</dt>
               <dd>
                 <span class="pkg__val">{{ formatFrameRate(item.fps) }}</span>
-              </dd>
-            </div>
-            <div class="pkg__row">
-              <dt>Metadata Type</dt>
-              <dd>
-                <span class="pkg__val">{{ metadataType }}</span>
               </dd>
             </div>
           </dl>
@@ -224,6 +215,24 @@ function formatFrameRate(fps: number | null | undefined): string {
   letter-spacing: 0.04em;
   color: #fff;
   text-transform: none;
+}
+
+.pkg__block--meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pkg__block--meta .pkg__block-title {
+  margin: 0;
+}
+
+.pkg__meta-val {
+  margin-left: auto;
+  text-align: right;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .pkg__empty {

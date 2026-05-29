@@ -50,7 +50,7 @@ function toStreamingFileItem(stream: TranscodedStreamListItem): StreamingFileIte
     id: stream.id,
     title: stream.name,
     imageUrl: stream.cover,
-    to: `/streaming_file/${stream.id}`,
+    to: `/content-pool/${stream.video.id}/playback/targeting`,
     createdAt: stream.created_at,
     resolution: stream.resolution,
     fileType: extractFileType(stream.name, stream.stream_url),

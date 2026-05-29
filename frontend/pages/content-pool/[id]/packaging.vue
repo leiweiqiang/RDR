@@ -9,7 +9,7 @@
     :packaging-pending="packagingPending"
     :packaging-notice="packagingNotice"
     @run-packaging="runPackaging"
-    @close-packaging-notice="closePackagingNotice"
+    @close-packaging-notice="onClosePackagingNotice"
   />
 </template>
 
@@ -32,6 +32,14 @@ const {
   runPackaging,
   closePackagingNotice,
 } = usePackaging(poolId)
+
+function onClosePackagingNotice() {
+  const wasSuccess = packagingNotice.value.success
+  closePackagingNotice()
+  if (wasSuccess) {
+    navigateTo('/high-speed-action')
+  }
+}
 
 useHead(() => ({
   title: video.value?.name
