@@ -86,7 +86,7 @@
               ref="withMetaPreviewRef"
               v-model:scrub-position="scrub"
               :image-url="metadataCoverUrl"
-              :stream-url="streamUrl"
+              :stream-url="metadataStreamUrl"
               :scrub-source="false"
               framed
               show-play
@@ -130,6 +130,7 @@ const {
   previewCoverUrl,
   metadataCoverUrl,
   streamUrl,
+  metadataStreamUrl,
   pending,
   error,
   refresh,

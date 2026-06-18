@@ -46,6 +46,11 @@ export function useCollectionStreamPage(
   const previewCoverUrl = computed(() => stream.value?.cover ?? collection.value?.cover ?? '')
   const metadataCoverUrl = computed(() => previewCoverUrl.value)
   const streamUrl = computed(() => stream.value?.stream_url ?? '')
+  const metadataStreamUrl = computed(() => {
+    const rawStreamUrl = collection.value?.raw_video?.stream_url
+    if (rawStreamUrl) return rawStreamUrl
+    return streamUrl.value
+  })
 
   async function refresh() {
     const cid = parseId(toValue(collectionId))
@@ -103,6 +108,7 @@ export function useCollectionStreamPage(
     previewCoverUrl,
     metadataCoverUrl,
     streamUrl,
+    metadataStreamUrl,
     pending,
     error,
     refresh,

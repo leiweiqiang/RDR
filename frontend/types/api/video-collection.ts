@@ -24,6 +24,7 @@ export type VideoCollectionRawVideo = {
   bitrate: number | null
   video_type: string
   canny_cover: string | null
+  stream_url?: string | null
 }
 
 export type TranscodedStreamFile = {
