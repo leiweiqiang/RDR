@@ -1,4 +1,5 @@
-import { getVideo } from '~/api/videos'
+import { getVideoCollection } from '~/api/video-collections'
+import type { VideoCollectionDetail } from '~/types/api/video-collection'
 import type { RawVideoListItem } from '~/types/api/video'
 
 export function formatResolutionLabel(resolution: string): string {
@@ -23,18 +24,39 @@ export function formatVideoOriginalMeta(video: RawVideoListItem): string {
   return parts.length ? `Original: ${parts.join(', ')}` : 'Original'
 }
 
-function parseVideoId(poolId: string): number | null {
+function parseCollectionId(poolId: string): number | null {
   const n = Number.parseInt(poolId, 10)
   return Number.isFinite(n) && n > 0 ? n : null
 }
 
+function mapCollectionToVideo(collection: VideoCollectionDetail): RawVideoListItem {
+  const raw = collection.raw_video
+
+  return {
+    id: raw?.id ?? collection.id,
+    name: collection.name,
+    cover: collection.cover,
+    canny_cover: raw?.canny_cover ?? null,
+    provider: collection.provider,
+    storage_path: raw?.storage_path ?? '',
+    duration: collection.duration,
+    resolution: raw?.resolution ?? '',
+    fps: raw?.fps ?? null,
+    bitrate: raw?.bitrate ?? null,
+    video_type: raw?.video_type ?? '',
+    created_at: collection.created_at,
+    updated_at: collection.updated_at,
+  }
+}
+
 export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
   const id = computed(() => toValue(poolId))
-  const videoId = computed(() => parseVideoId(id.value))
+  const collectionId = computed(() => parseCollectionId(id.value))
 
   const { previewImageUrl: fallbackPreviewUrl } = useContentPoolPreview(poolId)
 
   const video = ref<RawVideoListItem | null>(null)
+  const transcodedStreamResolutions = ref<string[]>([])
   const pending = ref(false)
   const error = ref<Error | null>(null)
 
@@ -44,9 +66,10 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
   )
 
   async function refresh() {
-    const vid = videoId.value
-    if (vid == null) {
+    const cid = collectionId.value
+    if (cid == null) {
       video.value = null
+      transcodedStreamResolutions.value = []
       error.value = null
       pending.value = false
       return
@@ -56,17 +79,22 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
     error.value = null
 
     try {
-      video.value = await getVideo(vid)
+      const collection = await getVideoCollection(cid)
+      video.value = mapCollectionToVideo(collection)
+      transcodedStreamResolutions.value = collection.transcoded_stream_files.map(
+        (stream) => stream.resolution,
+      )
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
       video.value = null
+      transcodedStreamResolutions.value = []
     } finally {
       pending.value = false
     }
   }
 
   watch(
-    videoId,
+    collectionId,
     () => {
       void refresh()
     },
@@ -75,6 +103,7 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
 
   return {
     video,
+    transcodedStreamResolutions,
     previewImageUrl,
     originalMeta,
     pending,

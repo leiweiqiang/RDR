@@ -9,7 +9,7 @@
           <nav class="sf__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="sf__crumb">Home</NuxtLink>
             <span class="sf__crumb-sep" aria-hidden="true">&gt;</span>
-            <NuxtLink to="/high-speed-action" class="sf__crumb">High-Speed Action</NuxtLink>
+            <NuxtLink to="/collections" class="sf__crumb">Collections</NuxtLink>
             <span class="sf__crumb-sep" aria-hidden="true">&gt;</span>
             <span class="sf__crumb sf__crumb--current">{{ streamingTitle }}</span>
           </nav>

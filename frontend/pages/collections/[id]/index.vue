@@ -9,7 +9,7 @@
           <nav class="hsa__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="hsa__crumb">Home</NuxtLink>
             <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
-            <span class="hsa__crumb hsa__crumb--current">{{ categoryTitle || 'High-Speed Action' }}</span>
+            <span class="hsa__crumb hsa__crumb--current">{{ categoryTitle || 'Collections' }}</span>
           </nav>
         </div>
       </header>
@@ -23,10 +23,10 @@
           <button type="button" class="hsa__retry" @click="refresh()">Retry</button>
         </div>
         <template v-else>
-        <section class="hsa__section" aria-labelledby="hsa-pool-title">
+        <section class="hsa__section" aria-labelledby="hsa-contents-title">
           <div class="hsa__section-head">
-            <h2 id="hsa-pool-title" class="hsa__section-title">Content Pool</h2>
-            <div class="hsa__toolbar" role="toolbar" aria-label="Content pool filters">
+            <h2 id="hsa-contents-title" class="hsa__section-title">All Contents</h2>
+            <div class="hsa__toolbar" role="toolbar" aria-label="All contents filters">
               <div class="hsa__search-wrap">
                 <button
                   type="button"
@@ -34,7 +34,7 @@
                   :class="{ 'hsa__icon-btn--active': poolSearchOpen || poolSearchQuery }"
                   :aria-expanded="poolSearchOpen"
                   aria-controls="hsa-pool-search"
-                  aria-label="Search content pool"
+                  aria-label="Search all contents"
                   @click="togglePoolSearch"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -48,7 +48,7 @@
                   :class="{ 'hsa__search-field--open': poolSearchOpen }"
                 >
                   <div class="hsa__search-field-inner">
-                    <label class="visually-hidden" for="hsa-pool-search-input">Search content pool</label>
+                    <label class="visually-hidden" for="hsa-pool-search-input">Search all contents</label>
                     <input
                       id="hsa-pool-search-input"
                       ref="poolSearchInput"
@@ -100,87 +100,6 @@
             </li>
           </ul>
         </section>
-
-        <div class="hsa__rule" role="presentation" />
-
-        <section class="hsa__section" aria-labelledby="hsa-stream-title">
-          <div class="hsa__section-head">
-            <h2 id="hsa-stream-title" class="hsa__section-title">Streaming Files</h2>
-            <div class="hsa__toolbar" role="toolbar" aria-label="Streaming files filters">
-              <div class="hsa__search-wrap">
-                <button
-                  type="button"
-                  class="hsa__icon-btn"
-                  :class="{ 'hsa__icon-btn--active': streamSearchOpen || streamSearchQuery }"
-                  :aria-expanded="streamSearchOpen"
-                  aria-controls="hsa-stream-search"
-                  aria-label="Search streaming files"
-                  @click="toggleStreamSearch"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="M20 20l-3-3" stroke-linecap="round" />
-                  </svg>
-                </button>
-                <div
-                  id="hsa-stream-search"
-                  class="hsa__search-field"
-                  :class="{ 'hsa__search-field--open': streamSearchOpen }"
-                >
-                  <div class="hsa__search-field-inner">
-                    <label class="visually-hidden" for="hsa-stream-search-input">Search streaming files</label>
-                    <input
-                      id="hsa-stream-search-input"
-                      ref="streamSearchInput"
-                      v-model="streamSearchQuery"
-                      type="search"
-                      class="hsa__search-input"
-                      placeholder="Search…"
-                      autocomplete="off"
-                      @keydown.esc="closeStreamSearch"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div
-                v-for="field in filterFields"
-                :key="field.key"
-                class="hsa__filter"
-              >
-                <label class="hsa__filter-label" :for="`stream-${field.key}`">
-                  {{ field.label }}
-                </label>
-                <AppStringSelect
-                  :id="`stream-${field.key}`"
-                  v-model="streamFilters[field.key]"
-                  :options="field.options"
-                  :placeholder="field.label"
-                  :aria-label="field.label"
-                  trigger-class="hsa__select-trigger"
-                />
-              </div>
-            </div>
-          </div>
-          <HighSpeedActionEmptyResultsState
-            v-if="filteredStreamingFiles.length === 0"
-            scope="streaming files"
-            :search-query="streamSearchQuery.trim()"
-            :has-active-filters="streamHasActiveFilters"
-            :has-source-items="streamingFiles.length > 0"
-            @reset="resetStreamQuery"
-          />
-          <ul v-else class="hsa__grid hsa__grid--stream" role="list">
-            <li v-for="item in filteredStreamingFiles" :key="item.id" class="hsa__tile">
-              <NuxtLink :to="item.to" class="hsa__card hsa__card--stream">
-                <span class="hsa__folder-tab" aria-hidden="true" />
-                <span class="hsa__card-visual">
-                  <img :src="item.imageUrl" :alt="item.title" loading="lazy" decoding="async" />
-                </span>
-                <span class="hsa__card-label">{{ item.title }}</span>
-              </NuxtLink>
-            </li>
-          </ul>
-        </section>
         </template>
       </main>
 
@@ -198,6 +117,7 @@ import {
 } from '~/utils/highSpeedActionFilters'
 import {
   DEFAULT_HIGH_SPEED_ACTION_FILTERS,
+  createDefaultHighSpeedActionPageQueryState,
   HIGH_SPEED_ACTION_RESOLUTION_OPTIONS,
   HIGH_SPEED_ACTION_SIZE_OPTIONS,
   HIGH_SPEED_ACTION_TIME_OPTIONS,
@@ -208,8 +128,11 @@ import {
 
 const CATEGORY_NAME = 'high-speed-action'
 
-const { categoryTitle, contentPool, streamingFiles, pending, error, refresh } =
-  useCategoryContent(CATEGORY_NAME)
+const route = useRoute()
+const categoryId = computed(() => String(route.params.id))
+
+const { categoryTitle, categoryName, contentPool, pending, error, refresh } =
+  useCategoryContentById(categoryId)
 
 const timeOptions = HIGH_SPEED_ACTION_TIME_OPTIONS
 const resolutionOptions = HIGH_SPEED_ACTION_RESOLUTION_OPTIONS
@@ -229,16 +152,9 @@ const poolFilters = reactive<HighSpeedActionFilters>({
   ...DEFAULT_HIGH_SPEED_ACTION_FILTERS,
 })
 
-const streamFilters = reactive<HighSpeedActionFilters>({
-  ...DEFAULT_HIGH_SPEED_ACTION_FILTERS,
-})
-
 const poolSearchOpen = ref(false)
-const streamSearchOpen = ref(false)
 const poolSearchQuery = ref('')
-const streamSearchQuery = ref('')
 const poolSearchInput = ref<HTMLInputElement | null>(null)
-const streamSearchInput = ref<HTMLInputElement | null>(null)
 
 const filteredContentPool = computed(() =>
   filterHighSpeedActionItems(contentPool.value, poolSearchQuery.value, {
@@ -246,15 +162,6 @@ const filteredContentPool = computed(() =>
     resolution: poolFilters.resolution,
     type: poolFilters.type,
     size: poolFilters.size,
-  }),
-)
-
-const filteredStreamingFiles = computed(() =>
-  filterHighSpeedActionItems(streamingFiles.value, streamSearchQuery.value, {
-    time: streamFilters.time,
-    resolution: streamFilters.resolution,
-    type: streamFilters.type,
-    size: streamFilters.size,
   }),
 )
 
@@ -268,7 +175,6 @@ function filtersAreActive(filters: HighSpeedActionFilters): boolean {
 }
 
 const poolHasActiveFilters = computed(() => filtersAreActive(poolFilters))
-const streamHasActiveFilters = computed(() => filtersAreActive(streamFilters))
 
 function resetPoolQuery() {
   poolSearchQuery.value = ''
@@ -276,16 +182,10 @@ function resetPoolQuery() {
   Object.assign(poolFilters, DEFAULT_HIGH_SPEED_ACTION_FILTERS)
 }
 
-function resetStreamQuery() {
-  streamSearchQuery.value = ''
-  streamSearchOpen.value = false
-  Object.assign(streamFilters, DEFAULT_HIGH_SPEED_ACTION_FILTERS)
-}
-
 watch(
-  [poolFilters, poolSearchQuery, streamFilters, streamSearchQuery],
+  [poolFilters, poolSearchQuery],
   () => {
-    saveHighSpeedActionPageQueryState(CATEGORY_NAME, {
+    saveHighSpeedActionPageQueryState(categoryName.value || CATEGORY_NAME, {
       pool: {
         searchQuery: poolSearchQuery.value,
         filters: {
@@ -295,29 +195,24 @@ watch(
           size: poolFilters.size,
         },
       },
-      stream: {
-        searchQuery: streamSearchQuery.value,
-        filters: {
-          time: streamFilters.time,
-          resolution: streamFilters.resolution,
-          type: streamFilters.type,
-          size: streamFilters.size,
-        },
-      },
+      stream: createDefaultHighSpeedActionPageQueryState().stream,
     })
   },
   { deep: true },
 )
 
-onMounted(() => {
-  const saved = loadHighSpeedActionPageQueryState(CATEGORY_NAME)
-  if (!saved) return
+watch(
+  categoryName,
+  (name) => {
+    if (!name) return
+    const saved = loadHighSpeedActionPageQueryState(name)
+    if (!saved) return
 
-  Object.assign(poolFilters, saved.pool.filters)
-  poolSearchQuery.value = saved.pool.searchQuery
-  Object.assign(streamFilters, saved.stream.filters)
-  streamSearchQuery.value = saved.stream.searchQuery
-})
+    Object.assign(poolFilters, saved.pool.filters)
+    poolSearchQuery.value = saved.pool.searchQuery
+  },
+  { immediate: true },
+)
 
 function togglePoolSearch() {
   poolSearchOpen.value = !poolSearchOpen.value
@@ -330,19 +225,8 @@ function closePoolSearch() {
   poolSearchQuery.value = ''
 }
 
-function toggleStreamSearch() {
-  streamSearchOpen.value = !streamSearchOpen.value
-  if (!streamSearchOpen.value) return
-  nextTick(() => streamSearchInput.value?.focus())
-}
-
-function closeStreamSearch() {
-  streamSearchOpen.value = false
-  streamSearchQuery.value = ''
-}
-
 useHead(() => ({
-  title: `${categoryTitle.value || 'High-Speed Action'} — Content — RDR`,
+  title: `${categoryTitle.value || 'Collections'} — Content — RDR`,
   link: [
     {
       rel: 'stylesheet',
@@ -635,10 +519,6 @@ useHead(() => ({
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.hsa__grid--stream {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .hsa__tile {
   min-width: 0;
 }
@@ -676,25 +556,6 @@ a.hsa__card {
   transform: translateY(-1px);
 }
 
-.hsa__card--stream {
-  position: relative;
-}
-
-.hsa__folder-tab {
-  position: absolute;
-  top: 0;
-  left: 0.65rem;
-  z-index: 2;
-  width: 2.75rem;
-  height: 0.55rem;
-  border-radius: 0 0 6px 6px;
-  background: linear-gradient(180deg, rgba(55, 55, 62, 0.98) 0%, rgba(35, 35, 40, 0.95) 100%);
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-}
-
 .hsa__card-visual {
   position: relative;
   display: block;
@@ -719,16 +580,8 @@ a.hsa__card {
   line-height: 1.35;
 }
 
-.hsa__rule {
-  height: 1px;
-  margin: 0;
-  background: rgba(255, 255, 255, 0.12);
-  border: none;
-}
-
 @media (max-width: 560px) {
-  .hsa__grid--pool,
-  .hsa__grid--stream {
+  .hsa__grid--pool {
     grid-template-columns: 1fr;
   }
 

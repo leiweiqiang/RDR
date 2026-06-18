@@ -56,6 +56,8 @@
               <AppStringSelect
                 v-model="row.resolution"
                 :options="resolutionOptionsForRow(index)"
+                :disabled-options="disabledResolutionOptions"
+                :disabled-option-hint="RESOLUTION_ALREADY_EXISTS_HINT"
                 placeholder="Resolution"
                 aria-label="Resolution"
                 trigger-class="hsa__select-trigger hsa__select-trigger--panel"
@@ -105,7 +107,9 @@
 import {
   bitrateLabelForResolution,
   FIXED_FPS_LABEL,
+  isResolutionAlreadyTranscoded,
   loadTargetingResolutionRows,
+  RESOLUTION_ALREADY_EXISTS_HINT,
   RESOLUTION_OPTION_LABELS,
   RESOLUTION_PRESETS,
   saveTargetingResolutionRows,
@@ -115,6 +119,7 @@ const props = defineProps<{
   previewImageUrl: string
   originalMeta: string
   poolId: string
+  existingStreamResolutions?: string[]
 }>()
 
 const metadataExtractionHref = computed(
@@ -123,6 +128,18 @@ const metadataExtractionHref = computed(
 
 const resolutionOptions = RESOLUTION_OPTION_LABELS
 const FIXED_FPS = FIXED_FPS_LABEL
+
+const existingStreamResolutions = computed(() => props.existingStreamResolutions ?? [])
+
+const disabledResolutionOptions = computed(() =>
+  resolutionOptions.filter((label) =>
+    isResolutionAlreadyTranscoded(label, existingStreamResolutions.value),
+  ),
+)
+
+function isResolutionSelectable(label: string): boolean {
+  return !!label && !isResolutionAlreadyTranscoded(label, existingStreamResolutions.value)
+}
 
 function bitrateLabel(resolution: string): string {
   return bitrateLabelForResolution(resolution)
@@ -156,7 +173,11 @@ function restoreTargetRowsFromStorage() {
     targetRows.value = [makeRow()]
     return
   }
-  targetRows.value = saved.map((resolution) => makeRow({ resolution }))
+  targetRows.value = saved.map((resolution) =>
+    makeRow({
+      resolution: isResolutionSelectable(resolution) ? resolution : '',
+    }),
+  )
 }
 
 restoreTargetRowsFromStorage()
@@ -167,6 +188,12 @@ watch(
     restoreTargetRowsFromStorage()
   },
 )
+
+watch(existingStreamResolutions, () => {
+  targetRows.value = targetRows.value.map((row) =>
+    isResolutionSelectable(row.resolution) ? row : { ...row, resolution: '' },
+  )
+})
 
 watch(
   targetRows,
@@ -193,7 +220,7 @@ function resolutionOptionsForRow(rowIndex: number): string[] {
 }
 
 function isRowComplete(row: TargetRow) {
-  return !!row.resolution
+  return isResolutionSelectable(row.resolution)
 }
 
 const canProceed = computed(

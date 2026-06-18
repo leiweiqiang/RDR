@@ -19,6 +19,11 @@
           <label class="meta__check meta__check--disabled">
             <input type="checkbox" disabled class="meta__check-input" />
             <span class="meta__check-ui" aria-hidden="true" />
+            <span>Special Depth</span>
+          </label>
+          <label class="meta__check meta__check--disabled">
+            <input type="checkbox" disabled class="meta__check-input" />
+            <span class="meta__check-ui" aria-hidden="true" />
             <span>Skeleton Keypoints</span>
           </label>
         </div>

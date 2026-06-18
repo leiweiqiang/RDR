@@ -3,6 +3,7 @@
     :preview-image-url="previewImageUrl"
     :original-meta="originalMeta"
     :pool-id="poolId"
+    :existing-stream-resolutions="transcodedStreamResolutions"
   />
 </template>
 
@@ -13,12 +14,12 @@ definePageMeta({
 
 const route = useRoute()
 const poolId = computed(() => String(route.params.id))
-const { previewImageUrl, originalMeta, video } = useContentPoolVideo(poolId)
+const { previewImageUrl, originalMeta, video, transcodedStreamResolutions } = useContentPoolVideo(poolId)
 
 useHead(() => ({
   title: video.value?.name
     ? `${video.value.name} — Targeting — RDR`
-    : 'High-Speed Action — Targeting — RDR',
+    : 'Targeting — RDR',
   meta: [
     {
       name: 'description',

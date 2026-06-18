@@ -136,3 +136,13 @@ export function streamMatchesTargetingLabel(
   if (!expected) return false
   return normalizeApiResolution(streamResolution) === normalizeApiResolution(expected)
 }
+
+export function isResolutionAlreadyTranscoded(
+  label: string,
+  streamResolutions: readonly string[],
+): boolean {
+  if (!label) return false
+  return streamResolutions.some((resolution) => streamMatchesTargetingLabel(resolution, label))
+}
+
+export const RESOLUTION_ALREADY_EXISTS_HINT = ' · Video already exists'

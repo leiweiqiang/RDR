@@ -50,6 +50,8 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/api/**': { prerender: false },
+    '/collections': { redirect: '/collections/1' },
+    '/high-speed-action': { redirect: '/collections/1' },
   },
   runtimeConfig: {
     apiKey: process.env.NUXT_PUBLIC_API_KEY || '',

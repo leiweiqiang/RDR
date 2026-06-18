@@ -37,7 +37,7 @@ function onClosePackagingNotice() {
   const wasSuccess = packagingNotice.value.success
   closePackagingNotice()
   if (wasSuccess) {
-    navigateTo('/high-speed-action')
+    navigateTo('/collections/1')
   }
 }
 

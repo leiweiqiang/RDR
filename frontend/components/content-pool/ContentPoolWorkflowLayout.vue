@@ -9,7 +9,9 @@
           <nav class="hsa__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="hsa__crumb">Home</NuxtLink>
             <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
-            <span class="hsa__crumb hsa__crumb--current">High-Speed Action</span>
+            <NuxtLink :to="collectionsHref" class="hsa__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
+            <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
+            <span class="hsa__crumb hsa__crumb--current">{{ videoName || '…' }}</span>
           </nav>
         </div>
       </header>
@@ -36,6 +38,8 @@
 </template>
 
 <script setup lang="ts">
+import { getVideoCollection } from '~/api/video-collections'
+import { listCategories } from '~/api/categories'
 import iconLinesUrl from '~/assets/icon-lines.svg?url'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 import type { WorkflowStepIconKey } from '~/utils/workflowPipelineAssets'
@@ -45,6 +49,50 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
+const videoName = ref('')
+const categoryId = ref<number | null>(null)
+
+const collectionsHref = computed(() =>
+  categoryId.value != null ? `/collections/${categoryId.value}` : '/collections/1',
+)
+const categoryTitle = ref('')
+
+function parsePoolId(poolId: string): number | null {
+  const n = Number.parseInt(poolId, 10)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
+async function loadVideoName(poolId: string) {
+  const collectionId = parsePoolId(poolId)
+  if (collectionId == null) {
+    videoName.value = ''
+    categoryId.value = null
+    categoryTitle.value = ''
+    return
+  }
+
+  try {
+    const collection = await getVideoCollection(collectionId)
+    videoName.value = collection.name
+    categoryId.value = collection.category_id
+
+    const categoriesResponse = await listCategories({ per_page: 100 })
+    const category = categoriesResponse.data.find((item) => item.id === collection.category_id)
+    categoryTitle.value = category?.title ?? 'Collections'
+  } catch {
+    videoName.value = ''
+    categoryId.value = null
+    categoryTitle.value = ''
+  }
+}
+
+watch(
+  () => props.poolId,
+  (poolId) => {
+    void loadVideoName(poolId)
+  },
+  { immediate: true },
+)
 
 type Active = 'targeting' | 'metadata-extraction' | 'packaging'
 
@@ -57,8 +105,9 @@ const activeStepId = computed<Active>(() => {
 
 const steps = computed(() => {
   const id = props.poolId
+  const contentTo = collectionsHref.value
   return [
-    { id: 'content' as const, label: 'Content', to: '/high-speed-action', icon: 'content' satisfies WorkflowStepIconKey },
+    { id: 'content' as const, label: 'Content', to: contentTo, icon: 'content' satisfies WorkflowStepIconKey },
     { id: 'targeting' as const, label: 'Targeting', to: `/content-pool/${id}/targeting`, icon: 'target' satisfies WorkflowStepIconKey },
     {
       id: 'metadata-extraction' as const,
