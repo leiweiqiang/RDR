@@ -117,7 +117,7 @@
           <div class="col__section-head">
             <div class="col__section-title-wrap">
               <h2 id="col-output-title" class="col__section-title">Outputs</h2>
-              <button type="button" class="col__pill-btn" disabled>+ Output</button>
+              <NuxtLink :to="newOutputHref" class="col__pill-btn">+ Output</NuxtLink>
             </div>
             <div class="col__toolbar" role="toolbar" aria-label="Output filters">
               <button type="button" class="col__icon-btn" aria-label="Search outputs">
@@ -143,7 +143,23 @@
               </div>
             </div>
           </div>
-          <p class="col__empty col__empty--large">No Outputs</p>
+          <ul v-if="filteredOutputs.length > 0" class="col__grid" role="list">
+            <li v-for="output in filteredOutputs" :key="output.id" class="col__tile">
+              <button type="button" class="col__card" @click="goToOutput(output.id)">
+                <span class="col__card-visual">
+                  <img :src="output.cover" :alt="output.name" loading="lazy" decoding="async" />
+                  <span
+                    class="col__status-bar"
+                    :class="`col__status-bar--${streamStatusTone(output.status)}`"
+                  >
+                    {{ streamStatusLabel(output.status) }}
+                  </span>
+                </span>
+                <span class="col__card-label">{{ output.name }}</span>
+              </button>
+            </li>
+          </ul>
+          <p v-else class="col__empty col__empty--large">No Outputs</p>
         </section>
       </template>
 
@@ -200,6 +216,16 @@ function streamPagePath(streamId: number) {
 
 function goToStream(streamId: number) {
   void navigateTo(streamPagePath(streamId))
+}
+
+function outputPagePath(outputId: number | 'new') {
+  return `/collections/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
+}
+
+const newOutputHref = computed(() => outputPagePath('new'))
+
+function goToOutput(outputId: number) {
+  void navigateTo(outputPagePath(outputId))
 }
 
 const resolutionFilterOptions = ['All', '4K', '1080P', '720P', '360P'] as const
@@ -277,6 +303,16 @@ const filteredStreams = computed(() => {
       resolutionMatchesFilter(stream.resolution, streamFilters.resolution) &&
       fpsMatchesFilter(stream.fps, streamFilters.frames) &&
       bitrateMatchesFilter(stream.bitrate, streamFilters.mbps),
+  )
+})
+
+const filteredOutputs = computed(() => {
+  const outputs = collection.value?.decoded_stream_files ?? []
+  return outputs.filter(
+    (output) =>
+      resolutionMatchesFilter(output.resolution, outputFilters.resolution) &&
+      fpsMatchesFilter(output.fps, outputFilters.frames) &&
+      bitrateMatchesFilter(output.bitrate, outputFilters.mbps),
   )
 })
 

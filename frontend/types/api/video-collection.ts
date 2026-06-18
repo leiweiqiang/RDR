@@ -51,8 +51,11 @@ export type TranscodedStreamFile = {
   updated_at: string
 }
 
+export type DecodedStreamFile = TranscodedStreamFile
+
 export type VideoCollectionDetail = VideoCollectionListItem & {
   category_id: number
   raw_video: VideoCollectionRawVideo | null
   transcoded_stream_files: TranscodedStreamFile[]
+  decoded_stream_files: DecodedStreamFile[]
 }
