@@ -45,6 +45,7 @@ export function useCollectionStreamPage(
 
   const previewCoverUrl = computed(() => stream.value?.cover ?? collection.value?.cover ?? '')
   const metadataCoverUrl = computed(() => previewCoverUrl.value)
+  const streamUrl = computed(() => stream.value?.stream_url ?? '')
 
   async function refresh() {
     const cid = parseId(toValue(collectionId))
@@ -101,6 +102,7 @@ export function useCollectionStreamPage(
     metadataTypeLabel,
     previewCoverUrl,
     metadataCoverUrl,
+    streamUrl,
     pending,
     error,
     refresh,

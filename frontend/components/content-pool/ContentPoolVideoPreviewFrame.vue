@@ -1,7 +1,28 @@
 <template>
   <div class="cvf" :class="{ 'cvf--framed': framed, 'cvf--has-scrub': showScrubber }">
     <div class="cvf__thumb">
-      <img class="cvf__cover" :src="imageUrl" alt="" loading="lazy" decoding="async" />
+      <video
+        v-if="streamUrl"
+        ref="videoRef"
+        class="cvf__cover cvf__video"
+        :poster="imageUrl || undefined"
+        playsinline
+        preload="metadata"
+        muted
+        @loadedmetadata="onLoadedMetadata"
+        @timeupdate="onTimeUpdate"
+        @seeked="onSeeked"
+        @play="isPlaying = true"
+        @pause="isPlaying = false"
+      />
+      <img
+        v-else
+        class="cvf__cover"
+        :src="imageUrl"
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
       <img
         v-if="showMetaBadge"
         class="cvf__badge"
@@ -15,10 +36,14 @@
         v-if="showPlay"
         type="button"
         class="cvf__play"
-        aria-label="Play preview"
-        @click="$emit('play')"
+        :class="{ 'cvf__play--playing': isPlaying }"
+        :aria-label="isPlaying ? 'Pause preview' : 'Play preview'"
+        @click="onPlayClick"
       >
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <svg v-if="isPlaying" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M8 6h3v12H8V6zm5 0h3v12h-3V6z" />
+        </svg>
+        <svg v-else viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M8 5v14l11-7L8 5z" />
         </svg>
       </button>
@@ -33,6 +58,9 @@
             max="1000"
             :aria-valuetext="String(scrubModel)"
             aria-label="Frame position"
+            @pointerdown="onScrubStart"
+            @pointerup="onScrubEnd"
+            @pointercancel="onScrubEnd"
           />
         </div>
       </div>
@@ -42,26 +70,50 @@
 
 <script setup lang="ts">
 import rdrBadgeIconUrl from '~/assets/icon-rdr-small-highlight.svg?url'
+import { useHlsVideo } from '~/composables/useHlsVideo'
 
 const props = withDefaults(
   defineProps<{
     imageUrl: string
+    streamUrl?: string
     framed?: boolean
     showPlay?: boolean
     showMetaBadge?: boolean
     showScrubber?: boolean
+    /** When false, follows shared scrub but does not write playback progress back (for mirrored players). */
+    scrubSource?: boolean
   }>(),
   {
+    streamUrl: '',
     framed: false,
     showPlay: true,
     showMetaBadge: false,
     showScrubber: false,
+    scrubSource: true,
   },
 )
 
-defineEmits<{ play: [] }>()
+const emit = defineEmits<{
+  play: [playing: boolean]
+  'scrub-start': []
+  'scrub-end': [resumePlayback: boolean]
+}>()
 
-const scrubModel = defineModel<number>('scrubPosition', { default: 741 })
+const scrubModel = defineModel<number>('scrubPosition', { default: 0 })
+
+const videoRef = ref<HTMLVideoElement | null>(null)
+const streamUrlRef = computed(() => props.streamUrl || undefined)
+const duration = ref(0)
+const isPlaying = ref(false)
+const isScrubbing = ref(false)
+const suppressTimeSync = ref(false)
+const isUpdatingScrubFromVideo = ref(false)
+const resumeAfterScrub = ref(false)
+
+const SCRUB_DEADBAND = 2
+const SEEK_TOLERANCE_SEC = 0.2
+
+useHlsVideo(videoRef, streamUrlRef)
 
 const tipStyle = computed(() => {
   const pct = (scrubModel.value / 1000) * 100
@@ -70,6 +122,82 @@ const tipStyle = computed(() => {
     transform: 'translateX(-50%)',
   }
 })
+
+function seekFromScrub(scrub: number) {
+  const video = videoRef.value
+  if (!video || !Number.isFinite(duration.value) || duration.value <= 0) return
+
+  const targetTime = (scrub / 1000) * duration.value
+  if (Math.abs(video.currentTime - targetTime) <= SEEK_TOLERANCE_SEC) return
+
+  suppressTimeSync.value = true
+  video.currentTime = targetTime
+}
+
+function onSeeked() {
+  suppressTimeSync.value = false
+}
+
+function onLoadedMetadata() {
+  const video = videoRef.value
+  if (!video) return
+  duration.value = video.duration
+  seekFromScrub(scrubModel.value)
+}
+
+function onTimeUpdate() {
+  if (!props.scrubSource || suppressTimeSync.value || isScrubbing.value) return
+  const video = videoRef.value
+  if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return
+
+  const nextScrub = Math.round((video.currentTime / video.duration) * 1000)
+  if (Math.abs(nextScrub - scrubModel.value) <= SCRUB_DEADBAND) return
+
+  isUpdatingScrubFromVideo.value = true
+  scrubModel.value = nextScrub
+  nextTick(() => {
+    isUpdatingScrubFromVideo.value = false
+  })
+}
+
+watch(scrubModel, (scrub) => {
+  if (!props.streamUrl || isUpdatingScrubFromVideo.value) return
+  seekFromScrub(scrub)
+})
+
+function onScrubStart() {
+  isScrubbing.value = true
+  resumeAfterScrub.value = isPlaying.value
+  emit('scrub-start')
+  if (isPlaying.value) pause()
+}
+
+function onScrubEnd() {
+  isScrubbing.value = false
+  const shouldResume = resumeAfterScrub.value
+  resumeAfterScrub.value = false
+  emit('scrub-end', shouldResume)
+  if (shouldResume) play()
+}
+
+function play() {
+  const video = videoRef.value
+  if (!video) return
+  void video.play()
+}
+
+function pause() {
+  videoRef.value?.pause()
+}
+
+function onPlayClick() {
+  const willPlay = !isPlaying.value
+  emit('play', willPlay)
+  if (willPlay) play()
+  else pause()
+}
+
+defineExpose({ play, pause })
 </script>
 
 <style scoped>
@@ -97,6 +225,10 @@ const tipStyle = computed(() => {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.cvf__video {
+  background: #0a0a0a;
 }
 
 .cvf__badge {
@@ -152,7 +284,7 @@ const tipStyle = computed(() => {
   bottom: 0;
   padding: 0.35rem 0.65rem 0.45rem;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
-  z-index: 1;
+  z-index: 3;
 }
 
 .cvf__scrub-track {

@@ -34,7 +34,7 @@ const route = useRoute()
 const poolId = computed(() => String(route.params.id))
 const { previewImageUrl } = useContentPoolPreview(poolId)
 
-const scrub = ref(741)
+const scrub = ref(0)
 
 useHead({
   title: 'High-Speed Action — Player — RDR',

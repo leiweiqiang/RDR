@@ -67,23 +67,34 @@
           <div class="sg__compare-col">
             <p class="sg__compare-label">Without RDR Metadata</p>
             <ContentPoolVideoPreviewFrame
+              ref="withoutMetaPreviewRef"
               v-model:scrub-position="scrub"
               :image-url="previewCoverUrl"
+              :stream-url="streamUrl"
               framed
-              :show-play="false"
+              show-play
               :show-meta-badge="false"
               show-scrubber
+              @play="syncPreviewPlayback"
+              @scrub-start="onCompareScrubStart"
+              @scrub-end="onCompareScrubEnd"
             />
           </div>
           <div class="sg__compare-col">
             <p class="sg__compare-label">With RDR Metadata</p>
             <ContentPoolVideoPreviewFrame
+              ref="withMetaPreviewRef"
               v-model:scrub-position="scrub"
               :image-url="metadataCoverUrl"
+              :stream-url="streamUrl"
+              :scrub-source="false"
               framed
-              :show-play="false"
+              show-play
               show-meta-badge
               show-scrubber
+              @play="syncPreviewPlayback"
+              @scrub-start="onCompareScrubStart"
+              @scrub-end="onCompareScrubEnd"
             />
           </div>
         </section>
@@ -118,6 +129,7 @@ const {
   metadataTypeLabel,
   previewCoverUrl,
   metadataCoverUrl,
+  streamUrl,
   pending,
   error,
   refresh,
@@ -133,7 +145,33 @@ const displayFileName = computed(() =>
 
 const streamDisplayName = computed(() => stream.value?.name ?? '')
 
-const scrub = ref(741)
+const withoutMetaPreviewRef = ref<{ play: () => void; pause: () => void } | null>(null)
+const withMetaPreviewRef = ref<{ play: () => void; pause: () => void } | null>(null)
+const previewPlaying = ref(false)
+const resumeAfterCompareScrub = ref(false)
+
+function syncPreviewPlayback(playing: boolean) {
+  previewPlaying.value = playing
+  if (playing) {
+    withoutMetaPreviewRef.value?.play()
+    withMetaPreviewRef.value?.play()
+  } else {
+    withoutMetaPreviewRef.value?.pause()
+    withMetaPreviewRef.value?.pause()
+  }
+}
+
+function onCompareScrubStart() {
+  resumeAfterCompareScrub.value = previewPlaying.value
+  syncPreviewPlayback(false)
+}
+
+function onCompareScrubEnd(shouldResume: boolean) {
+  if (resumeAfterCompareScrub.value && shouldResume) syncPreviewPlayback(true)
+  resumeAfterCompareScrub.value = false
+}
+
+const scrub = ref(0)
 
 useHead(() => ({
   title: stream.value?.name

@@ -57,7 +57,7 @@ const { previewImageUrl } = useContentPoolPreview(poolId)
 
 const decodeSrHref = computed(() => `/content-pool/${poolId.value}/playback/decode-sr`)
 
-const scrub = ref(741)
+const scrub = ref(0)
 const upscale = ref('4K')
 const fps = ref('120Hz')
 
