@@ -1,6 +1,7 @@
 import { getVideoCollection } from '~/api/video-collections'
 import { listCategories } from '~/api/categories'
 import type { DecodedStreamFile, VideoCollectionDetail } from '~/types/api/video-collection'
+import { getDecodedStreamCover } from '~/composables/useVideoCollection'
 
 function parseId(value: string): number | null {
   const n = Number.parseInt(value, 10)
@@ -26,16 +27,22 @@ export function useCollectionOutputPage(
   const isNewOutput = computed(() => toValue(outputId) === 'new')
 
   const previewCoverUrl = computed(() => {
-    if (output.value?.cover) return output.value.cover
     const detail = collection.value
     if (!detail) return ''
+    if (output.value) return getDecodedStreamCover(output.value, detail)
     return pickPreviewStream(detail)?.cover ?? detail.cover
   })
 
   const streamUrl = computed(() => {
-    if (output.value?.stream_url) return output.value.stream_url
     const detail = collection.value
     if (!detail) return ''
+    if (output.value) {
+      return (
+        output.value.improved_stream_url ??
+        output.value.recovered_stream_url ??
+        ''
+      )
+    }
     return pickPreviewStream(detail)?.stream_url ?? ''
   })
 

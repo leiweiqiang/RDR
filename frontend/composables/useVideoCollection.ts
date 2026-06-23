@@ -1,6 +1,6 @@
 import { getVideoCollection } from '~/api/video-collections'
 import { listCategories } from '~/api/categories'
-import type { VideoCollectionDetail } from '~/types/api/video-collection'
+import type { DecodedStreamFile, VideoCollectionDetail } from '~/types/api/video-collection'
 import { extractFileType } from '~/utils/highSpeedActionFilters'
 
 function parseCollectionId(id: MaybeRefOrGetter<string>): ComputedRef<number | null> {
@@ -50,7 +50,8 @@ export function streamStatusTone(status: string): StreamStatusTone {
     normalized === 'running' ||
     normalized === 'pending' ||
     normalized === 'started' ||
-    normalized === 'in_progress'
+    normalized === 'in_progress' ||
+    normalized === 'wait'
   ) {
     return 'processing'
   }
@@ -63,6 +64,16 @@ export function streamStatusLabel(status: string): string {
   if (tone === 'failed') return 'Failed'
   if (tone === 'processing') return 'In Processing'
   return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+export function getDecodedStreamCover(
+  output: DecodedStreamFile,
+  collection: VideoCollectionDetail,
+): string {
+  const transcoded = collection.transcoded_stream_files.find(
+    (item) => item.id === output.transcoded_stream_file_id,
+  )
+  return transcoded?.cover ?? collection.cover
 }
 
 export function useVideoCollection(collectionId: MaybeRefOrGetter<string>) {

@@ -10,6 +10,7 @@ import {
   buildStreamSpecColumn,
   findLowerTierStream,
   formatMetadataProcessorLabel,
+  getTranscodedStreamMetadataProcessor,
   type StreamSpecColumn,
 } from '~/utils/collectionStreamDisplay'
 
@@ -56,7 +57,7 @@ export function useCollectionStreamPage(
   })
 
   const metadataTypeLabel = computed(() =>
-    formatMetadataProcessorLabel(stream.value?.params?.metadata_extractor?.processor),
+    formatMetadataProcessorLabel(getTranscodedStreamMetadataProcessor(stream.value?.params)),
   )
 
   const decodedStream = computed(() =>

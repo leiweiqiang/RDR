@@ -32,7 +32,7 @@ export type TranscodedStreamFile = {
   name: string
   cover: string
   provider: string | null
-  stream_url: string
+  stream_url: string | null
   duration: number
   resolution: string
   fps: number | null
@@ -43,10 +43,23 @@ export type TranscodedStreamFile = {
   progress: number | null
   error_message: string | null
   params?: {
+    transcode?: {
+      fps?: number
+      bitrate?: number
+      resolution?: string
+    }
+    metadata_storage?: string
     metadata_extractor?: {
       processor?: string
     } | null
+    fps?: number
+    bitrate?: number
+    resolution?: string
+    metadata_type?: string
+    metadata_location?: string
   } | null
+  started_at?: string | null
+  finished_at?: string | null
   created_at: string
   updated_at: string
 }
@@ -72,8 +85,6 @@ export type DecodedStreamFile = {
   finished_at: string | null
   created_at: string
   updated_at: string
-  cover?: string
-  stream_url?: string
 }
 
 export type VideoCollectionDetail = VideoCollectionListItem & {

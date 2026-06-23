@@ -25,6 +25,15 @@ export function formatMetadataProcessorLabel(processor: string | null | undefine
   return processor.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
+export function getTranscodedStreamMetadataProcessor(
+  params: TranscodedStreamFile['params'],
+): string | null | undefined {
+  if (!params) return undefined
+  if (params.metadata_extractor?.processor) return params.metadata_extractor.processor
+  if (params.metadata_type) return params.metadata_type
+  return undefined
+}
+
 export type StreamSpecColumn = {
   title: string
   resolution: string

@@ -147,7 +147,12 @@
             <li v-for="output in filteredOutputs" :key="output.id" class="col__tile">
               <button type="button" class="col__card" @click="goToOutput(output.id)">
                 <span class="col__card-visual">
-                  <img :src="output.cover" :alt="output.name" loading="lazy" decoding="async" />
+                  <img
+                    :src="getDecodedStreamCover(output, collection)"
+                    :alt="output.name"
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <span
                     class="col__status-bar"
                     :class="`col__status-bar--${streamStatusTone(output.status)}`"
@@ -176,6 +181,7 @@ import {
   formatCollectionFileFormat,
   formatCollectionFileName,
   formatCollectionProvider,
+  getDecodedStreamCover,
   streamStatusLabel,
   streamStatusTone,
   useVideoCollection,
