@@ -1,6 +1,10 @@
 import { getVideoCollection } from '~/api/video-collections'
 import { listCategories } from '~/api/categories'
-import type { TranscodedStreamFile, VideoCollectionDetail } from '~/types/api/video-collection'
+import type {
+  DecodedStreamFile,
+  TranscodedStreamFile,
+  VideoCollectionDetail,
+} from '~/types/api/video-collection'
 import {
   buildOriginalSpecColumn,
   buildStreamSpecColumn,
@@ -12,6 +16,18 @@ import {
 function parseId(value: string): number | null {
   const n = Number.parseInt(value, 10)
   return Number.isFinite(n) && n > 0 ? n : null
+}
+
+function findDecodedStreamForTranscoded(
+  collection: VideoCollectionDetail | null,
+  transcodedStream: TranscodedStreamFile | null,
+): DecodedStreamFile | null {
+  if (!collection || !transcodedStream) return null
+  return (
+    collection.decoded_stream_files.find(
+      (item) => item.transcoded_stream_file_id === transcodedStream.id,
+    ) ?? null
+  )
 }
 
 export function useCollectionStreamPage(
@@ -43,12 +59,20 @@ export function useCollectionStreamPage(
     formatMetadataProcessorLabel(stream.value?.params?.metadata_extractor?.processor),
   )
 
+  const decodedStream = computed(() =>
+    findDecodedStreamForTranscoded(collection.value, stream.value),
+  )
+
   const previewCoverUrl = computed(() => stream.value?.cover ?? collection.value?.cover ?? '')
   const metadataCoverUrl = computed(() => previewCoverUrl.value)
-  const streamUrl = computed(() => stream.value?.stream_url ?? '')
+  const streamUrl = computed(() => {
+    const recoveredUrl = decodedStream.value?.recovered_stream_url
+    if (recoveredUrl) return recoveredUrl
+    return stream.value?.stream_url ?? ''
+  })
   const metadataStreamUrl = computed(() => {
-    const rawStreamUrl = collection.value?.raw_video?.stream_url
-    if (rawStreamUrl) return rawStreamUrl
+    const improvedUrl = decodedStream.value?.improved_stream_url
+    if (improvedUrl) return improvedUrl
     return streamUrl.value
   })
 
@@ -100,6 +124,7 @@ export function useCollectionStreamPage(
   return {
     collection,
     stream,
+    decodedStream,
     categoryTitle,
     originalSpec,
     streamSpec,

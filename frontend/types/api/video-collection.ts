@@ -51,7 +51,30 @@ export type TranscodedStreamFile = {
   updated_at: string
 }
 
-export type DecodedStreamFile = TranscodedStreamFile
+export type DecodedStreamFile = {
+  id: number
+  name: string
+  resolution: string
+  fps: number | null
+  bitrate: number | null
+  duration: number | null
+  transcoded_stream_file_id: number
+  recovered_stream_url: string | null
+  improved_stream_url: string | null
+  task_id: string
+  recovered_prompt_id: string | null
+  improved_prompt_id: string | null
+  status: string
+  progress: number | null
+  error_message: string | null
+  params?: Record<string, unknown> | null
+  started_at: string | null
+  finished_at: string | null
+  created_at: string
+  updated_at: string
+  cover?: string
+  stream_url?: string
+}
 
 export type VideoCollectionDetail = VideoCollectionListItem & {
   category_id: number
