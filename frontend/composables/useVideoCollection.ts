@@ -1,6 +1,6 @@
 import { getVideoCollection } from '~/api/video-collections'
 import { listCategories } from '~/api/categories'
-import type { DecodedStreamFile, VideoCollectionDetail } from '~/types/api/video-collection'
+import type { DecodedStreamFile, TranscodedStreamFile, VideoCollectionDetail } from '~/types/api/video-collection'
 import { extractFileType } from '~/utils/highSpeedActionFilters'
 
 function parseCollectionId(id: MaybeRefOrGetter<string>): ComputedRef<number | null> {
@@ -66,16 +66,20 @@ export function streamStatusLabel(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
+export function getDecodedStreamParent(
+  output: DecodedStreamFile,
+  collection: VideoCollectionDetail,
+): TranscodedStreamFile | undefined {
+  return collection.transcoded_stream_files.find(
+    (item) => item.id === output.transcoded_stream_file_id,
+  )
+}
+
 export function getDecodedStreamCover(
   output: DecodedStreamFile,
   collection: VideoCollectionDetail,
 ): string {
-  if (output.parent?.cover) return output.parent.cover
-
-  const transcoded = collection.transcoded_stream_files.find(
-    (item) => item.id === output.transcoded_stream_file_id,
-  )
-  return transcoded?.cover ?? collection.cover
+  return getDecodedStreamParent(output, collection)?.cover ?? collection.cover
 }
 
 export function useVideoCollection(collectionId: MaybeRefOrGetter<string>) {

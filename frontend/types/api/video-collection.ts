@@ -64,8 +64,6 @@ export type TranscodedStreamFile = {
   updated_at: string
 }
 
-export type DecodedStreamParent = Pick<TranscodedStreamFile, 'id' | 'name' | 'cover'>
-
 export type DecodedStreamFile = {
   id: number
   name: string
@@ -74,7 +72,6 @@ export type DecodedStreamFile = {
   bitrate: number | null
   duration: number | null
   transcoded_stream_file_id: number
-  parent?: DecodedStreamParent | null
   recovered_stream_url: string | null
   improved_stream_url: string | null
   task_id: string
