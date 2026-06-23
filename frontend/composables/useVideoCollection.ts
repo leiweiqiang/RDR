@@ -70,6 +70,8 @@ export function getDecodedStreamCover(
   output: DecodedStreamFile,
   collection: VideoCollectionDetail,
 ): string {
+  if (output.parent?.cover) return output.parent.cover
+
   const transcoded = collection.transcoded_stream_files.find(
     (item) => item.id === output.transcoded_stream_file_id,
   )
