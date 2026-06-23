@@ -49,18 +49,26 @@ function mapCollectionToVideo(collection: VideoCollectionDetail): RawVideoListIt
   }
 }
 
+function isDemoPoolId(poolId: string): boolean {
+  return /^pool-\d+$/i.test(poolId)
+}
+
 export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
   const id = computed(() => toValue(poolId))
   const collectionId = computed(() => parseCollectionId(id.value))
 
-  const { previewImageUrl: fallbackPreviewUrl } = useContentPoolPreview(poolId)
+  const { previewImageUrl: demoPreviewUrl } = useContentPoolPreview(poolId)
 
   const video = ref<RawVideoListItem | null>(null)
   const transcodedStreamResolutions = ref<string[]>([])
   const pending = ref(false)
   const error = ref<Error | null>(null)
 
-  const previewImageUrl = computed(() => video.value?.cover ?? fallbackPreviewUrl.value)
+  const previewImageUrl = computed(() => {
+    if (video.value?.cover) return video.value.cover
+    if (isDemoPoolId(id.value)) return demoPreviewUrl.value
+    return ''
+  })
   const originalMeta = computed(() =>
     video.value ? formatVideoOriginalMeta(video.value) : 'Original: —',
   )
@@ -77,6 +85,8 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
 
     pending.value = true
     error.value = null
+    video.value = null
+    transcodedStreamResolutions.value = []
 
     try {
       const collection = await getVideoCollection(cid)

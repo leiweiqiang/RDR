@@ -3,7 +3,13 @@
     <div class="hsa__preview-col">
       <div class="hsa__preview-card">
         <div class="hsa__preview-thumb">
-          <img :src="previewImageUrl" alt="Source video preview" loading="lazy" decoding="async" />
+          <p v-if="pending" class="hsa__preview-loading" role="status">Loading preview…</p>
+          <img
+            v-else-if="previewImageUrl"
+            :src="previewImageUrl"
+            alt="Source video preview"
+            decoding="async"
+          />
         </div>
         <div class="hsa__preview-meta-row">
           <p class="hsa__preview-meta">{{ originalMeta }}</p>
@@ -120,6 +126,7 @@ const props = defineProps<{
   originalMeta: string
   poolId: string
   existingStreamResolutions?: string[]
+  pending?: boolean
 }>()
 
 const metadataExtractionHref = computed(
@@ -286,6 +293,18 @@ function removeRow(index: number) {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.hsa__preview-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .hsa__preview-meta-row {

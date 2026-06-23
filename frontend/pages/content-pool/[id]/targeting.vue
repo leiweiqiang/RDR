@@ -4,6 +4,7 @@
     :original-meta="originalMeta"
     :pool-id="poolId"
     :existing-stream-resolutions="transcodedStreamResolutions"
+    :pending="pending"
   />
 </template>
 
@@ -14,7 +15,7 @@ definePageMeta({
 
 const route = useRoute()
 const poolId = computed(() => String(route.params.id))
-const { previewImageUrl, originalMeta, video, transcodedStreamResolutions } = useContentPoolVideo(poolId)
+const { previewImageUrl, originalMeta, video, transcodedStreamResolutions, pending } = useContentPoolVideo(poolId)
 
 useHead(() => ({
   title: video.value?.name
