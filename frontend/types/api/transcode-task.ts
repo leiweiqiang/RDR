@@ -32,6 +32,13 @@ export type TranscodeTaskCreateBody = {
   metadata_storage: MetadataStorage
 }
 
+export type TranscodeBatchCreateBody = {
+  raw_video_id: number
+  metadata_type?: MetadataExtractorProcess | null
+  metadata_location?: MetadataStorage | null
+  variants: TranscodeConfig[]
+}
+
 export type TranscodeTaskResponse = {
   task_id: string
   raw_video_id: number

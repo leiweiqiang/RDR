@@ -1,10 +1,11 @@
-import { createTranscodeTasks, listTranscodedStreamsByVideo } from '~/api/videos'
-import type { VideoTranscodedStreamItem } from '~/types/api/transcode-task'
+import { createTranscodeBatch } from '~/api/transcoded-streams'
+import { getVideoCollection } from '~/api/video-collections'
+import type { TranscodedStreamFile } from '~/types/api/video-collection'
 import {
   buildPackagingTranscodeBody,
   createClosedPackagingNotice,
   packagingNoticeFromError,
-  summarizeTranscodeBatchResponse,
+  summarizeTranscodeCreateResponse,
   type PackagingNotice,
 } from '~/utils/packagingTranscode'
 import {
@@ -20,19 +21,19 @@ export const PACKAGING_METADATA_TYPE = 'Canny Edge Extraction'
 export type PackagingResultItem = {
   resolutionLabel: string
   resolutionDisplay: string
-  stream: VideoTranscodedStreamItem | null
+  stream: TranscodedStreamFile | null
   bitrate: number | null
   fps: number | null
 }
 
-function parseVideoId(poolId: string): number | null {
+function parseCollectionId(poolId: string): number | null {
   const n = Number.parseInt(poolId, 10)
   return Number.isFinite(n) && n > 0 ? n : null
 }
 
 export function usePackaging(poolId: MaybeRefOrGetter<string>) {
   const poolIdRef = poolId
-  const videoId = computed(() => parseVideoId(toValue(poolIdRef)))
+  const collectionId = computed(() => parseCollectionId(toValue(poolIdRef)))
 
   const {
     video,
@@ -42,11 +43,13 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     refresh: refreshVideo,
   } = useContentPoolVideo(poolId)
 
-  const transcodedStreams = ref<VideoTranscodedStreamItem[]>([])
+  const transcodedStreams = ref<TranscodedStreamFile[]>([])
   const streamsPending = ref(false)
   const streamsError = ref<Error | null>(null)
   const packagingPending = ref(false)
   const packagingNotice = ref<PackagingNotice>(createClosedPackagingNotice())
+
+  const rawVideoId = computed(() => video.value?.id ?? null)
 
   const pending = computed(() => videoPending.value || streamsPending.value)
   const error = computed(() => streamsError.value ?? videoError.value)
@@ -79,8 +82,8 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
   })
 
   async function refreshStreams() {
-    const vid = videoId.value
-    if (vid == null) {
+    const cid = collectionId.value
+    if (cid == null) {
       transcodedStreams.value = []
       streamsError.value = null
       streamsPending.value = false
@@ -91,8 +94,8 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     streamsError.value = null
 
     try {
-      const response = await listTranscodedStreamsByVideo(vid, { per_page: 100 })
-      transcodedStreams.value = response.data
+      const collection = await getVideoCollection(cid)
+      transcodedStreams.value = collection.transcoded_stream_files
     } catch (err) {
       streamsError.value = err instanceof Error ? err : new Error(String(err))
       transcodedStreams.value = []
@@ -110,10 +113,10 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
   }
 
   async function runPackaging() {
-    const vid = videoId.value
+    const rawId = rawVideoId.value
     const poolId = toValue(poolIdRef)
 
-    if (vid == null) {
+    if (rawId == null) {
       packagingNotice.value = {
         open: true,
         success: false,
@@ -126,11 +129,11 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
     packagingPending.value = true
 
     try {
-      const body = buildPackagingTranscodeBody(poolId)
-      const response = await createTranscodeTasks(vid, body)
+      const body = buildPackagingTranscodeBody(poolId, rawId)
+      const response = await createTranscodeBatch(body)
       packagingNotice.value = {
         open: true,
-        ...summarizeTranscodeBatchResponse(response),
+        ...summarizeTranscodeCreateResponse(response),
       }
       if (packagingNotice.value.success) {
         await refreshStreams()
@@ -146,7 +149,7 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
   }
 
   watch(
-    videoId,
+    collectionId,
     () => {
       void refreshStreams()
     },

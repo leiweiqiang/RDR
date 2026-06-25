@@ -1,7 +1,5 @@
-import type {
-  TranscodeTaskBatchResponse,
-  TranscodeTaskCreateBody,
-} from '~/types/api/transcode-task'
+import type { TranscodeBatchCreateBody } from '~/types/api/transcode-task'
+import type { TranscodedStreamFile } from '~/types/api/video-collection'
 import {
   apiResolutionForLabel,
   bitrateMbpsForLabel,
@@ -26,14 +24,17 @@ export function createClosedPackagingNotice(): PackagingNotice {
   }
 }
 
-export function buildPackagingTranscodeBody(poolId: string): TranscodeTaskCreateBody {
+export function buildPackagingTranscodeBody(
+  poolId: string,
+  rawVideoId: number,
+): TranscodeBatchCreateBody {
   const savedResolutions = loadCompleteTargetingResolutions(poolId)
   const resolutionLabels =
     savedResolutions.length > 0
       ? savedResolutions
       : [RESOLUTION_PRESETS[0].label]
 
-  const targets = resolutionLabels.map((label) => {
+  const variants = resolutionLabels.map((label) => {
     const resolution = apiResolutionForLabel(label)
     const bitrate = bitrateMbpsForLabel(label)
     if (!resolution || bitrate == null) {
@@ -48,11 +49,10 @@ export function buildPackagingTranscodeBody(poolId: string): TranscodeTaskCreate
   })
 
   return {
-    targets,
-    metadata_extractor: {
-      processor: 'canny',
-    },
-    metadata_storage: 'metadata_in_manifest',
+    raw_video_id: rawVideoId,
+    metadata_type: 'canny',
+    metadata_location: 'metadata_in_manifest',
+    variants,
   }
 }
 
@@ -60,8 +60,30 @@ function isBatchItemSuccessful(status: number): boolean {
   return status >= 200 && status < 300
 }
 
+export function summarizeTranscodeCreateResponse(
+  streams: TranscodedStreamFile[],
+): Pick<PackagingNotice, 'title' | 'message' | 'success'> {
+  if (streams.length === 0) {
+    return {
+      success: false,
+      title: 'Packaging failed',
+      message: 'No transcode tasks were created.',
+    }
+  }
+
+  return {
+    success: true,
+    title: 'Packaging started',
+    message:
+      streams.length === 1
+        ? 'Transcode task created successfully.'
+        : `${streams.length} transcode tasks created successfully.`,
+  }
+}
+
+/** @deprecated Legacy batch response shape; kept for older callers. */
 export function summarizeTranscodeBatchResponse(
-  response: TranscodeTaskBatchResponse,
+  response: { results: Array<{ status: number; message?: string | null; code?: string | null; index: number }> },
 ): Pick<PackagingNotice, 'title' | 'message' | 'success'> {
   const succeeded = response.results.filter((item) => isBatchItemSuccessful(item.status))
   const failed = response.results.filter((item) => !isBatchItemSuccessful(item.status))
