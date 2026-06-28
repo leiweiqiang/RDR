@@ -1,55 +1,59 @@
 <template>
-  <AppWorkspaceShell :show-watermark="false">
-    <div class="app-page-inner workflow__inner" :style="stepsWidthVar">
-      <div class="workflow__stage">
-        <div class="workflow__column">
-          <div class="workflow__track-wrap">
-            <div
-              ref="trackInnerRef"
-              class="workflow__track"
-              role="tablist"
-              aria-label="Pipeline steps"
-            >
-              <template v-for="(step, index) in steps" :key="step.id">
-                <button
-                  type="button"
-                  role="tab"
-                  class="workflow__step"
-                  :class="{ 'workflow__step--active': index === activeIndex }"
-                  :aria-selected="index === activeIndex"
-                  @click="activeIndex = index"
-                >
-                  <span class="workflow__step-icon" aria-hidden="true">
-                    <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
-                  </span>
-                  <span class="workflow__step-label">{{ step.label }}</span>
-                </button>
-                <span v-if="index < steps.length - 1" class="workflow__arrow" aria-hidden="true">
-                  <img :src="rightArrowUrl" alt="" class="workflow__arrow-img" width="32" height="32" />
-                </span>
-              </template>
-            </div>
-          </div>
+  <AppWorkspaceShell>
+    <div class="workflow">
+      <div class="workflow__hourglass" aria-hidden="true">
+        <div class="workflow__tri workflow__tri--left" />
+        <div class="workflow__tri workflow__tri--right" />
+      </div>
 
-          <section class="workflow__detail" aria-live="polite">
-            <h2 class="workflow__detail-title">{{ steps[activeIndex].detailTitle }}</h2>
-            <p class="workflow__detail-body">{{ steps[activeIndex].description }}</p>
-          </section>
+      <div class="app-page-inner workflow__inner">
+      <div class="workflow__stage">
+        <div class="workflow__hero">
+          <p class="workflow__caption">原始4K视屏</p>
+
+          <div
+            class="workflow__track"
+            role="tablist"
+            aria-label="Pipeline steps"
+          >
+            <template v-for="(step, index) in steps" :key="step.id">
+              <button
+                type="button"
+                role="tab"
+                class="workflow__step"
+                :class="{ 'workflow__step--active': index === activeIndex }"
+                :aria-selected="index === activeIndex"
+                @click="activeIndex = index"
+              >
+                <span class="workflow__step-icon" aria-hidden="true">
+                  <img :src="workflowIconUrl[step.icon]" alt="" class="workflow__step-icon-img" />
+                </span>
+                <span class="workflow__step-label">{{ step.label }}</span>
+              </button>
+              <span v-if="index < steps.length - 1" class="workflow__arrow" aria-hidden="true">
+                <img :src="rightArrowUrl" alt="" class="workflow__arrow-img" width="32" height="32" />
+              </span>
+            </template>
+          </div>
         </div>
       </div>
 
-      <footer class="workflow__footer">
-        <div class="workflow__footer-inner">
-          <!-- Native <a> so navigation works even if this page fails to hydrate (e.g. bad chunk MIME behind a proxy). <button @click> requires JS. -->
+      <div class="workflow__bottom">
+        <section class="workflow__detail" aria-live="polite">
+          <h2 class="workflow__detail-title">{{ steps[activeIndex].detailTitle }}</h2>
+          <p class="workflow__detail-body">{{ steps[activeIndex].description }}</p>
+        </section>
+
+        <footer class="workflow__footer">
           <a href="/home" class="workflow__next">Next</a>
-        </div>
-      </footer>
+        </footer>
+      </div>
+      </div>
     </div>
   </AppWorkspaceShell>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import {
   WORKFLOW_PIPELINE_ARROW_URL as rightArrowUrl,
   WORKFLOW_STEP_ICON_URL as workflowIconUrl,
@@ -72,36 +76,12 @@ const steps: Array<{
       'Acquire original mezzanine-quality video files (ProRes, DNxHR, or uncompressed) from content providers. These masters retain the fullest detail, color depth, and dynamic range — the foundation for everything downstream.',
   },
   {
-    id: 'targeting-a',
-    label: 'Targeting',
-    icon: 'target',
-    detailTitle: 'Targeting — Encode profiles:',
-    description:
-      'Define output profiles and device tiers: resolution ladders, bitrate budgets, HDR/SDR mapping, and codec constraints so downstream packaging meets platform specifications.',
-  },
-  {
-    id: 'metadata',
-    label: 'Metadata Extraction',
-    icon: 'metadata',
-    detailTitle: 'Metadata extraction — Technical inventory:',
-    description:
-      'Parse technical metadata from sources — frame rate, color space, aspect ratio, audio layout — and normalize it for automated decisions in packaging and validation.',
-  },
-  {
     id: 'packaging',
-    label: 'Packaging',
+    label: 'Metadata Generation & Packaging',
     icon: 'packaging',
-    detailTitle: 'Packaging — Deliverable mux:',
+    detailTitle: 'Metadata Generation & Packaging — RDR bitstream:',
     description:
-      'Mux streams into deliverable containers (MP4, DASH, HLS) with aligned segment boundaries, encryption keys where required, and manifest metadata for players.',
-  },
-  {
-    id: 'targeting-b',
-    label: 'Targeting',
-    icon: 'target',
-    detailTitle: 'Targeting — Distribution mapping:',
-    description:
-      'Map packaged assets to distribution endpoints and CDN behaviors: cache keys, origin shields, and geo rules so audiences receive the correct renditions.',
+      'Synchronize and encapsulate extracted RDR metadata with the source video essence to generate a standardized, AI-enhanced bitstream for downstream TCON processing.',
   },
   {
     id: 'decode',
@@ -123,37 +103,6 @@ const steps: Array<{
 
 const activeIndex = ref(0)
 
-const trackInnerRef = ref<HTMLElement | null>(null)
-const stepsWidthPx = ref(0)
-
-const stepsWidthVar = computed(() => ({
-  '--workflow-steps-width': stepsWidthPx.value > 0 ? `${stepsWidthPx.value}px` : '100%',
-}))
-
-let trackInnerResizeObserver: ResizeObserver | null = null
-
-function syncStepsWidth() {
-  const el = trackInnerRef.value
-  if (!el) return
-  stepsWidthPx.value = Math.round(el.getBoundingClientRect().width)
-}
-
-onMounted(() => {
-  syncStepsWidth()
-  void nextTick(() => syncStepsWidth())
-
-  const el = trackInnerRef.value
-  if (el && typeof ResizeObserver !== 'undefined') {
-    trackInnerResizeObserver = new ResizeObserver(() => syncStepsWidth())
-    trackInnerResizeObserver.observe(el)
-  }
-})
-
-onBeforeUnmount(() => {
-  trackInnerResizeObserver?.disconnect()
-  trackInnerResizeObserver = null
-})
-
 useHead({
   title: 'Workflow — RDR',
   link: [
@@ -166,34 +115,97 @@ useHead({
 </script>
 
 <style scoped>
+.workflow {
+  position: relative;
+  min-height: 100dvh;
+}
+
+.workflow__hourglass {
+  position: fixed;
+  top: clamp(5.5rem, 14vh, 9.5rem);
+  bottom: clamp(5.5rem, 14vh, 9.5rem);
+  left: clamp(3rem, 8vw, 6.25rem);
+  right: clamp(3rem, 8vw, 6.25rem);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.workflow__tri {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+}
+
+.workflow__tri--left {
+  left: 0;
+  clip-path: polygon(0 0, 0 100%, 100% 50%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.08) 38%,
+    rgba(255, 255, 255, 0.03) 68%,
+    transparent 100%
+  );
+}
+
+.workflow__tri--right {
+  right: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 50%);
+  background: linear-gradient(
+    270deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.07) 38%,
+    rgba(255, 255, 255, 0.025) 68%,
+    transparent 100%
+  );
+}
+
+.workflow__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
 .workflow__stage {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
   min-height: 0;
+  padding-block: clamp(1rem, 4vh, 2.5rem) clamp(0.5rem, 2vh, 1rem);
 }
 
-.workflow__column {
+.workflow__hero {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: clamp(1.75rem, 4.5vw, 3rem);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
   width: 100%;
-  max-width: 100%;
-  margin-inline: auto;
   min-width: 0;
 }
 
-.workflow__track-wrap {
+.workflow__bottom {
   flex: 0 0 auto;
-  align-self: stretch;
-  overflow-x: hidden;
-  overflow-y: visible;
-  margin-top: calc(100dvh / 3);
-  padding-inline: 0.5rem;
-  padding-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  width: 100%;
+  max-width: 42rem;
+  padding-bottom: clamp(0.25rem, 1vh, 0.5rem);
+}
+
+.workflow__caption {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.8vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: #fff;
 }
 
 .workflow__track {
@@ -202,26 +214,25 @@ useHead({
   align-items: flex-start;
   justify-content: center;
   width: 100%;
-  max-width: 100%;
   min-width: 0;
   margin: 0;
   padding: 0.5rem 0;
   box-sizing: border-box;
-  gap: clamp(0.08rem, 1.1vw, 0.65rem);
+  gap: clamp(0.15rem, 1.2vw, 0.75rem);
 }
 
 .workflow__step {
   flex: 1 1 0;
   min-width: 0;
-  max-width: 100%;
+  max-width: 11rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.2rem, 0.65vw, 0.5rem);
+  gap: clamp(0.35rem, 0.8vw, 0.65rem);
   box-sizing: border-box;
-  padding: clamp(0.35rem, 0.45vw + 0.2rem, 0.65rem) clamp(0.12rem, 0.35vw + 0.1rem, 0.5rem) clamp(0.4rem, 0.5vw + 0.25rem, 0.75rem);
+  padding: clamp(0.55rem, 1vw, 0.85rem) clamp(0.35rem, 0.8vw, 0.65rem);
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: transparent;
   color: #fff;
   cursor: pointer;
@@ -236,7 +247,7 @@ useHead({
 
 .workflow__step--active {
   background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .workflow__step-icon {
@@ -244,8 +255,8 @@ useHead({
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: clamp(1.05rem, 4.2vw + 1.2rem, 3.25rem);
-  height: clamp(1.05rem, 4.2vw + 1.2rem, 3.25rem);
+  width: clamp(2rem, 5vw, 3.25rem);
+  height: clamp(2rem, 5vw, 3.25rem);
 }
 
 .workflow__step-icon-img {
@@ -256,14 +267,13 @@ useHead({
 }
 
 .workflow__step-label {
-  font-size: clamp(0.52rem, 0.9vw + 0.45rem, 0.82rem);
+  font-size: clamp(0.62rem, 1vw + 0.2rem, 0.82rem);
   font-weight: 300;
   text-align: center;
   line-height: 1.25;
   max-width: 100%;
   overflow-wrap: break-word;
   hyphens: auto;
-  /* Reserve 3 lines so wrapping never changes step / track vertical size */
   min-height: calc(3 * 1.25 * 1em);
   display: grid;
   place-content: center;
@@ -271,7 +281,7 @@ useHead({
 }
 
 .workflow__arrow {
-  flex: 0 1 1.25rem;
+  flex: 0 1 1.5rem;
   min-width: 0;
   align-self: center;
   display: flex;
@@ -282,25 +292,22 @@ useHead({
 
 .workflow__arrow-img {
   display: block;
-  width: clamp(0.55rem, 1.8vw + 0.35rem, 1.75rem);
+  width: clamp(0.75rem, 2vw, 1.5rem);
   height: auto;
   max-width: 100%;
   object-fit: contain;
 }
 
 .workflow__detail {
-  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0;
-  min-height: 0;
   min-width: 0;
   width: 100%;
 }
 
 .workflow__detail-title {
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
   font-size: clamp(1rem, 2.2vw, 1.2rem);
   font-weight: 700;
   line-height: 1.35;
@@ -317,19 +324,9 @@ useHead({
 }
 
 .workflow__footer {
-  position: relative;
-  z-index: 10;
   flex: 0 0 auto;
-  width: 100%;
-  padding: clamp(0.75rem, 2vw, 1.25rem) 0 0;
-}
-
-.workflow__footer-inner {
-  display: flex;
-  justify-content: flex-start;
-  width: min(100%, var(--workflow-steps-width, 100%));
-  margin-inline: auto;
-  min-width: 0;
+  width: auto;
+  padding: 0;
 }
 
 .workflow__next {
@@ -360,5 +357,21 @@ useHead({
 
 .workflow__next:active {
   transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+  .workflow__track {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .workflow__step {
+    flex: 1 1 calc(50% - 1rem);
+    max-width: none;
+  }
+
+  .workflow__arrow {
+    display: none;
+  }
 }
 </style>

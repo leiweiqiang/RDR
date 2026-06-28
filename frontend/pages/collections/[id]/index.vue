@@ -25,8 +25,13 @@
         <template v-else>
         <section class="hsa__section" aria-labelledby="hsa-contents-title">
           <div class="hsa__section-head">
-            <h2 id="hsa-contents-title" class="hsa__section-title">All Contents</h2>
-            <div class="hsa__toolbar" role="toolbar" aria-label="All contents filters">
+            <div class="hsa__section-title-wrap">
+              <button type="button" class="hsa__pill-btn" @click="createProjectOpen = true">
+                + New Projects
+              </button>
+              <h2 id="hsa-contents-title" class="hsa__section-title">All Projects</h2>
+            </div>
+            <div class="hsa__toolbar" role="toolbar" aria-label="All projects filters">
               <div class="hsa__search-wrap">
                 <button
                   type="button"
@@ -34,7 +39,7 @@
                   :class="{ 'hsa__icon-btn--active': poolSearchOpen || poolSearchQuery }"
                   :aria-expanded="poolSearchOpen"
                   aria-controls="hsa-pool-search"
-                  aria-label="Search all contents"
+                  aria-label="Search all projects"
                   @click="togglePoolSearch"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -48,7 +53,7 @@
                   :class="{ 'hsa__search-field--open': poolSearchOpen }"
                 >
                   <div class="hsa__search-field-inner">
-                    <label class="visually-hidden" for="hsa-pool-search-input">Search all contents</label>
+                    <label class="visually-hidden" for="hsa-pool-search-input">Search all projects</label>
                     <input
                       id="hsa-pool-search-input"
                       ref="poolSearchInput"
@@ -106,9 +111,16 @@
       <AppSiteFooter />
     </div>
   </AppWorkspaceShell>
+
+  <CreateProjectDialog
+    :open="createProjectOpen"
+    @close="createProjectOpen = false"
+    @submit="onCreateProjectSubmit"
+  />
 </template>
 
 <script setup lang="ts">
+import CreateProjectDialog from '~/components/collections/CreateProjectDialog.vue'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 import {
   filterHighSpeedActionItems,
@@ -133,6 +145,12 @@ const categoryId = computed(() => String(route.params.id))
 
 const { categoryTitle, categoryName, contentPool, pending, error, refresh } =
   useCategoryContentById(categoryId)
+
+const createProjectOpen = ref(false)
+
+function onCreateProjectSubmit(_payload: { name: string; file: File }) {
+  createProjectOpen.value = false
+}
 
 const timeOptions = HIGH_SPEED_ACTION_TIME_OPTIONS
 const resolutionOptions = HIGH_SPEED_ACTION_RESOLUTION_OPTIONS
@@ -226,7 +244,7 @@ function closePoolSearch() {
 }
 
 useHead(() => ({
-  title: `${categoryTitle.value || 'Collections'} — Content — RDR`,
+  title: `${categoryTitle.value || 'Collections'} — Projects — RDR`,
   link: [
     {
       rel: 'stylesheet',
@@ -358,6 +376,34 @@ useHead(() => ({
   gap: 0.75rem 1rem;
 }
 
+.hsa__section-title-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+  min-width: 0;
+}
+
+.hsa__pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.hsa__pill-btn:hover {
+  filter: brightness(0.96);
+}
+
 .hsa__section-title {
   margin: 0;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
@@ -371,7 +417,8 @@ useHead(() => ({
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.45rem;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .hsa__icon-btn {
