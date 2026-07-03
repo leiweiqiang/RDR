@@ -94,7 +94,7 @@
 
           <ul v-if="filteredStreams.length > 0" class="col__grid" role="list">
             <li v-for="stream in filteredStreams" :key="stream.id" class="col__tile">
-              <button type="button" class="col__card" @click="goToStream(stream.id)">
+              <button type="button" class="col__card" @click="goToOutputForStream(stream.id)">
                 <span class="col__card-visual">
                   <img :src="stream.cover" :alt="stream.name" loading="lazy" decoding="async" />
                   <span
@@ -145,7 +145,7 @@
           </div>
           <ul v-if="filteredOutputs.length > 0" class="col__grid" role="list">
             <li v-for="output in filteredOutputs" :key="output.id" class="col__tile">
-              <button type="button" class="col__card" @click="goToOutput(output.id)">
+              <button type="button" class="col__card" @click="goToStreamForOutput(output.transcoded_stream_file_id)">
                 <span class="col__card-visual">
                   <img
                     :src="getDecodedStreamCover(output, collection)"
@@ -224,6 +224,10 @@ function goToStream(streamId: number) {
   void navigateTo(streamPagePath(streamId))
 }
 
+function goToStreamForOutput(transcodedStreamId: number) {
+  goToStream(transcodedStreamId)
+}
+
 function outputPagePath(outputId: number | 'new') {
   return `/collections/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
 }
@@ -232,6 +236,14 @@ const newOutputHref = computed(() => outputPagePath('new'))
 
 function goToOutput(outputId: number) {
   void navigateTo(outputPagePath(outputId))
+}
+
+function goToOutputForStream(streamId: number) {
+  const output = collection.value?.decoded_stream_files.find(
+    (item) => item.transcoded_stream_file_id === streamId,
+  )
+  if (!output) return
+  goToOutput(output.id)
 }
 
 const resolutionFilterOptions = ['All', '4K', '1080P', '720P', '360P'] as const
