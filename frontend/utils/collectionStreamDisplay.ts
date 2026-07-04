@@ -3,12 +3,12 @@ import type { TranscodedStreamFile, VideoCollectionRawVideo } from '~/types/api/
 
 export function formatStreamBitrateLabel(bitrate: number | null | undefined): string {
   if (bitrate == null) return '—'
-  return `Bitrate ${bitrate} Mbps`
+  return `${bitrate} Mbps`
 }
 
 export function formatStreamFpsLabel(fps: number | null | undefined): string {
   if (fps == null) return '—'
-  return `Frame ${fps}Hz`
+  return `${fps} Hz`
 }
 
 export function formatStreamResolutionHeading(resolution: string): string {

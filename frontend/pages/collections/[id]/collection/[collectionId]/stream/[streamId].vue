@@ -28,37 +28,67 @@
       <template v-else-if="stream && streamSpec">
         <section class="sg__specs" aria-label="Stream specifications">
           <div class="sg__spec-col">
-            <h2 class="sg__spec-title">{{ originalSpec.title }}</h2>
-            <p class="sg__spec-line sg__spec-line--primary">{{ originalSpec.resolution }}</p>
-            <p class="sg__spec-line sg__spec-line--accent">{{ originalSpec.bitrate }}</p>
-            <p class="sg__spec-line sg__spec-line--accent">{{ originalSpec.fps }}</p>
+            <div class="sg__spec-field">
+              <span class="sg__field-label sg__field-label--title">{{ originalSpec.title }}</span>
+              <span class="sg__spec-line sg__spec-line--primary" style="font-size: 1.5em;">{{ originalSpec.resolution }}</span>
+            </div>
+            <div class="sg__spec-field">
+  
+              <span class="sg__field-label">Bitrate</span>
+              <span class="sg__field-value">{{ originalSpec.bitrate }}</span>
+            </div>
+            <div class="sg__spec-field">
+              <span class="sg__field-label">Frame</span>
+              <span class="sg__field-value">{{ originalSpec.fps }}</span>
+            </div>
           </div>
           <div class="sg__spec-col">
-            <h2 class="sg__spec-title">{{ streamSpec.title }}</h2>
-            <p class="sg__spec-line sg__spec-line--primary">{{ streamSpec.resolution }}</p>
-            <p class="sg__spec-line sg__spec-line--accent">{{ streamSpec.bitrate }}</p>
-            <p class="sg__spec-line sg__spec-line--accent">{{ streamSpec.fps }}</p>
+            <div class="sg__spec-field">
+              <span class="sg__field-label sg__field-label--title">{{ streamSpec.title }}</span>
+              <span class="sg__spec-line sg__spec-line--primary" style="font-size: 1.5em;">{{ streamSpec.resolution }}</span>
+            </div>
+            <div class="sg__spec-field">
+  
+              <span class="sg__field-label">Bitrate</span>
+              <span class="sg__field-value">{{ streamSpec.bitrate }}</span>
+            </div>
+            <div class="sg__spec-field">
+              <span class="sg__field-label">Frame</span>
+              <span class="sg__field-value">{{ streamSpec.fps }}</span>
+            </div>
           </div>
           <div class="sg__spec-col">
             <template v-if="lowerTierSpec">
               <p class="sg__spec-line sg__spec-line--primary">{{ lowerTierSpec.resolution }}</p>
-              <p class="sg__spec-line sg__spec-line--accent">{{ lowerTierSpec.bitrate }}</p>
-              <p class="sg__spec-line sg__spec-line--accent">{{ lowerTierSpec.fps }}</p>
+              <div class="sg__spec-field">
+                <span class="sg__field-label">Bitrate</span>
+                <span class="sg__field-value">{{ lowerTierSpec.bitrate }}</span>
+              </div>
+              <div class="sg__spec-field">
+                <span class="sg__field-label">Frame</span>
+                <span class="sg__field-value">{{ lowerTierSpec.fps }}</span>
+              </div>
             </template>
             <template v-else>
               <p class="sg__spec-line sg__spec-line--primary">—</p>
-              <p class="sg__spec-line sg__spec-line--accent">—</p>
-              <p class="sg__spec-line sg__spec-line--accent">—</p>
+              <div class="sg__spec-field">
+                <span class="sg__field-label">Bitrate</span>
+                <span class="sg__field-value">—</span>
+              </div>
+              <div class="sg__spec-field">
+                <span class="sg__field-label">Frame</span>
+                <span class="sg__field-value">—</span>
+              </div>
             </template>
           </div>
           <div class="sg__spec-col">
-            <div class="sg__meta-row">
-              <span class="sg__meta-label">Metadata Type</span>
-              <span class="sg__meta-value">{{ metadataTypeLabel }}</span>
+            <div class="sg__spec-field">
+              <span class="sg__field-label">Metadata Type</span>
+              <span class="sg__field-value">{{ metadataTypeLabel }}</span>
             </div>
-            <div class="sg__meta-row">
-              <span class="sg__meta-label">Location</span>
-              <span class="sg__meta-value">—</span>
+            <div class="sg__spec-field">
+              <span class="sg__field-label">Location</span>
+              <span class="sg__field-value">—</span>
             </div>
           </div>
         </section>
@@ -304,18 +334,11 @@ useHead(() => ({
   border-left: none;
 }
 
-.sg__spec-title {
-  margin: 0 0 0.15rem;
-  font-size: clamp(0.95rem, 1.35vw, 1.1rem);
-  font-weight: 600;
-  color: #fff;
-}
-
 .sg__spec-line {
   margin: 0;
-  font-size: clamp(0.88rem, 1.2vw, 1rem);
+  font-size: clamp(0.9rem, 1.25vw, 1.05rem);
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .sg__spec-line--primary {
@@ -326,24 +349,37 @@ useHead(() => ({
   color: #00e676;
 }
 
-.sg__meta-row {
+.sg__spec-field {
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.04rem;
+  margin-bottom: 0.6rem;
   min-width: 0;
 }
 
-.sg__meta-label {
-  flex: 0 0 auto;
-  font-size: clamp(0.88rem, 1.2vw, 1rem);
-  font-weight: 600;
-  color: #fff;
+.sg__spec-field:last-child {
+  margin-bottom: 0;
 }
 
-.sg__meta-value {
-  font-size: clamp(0.88rem, 1.2vw, 1rem);
+.sg__field-label {
+  font-size: clamp(0.78rem, 1.05vw, 0.88rem);
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.35;
+  display: block;
+}
+
+.sg__field-label--title {
+  font-weight: 700;
+  font-size: clamp(0.78rem, 1.05vw, 0.88rem);
+  margin-bottom: 0.35rem;
+}
+
+.sg__field-value {
+  font-size: clamp(0.9rem, 1.25vw, 1.05rem);
   font-weight: 600;
   color: #00e676;
+  line-height: 1.35;
 }
 
 .sg__compare {
