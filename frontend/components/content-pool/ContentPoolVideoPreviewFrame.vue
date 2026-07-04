@@ -1,5 +1,5 @@
 <template>
-  <div class="cvf" :class="{ 'cvf--framed': framed, 'cvf--has-scrub': showScrubber }">
+  <div ref="containerRef" class="cvf" :class="{ 'cvf--framed': framed, 'cvf--has-scrub': showScrubber }">
     <div class="cvf__thumb">
       <video
         v-if="streamUrl"
@@ -115,6 +115,7 @@ const emit = defineEmits<{
 const scrubModel = defineModel<number>('scrubPosition', { default: 0 })
 
 const videoRef = ref<HTMLVideoElement | null>(null)
+const containerRef = ref<HTMLDivElement | null>(null)
 const streamUrlRef = computed(() => props.streamUrl || undefined)
 const duration = ref(0)
 const isPlaying = ref(false)
@@ -204,12 +205,16 @@ function pause() {
 }
 
 function onFullscreenClick() {
-  const el = videoRef.value
-  if (!el) return
-  if (document.fullscreenElement) {
-    void document.exitFullscreen()
-  } else {
-    void el.requestFullscreen()
+  const container = containerRef.value
+  if (!container) return
+  try {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen()
+    } else {
+      void container.requestFullscreen()
+    }
+  } catch {
+    // Fullscreen API not available or denied
   }
 }
 
@@ -224,6 +229,46 @@ defineExpose({ play, pause })
 </script>
 
 <style scoped>
+.cvf {
+  display: block;
+}
+
+.cvf:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  padding: 0;
+}
+
+.cvf:fullscreen .cvf__thumb {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0;
+  aspect-ratio: auto;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cvf:fullscreen .cvf__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cvf:fullscreen .cvf__play,
+.cvf:fullscreen .cvf__fullscreen,
+.cvf:fullscreen .cvf__scrub-wrap,
+.cvf:fullscreen .cvf__badge {
+  display: none;
+}
+
 .cvf__thumb {
   position: relative;
   border-radius: 10px;
@@ -296,8 +341,8 @@ defineExpose({ play, pause })
 
 .cvf__fullscreen {
   position: absolute;
+  top: 0.65rem;
   right: 0.65rem;
-  bottom: 0.65rem;
   width: 2.2rem;
   height: 2.2rem;
   border-radius: 6px;

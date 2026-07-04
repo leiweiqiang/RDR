@@ -49,6 +49,15 @@ export function useCollectionOutputPage(
         ''
       )
     }
+    // Try to find a decoded stream paired with the source stream
+    const pairedDecoded = sourceStream.value
+      ? detail.decoded_stream_files.find(
+          (item) => item.transcoded_stream_file_id === sourceStream.value!.id,
+        )
+      : null
+    if (pairedDecoded) {
+      return pairedDecoded.recovered_stream_url ?? pairedDecoded.improved_stream_url ?? ''
+    }
     return sourceStream.value?.stream_url ?? pickPreviewStream(detail)?.stream_url ?? ''
   })
 

@@ -3,7 +3,7 @@ import type { TranscodedStreamFile, VideoCollectionRawVideo } from '~/types/api/
 
 export function formatStreamBitrateLabel(bitrate: number | null | undefined): string {
   if (bitrate == null) return '—'
-  return `Bite ${bitrate} Mbps`
+  return `Bitrate ${bitrate} Mbps`
 }
 
 export function formatStreamFpsLabel(fps: number | null | undefined): string {
