@@ -242,8 +242,14 @@ function goToOutputForStream(streamId: number) {
   const output = collection.value?.decoded_stream_files.find(
     (item) => item.transcoded_stream_file_id === streamId,
   )
-  if (!output) return
-  goToOutput(output.id)
+  if (output) {
+    goToOutput(output.id)
+    return
+  }
+  void navigateTo({
+    path: outputPagePath('new'),
+    query: { streamId: String(streamId) },
+  })
 }
 
 const resolutionFilterOptions = ['All', '4K', '1080P', '720P', '360P'] as const

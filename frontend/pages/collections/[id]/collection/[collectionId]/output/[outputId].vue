@@ -124,6 +124,9 @@ const route = useRoute()
 const categoryId = computed(() => String(route.params.id))
 const collectionId = computed(() => String(route.params.collectionId))
 const outputId = computed(() => String(route.params.outputId))
+const sourceStreamId = computed(() =>
+  typeof route.query.streamId === 'string' ? route.query.streamId : '',
+)
 
 const {
   collection,
@@ -133,7 +136,7 @@ const {
   pending,
   error,
   refresh,
-} = useCollectionOutputPage(categoryId, collectionId, outputId)
+} = useCollectionOutputPage(categoryId, collectionId, outputId, sourceStreamId)
 
 const displayFileName = computed(() =>
   collection.value ? formatCollectionFileName(collection.value.name) : '',

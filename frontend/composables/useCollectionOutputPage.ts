@@ -1,6 +1,10 @@
 import { getVideoCollection } from '~/api/video-collections'
 import { listCategories } from '~/api/categories'
-import type { DecodedStreamFile, VideoCollectionDetail } from '~/types/api/video-collection'
+import type {
+  DecodedStreamFile,
+  TranscodedStreamFile,
+  VideoCollectionDetail,
+} from '~/types/api/video-collection'
 import { getDecodedStreamCover } from '~/composables/useVideoCollection'
 
 function parseId(value: string): number | null {
@@ -17,9 +21,11 @@ export function useCollectionOutputPage(
   categoryId: MaybeRefOrGetter<string>,
   collectionId: MaybeRefOrGetter<string>,
   outputId: MaybeRefOrGetter<string>,
+  sourceStreamId: MaybeRefOrGetter<string> = '',
 ) {
   const collection = ref<VideoCollectionDetail | null>(null)
   const output = ref<DecodedStreamFile | null>(null)
+  const sourceStream = ref<TranscodedStreamFile | null>(null)
   const categoryTitle = ref('')
   const pending = ref(true)
   const error = ref<Error | null>(null)
@@ -30,7 +36,7 @@ export function useCollectionOutputPage(
     const detail = collection.value
     if (!detail) return ''
     if (output.value) return getDecodedStreamCover(output.value, detail)
-    return pickPreviewStream(detail)?.cover ?? detail.cover
+    return sourceStream.value?.cover ?? pickPreviewStream(detail)?.cover ?? detail.cover
   })
 
   const streamUrl = computed(() => {
@@ -43,7 +49,7 @@ export function useCollectionOutputPage(
         ''
       )
     }
-    return pickPreviewStream(detail)?.stream_url ?? ''
+    return sourceStream.value?.stream_url ?? pickPreviewStream(detail)?.stream_url ?? ''
   })
 
   async function refresh() {
@@ -54,6 +60,7 @@ export function useCollectionOutputPage(
     error.value = null
     collection.value = null
     output.value = null
+    sourceStream.value = null
     categoryTitle.value = ''
 
     if (cid == null) {
@@ -64,6 +71,11 @@ export function useCollectionOutputPage(
 
     try {
       const detail = await getVideoCollection(cid)
+      const parsedSourceStreamId = parseId(toValue(sourceStreamId))
+      if (parsedSourceStreamId != null) {
+        sourceStream.value =
+          detail.transcoded_stream_files.find((item) => item.id === parsedSourceStreamId) ?? null
+      }
 
       if (rawOutputId !== 'new') {
         const oid = parseId(rawOutputId)
@@ -72,9 +84,15 @@ export function useCollectionOutputPage(
         }
         const matchedOutput = detail.decoded_stream_files?.find((item) => item.id === oid)
         if (!matchedOutput) {
-          throw new Error(`Output "${oid}" not found`)
+          const matchedSourceStream =
+            detail.transcoded_stream_files.find((item) => item.id === oid) ?? null
+          if (!matchedSourceStream) {
+            throw new Error(`Output "${oid}" not found`)
+          }
+          sourceStream.value = matchedSourceStream
+        } else {
+          output.value = matchedOutput
         }
-        output.value = matchedOutput
       }
 
       const categoriesResponse = await listCategories({ per_page: 100 })
@@ -90,7 +108,7 @@ export function useCollectionOutputPage(
   }
 
   watch(
-    () => [toValue(categoryId), toValue(collectionId), toValue(outputId)],
+    () => [toValue(categoryId), toValue(collectionId), toValue(outputId), toValue(sourceStreamId)],
     () => {
       void refresh()
     },
@@ -100,6 +118,7 @@ export function useCollectionOutputPage(
   return {
     collection,
     output,
+    sourceStream,
     categoryTitle,
     isNewOutput,
     previewCoverUrl,
