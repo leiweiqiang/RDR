@@ -117,7 +117,6 @@
           <div class="col__section-head">
             <div class="col__section-title-wrap">
               <h2 id="col-output-title" class="col__section-title">Outputs</h2>
-              <NuxtLink :to="newOutputHref" class="col__pill-btn">+ Output</NuxtLink>
             </div>
             <div class="col__toolbar" role="toolbar" aria-label="Output filters">
               <button type="button" class="col__icon-btn" aria-label="Search outputs">

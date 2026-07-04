@@ -64,6 +64,17 @@
           />
         </div>
       </div>
+      <button
+        v-if="showFullscreen && streamUrl"
+        type="button"
+        class="cvf__fullscreen"
+        aria-label="Fullscreen"
+        @click="onFullscreenClick"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+        </svg>
+      </button>
     </div>
   </div>
 </template>
@@ -80,6 +91,7 @@ const props = withDefaults(
     showPlay?: boolean
     showMetaBadge?: boolean
     showScrubber?: boolean
+    showFullscreen?: boolean
     /** When false, follows shared scrub but does not write playback progress back (for mirrored players). */
     scrubSource?: boolean
   }>(),
@@ -89,6 +101,7 @@ const props = withDefaults(
     showPlay: true,
     showMetaBadge: false,
     showScrubber: false,
+    showFullscreen: false,
     scrubSource: true,
   },
 )
@@ -190,6 +203,16 @@ function pause() {
   videoRef.value?.pause()
 }
 
+function onFullscreenClick() {
+  const el = videoRef.value
+  if (!el) return
+  if (document.fullscreenElement) {
+    void document.exitFullscreen()
+  } else {
+    void el.requestFullscreen()
+  }
+}
+
 function onPlayClick() {
   const willPlay = !isPlaying.value
   emit('play', willPlay)
@@ -269,6 +292,35 @@ defineExpose({ play, pause })
 .cvf__play:hover {
   transform: scale(1.04);
   background: #fff;
+}
+
+.cvf__fullscreen {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.cvf__fullscreen:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: scale(1.05);
+}
+
+.cvf__fullscreen svg {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .cvf__play svg {

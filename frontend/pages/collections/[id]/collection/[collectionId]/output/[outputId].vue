@@ -32,6 +32,7 @@
             framed
             show-play
             show-scrubber
+            show-fullscreen
           />
           <div class="cot__actions">
             <button type="button" class="cot__btn-next" disabled>Next</button>
@@ -144,7 +145,7 @@ const displayFileName = computed(() =>
 
 const scrub = ref(0)
 
-const upscaleOptions = ['4K', '2K', '1080p', '720p'] as const
+const upscaleOptions = ['4K'] as const
 const fpsOptions = ['120Hz', '60Hz'] as const
 
 let nextRowId = 1
@@ -152,7 +153,7 @@ function makeRow(value: string): ConfigRow {
   return { id: String(nextRowId++), value }
 }
 
-const upscaleRows = ref<ConfigRow[]>([makeRow('4K'), makeRow('2K')])
+const upscaleRows = ref<ConfigRow[]>([makeRow('4K')])
 const fpsRows = ref<ConfigRow[]>([
   { id: 'fps-1', value: '120Hz' },
   { id: 'fps-2', value: '60Hz' },
@@ -169,10 +170,7 @@ function upscaleOptionsForRow(rowIndex: number): string[] {
 
 function addUpscaleRow(index: number) {
   if (!canAddUpscaleRow.value) return
-  const available = upscaleOptions.find(
-    (option) => !upscaleRows.value.some((row) => row.value === option),
-  )
-  upscaleRows.value.splice(index + 1, 0, makeRow(available ?? '1080p'))
+  upscaleRows.value.splice(index + 1, 0, makeRow('4K'))
 }
 
 function removeUpscaleRow(index: number) {

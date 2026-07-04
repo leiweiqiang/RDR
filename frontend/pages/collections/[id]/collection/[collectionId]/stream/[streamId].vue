@@ -75,6 +75,7 @@
               show-play
               :show-meta-badge="false"
               show-scrubber
+              show-fullscreen
               @play="syncPreviewPlayback"
               @scrub-start="onCompareScrubStart"
               @scrub-end="onCompareScrubEnd"
@@ -92,6 +93,7 @@
               show-play
               show-meta-badge
               show-scrubber
+              show-fullscreen
               @play="syncPreviewPlayback"
               @scrub-start="onCompareScrubStart"
               @scrub-end="onCompareScrubEnd"
