@@ -35,8 +35,33 @@
             show-fullscreen
           />
           <div class="cot__actions">
-            <button type="button" class="cot__btn-next" disabled>Next</button>
+            <button
+              type="button"
+              class="cot__btn-next"
+              :disabled="submitting || submitSuccess"
+              @click="onSubmitTranscode"
+            >
+              {{ submitting ? 'Submitting…' : submitSuccess ? 'Submitted' : 'Next' }}
+            </button>
           </div>
+          <p v-if="submitError" class="cot__submit-error">{{ submitError }}</p>
+
+        <!-- Submit result modal -->
+        <div v-if="showSubmitModal" class="cot__modal-overlay" @click.self="closeSubmitModal">
+          <div class="cot__modal" role="dialog" aria-modal="true" aria-labelledby="submit-modal-title">
+            <p id="submit-modal-title" class="cot__modal-title">
+              {{ submitSuccess ? 'Success' : 'Submission Failed' }}
+            </p>
+            <p class="cot__modal-body">
+              {{ submitSuccess ? 'Transcode task has been submitted successfully.' : submitError }}
+            </p>
+            <div class="cot__modal-actions">
+              <button type="button" class="cot__modal-btn" @click="closeSubmitModal">
+                {{ submitSuccess ? 'OK' : 'Close' }}
+              </button>
+            </div>
+          </div>
+        </div>
         </div>
 
         <div class="cot__bridge" aria-hidden="true">
@@ -115,6 +140,8 @@
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 import { useCollectionOutputPage } from '~/composables/useCollectionOutputPage'
 import { formatCollectionFileName } from '~/composables/useVideoCollection'
+import { createTranscodeBatch } from '~/api/transcoded-streams'
+import type { TranscodeBatchCreateBody } from '~/types/api/transcode-task'
 
 type ConfigRow = {
   id: string
@@ -125,9 +152,6 @@ const route = useRoute()
 const categoryId = computed(() => String(route.params.id))
 const collectionId = computed(() => String(route.params.collectionId))
 const outputId = computed(() => String(route.params.outputId))
-const sourceStreamId = computed(() =>
-  typeof route.query.streamId === 'string' ? route.query.streamId : '',
-)
 
 const {
   collection,
@@ -137,7 +161,7 @@ const {
   pending,
   error,
   refresh,
-} = useCollectionOutputPage(categoryId, collectionId, outputId, sourceStreamId)
+} = useCollectionOutputPage(categoryId, collectionId, outputId)
 
 const displayFileName = computed(() =>
   collection.value ? formatCollectionFileName(collection.value.name) : '',
@@ -176,6 +200,73 @@ function addUpscaleRow(index: number) {
 function removeUpscaleRow(index: number) {
   if (upscaleRows.value.length <= 1) return
   upscaleRows.value.splice(index, 1)
+}
+
+const submitting = ref(false)
+const submitError = ref('')
+const submitSuccess = ref(false)
+const showSubmitModal = ref(false)
+
+function closeSubmitModal() {
+  showSubmitModal.value = false
+  if (submitSuccess.value) {
+    void navigateTo(`/collections/${categoryId.value}/collection/${collectionId.value}`)
+  }
+}
+
+async function onSubmitTranscode() {
+  const detail = collection.value
+  if (!detail) return
+  const rawVideoId = detail.raw_video?.id
+  if (rawVideoId == null) {
+    submitError.value = 'No raw video associated with this collection'
+    showSubmitModal.value = true
+    return
+  }
+
+  const variants = upscaleRows.value.map((row) => {
+    const label = row.value
+    let resolution: string
+    let bitrate: number
+    if (label === '4K') {
+      resolution = '3840x2160'
+      bitrate = 60
+    } else if (label === '2K') {
+      resolution = '2560x1440'
+      bitrate = 35
+    } else if (label === '1080p') {
+      resolution = '1920x1080'
+      bitrate = 20
+    } else if (label === '720p') {
+      resolution = '1280x720'
+      bitrate = 10
+    } else {
+      resolution = '1920x1080'
+      bitrate = 20
+    }
+    return { resolution, fps: 60, bitrate }
+  })
+
+  submitting.value = true
+  submitError.value = ''
+  submitSuccess.value = false
+
+  try {
+    const body: TranscodeBatchCreateBody = {
+      raw_video_id: rawVideoId,
+      metadata_type: 'canny',
+      metadata_location: 'metadata_in_manifest',
+      variants,
+    }
+    await createTranscodeBatch(body)
+    submitSuccess.value = true
+    showSubmitModal.value = true
+  } catch (err) {
+    submitError.value = err instanceof Error ? err.message : 'Failed to submit transcode task'
+    showSubmitModal.value = true
+  } finally {
+    submitting.value = false
+  }
 }
 
 useHead(() => ({
@@ -514,6 +605,71 @@ useHead(() => ({
 :deep(.cot__select-trigger--muted svg) {
   color: rgba(255, 255, 255, 0.35);
   opacity: 1;
+}
+
+/* Submit result modal */
+.cot__modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.cot__modal {
+  background: #1a1a1e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  max-width: 28rem;
+  width: 90vw;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cot__modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cot__modal-body {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cot__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+}
+
+.cot__modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.6rem;
+  border: none;
+  border-radius: 999px;
+  background: #00ff41;
+  color: #000;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.cot__modal-btn:hover {
+  filter: brightness(1.08);
 }
 
 @media (max-width: 1100px) {
