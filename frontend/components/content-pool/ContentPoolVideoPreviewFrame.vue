@@ -1,14 +1,16 @@
 <template>
-  <div ref="containerRef" class="cvf" :class="{ 'cvf--framed': framed, 'cvf--has-scrub': showScrubber }">
+  <div ref="containerRef" class="cvf" :class="{ 'cvf--framed': framed, 'cvf--has-scrub': showScrubber, 'cvf--fullscreened': isFullscreen }">
     <div class="cvf__thumb">
       <video
         v-if="streamUrl"
         ref="videoRef"
         class="cvf__cover cvf__video"
+        :class="{ 'cvf__video--fullscreen': isFullscreen }"
         :poster="imageUrl || undefined"
         playsinline
         preload="metadata"
-        muted
+        :muted="!isFullscreen"
+        :controls="isFullscreen"
         @loadedmetadata="onLoadedMetadata"
         @timeupdate="onTimeUpdate"
         @seeked="onSeeked"
@@ -116,6 +118,7 @@ const scrubModel = defineModel<number>('scrubPosition', { default: 0 })
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
+const isFullscreen = ref(false)
 const streamUrlRef = computed(() => props.streamUrl || undefined)
 const duration = ref(0)
 const isPlaying = ref(false)
@@ -218,6 +221,18 @@ function onFullscreenClick() {
   }
 }
 
+function onFullscreenChange() {
+  isFullscreen.value = !!document.fullscreenElement
+}
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', onFullscreenChange)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
+})
+
 function onPlayClick() {
   const willPlay = !isPlaying.value
   emit('play', willPlay)
@@ -267,6 +282,10 @@ defineExpose({ play, pause })
 .cvf:fullscreen .cvf__scrub-wrap,
 .cvf:fullscreen .cvf__badge {
   display: none;
+}
+
+.cvf__video--fullscreen::-webkit-media-controls-panel {
+  display: flex !important;
 }
 
 .cvf__thumb {
