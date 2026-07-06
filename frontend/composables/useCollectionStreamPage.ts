@@ -64,15 +64,26 @@ export function useCollectionStreamPage(
     findDecodedStreamForTranscoded(collection.value, stream.value),
   )
 
+  // Fallback: find any decoded stream in the collection that has recovered_stream_url
+  const anyDecodedWithUrl = computed(() =>
+    (collection.value?.decoded_stream_files ?? []).find(
+      (item) => item.recovered_stream_url || item.improved_stream_url,
+    ) ?? null,
+  )
+
+  const effectiveDecodedStream = computed(
+    () => decodedStream.value ?? anyDecodedWithUrl.value,
+  )
+
   const previewCoverUrl = computed(() => stream.value?.cover ?? collection.value?.cover ?? '')
   const metadataCoverUrl = computed(() => previewCoverUrl.value)
   const streamUrl = computed(() => {
-    const recoveredUrl = decodedStream.value?.recovered_stream_url
+    const recoveredUrl = effectiveDecodedStream.value?.recovered_stream_url
     if (recoveredUrl) return recoveredUrl
     return stream.value?.stream_url ?? ''
   })
   const metadataStreamUrl = computed(() => {
-    const improvedUrl = decodedStream.value?.improved_stream_url
+    const improvedUrl = effectiveDecodedStream.value?.improved_stream_url
     if (improvedUrl) return improvedUrl
     return streamUrl.value
   })
@@ -126,6 +137,7 @@ export function useCollectionStreamPage(
     collection,
     stream,
     decodedStream,
+    effectiveDecodedStream,
     categoryTitle,
     originalSpec,
     streamSpec,
