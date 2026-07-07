@@ -108,7 +108,7 @@ export function useVideoCollection(collectionId: MaybeRefOrGetter<string>) {
 
       const categoriesResponse = await listCategories({ per_page: 100 })
       const category = categoriesResponse.data.find((item) => item.id === detail.category_id)
-      categoryTitle.value = category?.title ?? 'Collections'
+      categoryTitle.value = category?.title ?? 'Categories'
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
       collection.value = null

@@ -9,7 +9,7 @@
           <nav class="hsa__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="hsa__crumb">Home</NuxtLink>
             <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
-            <NuxtLink :to="collectionsHref" class="hsa__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
+            <NuxtLink :to="collectionsHref" class="hsa__crumb">{{ categoryTitle || 'Categories' }}</NuxtLink>
             <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
             <span class="hsa__crumb hsa__crumb--current">{{ videoName || '…' }}</span>
           </nav>
@@ -78,7 +78,7 @@ async function loadVideoName(poolId: string) {
 
     const categoriesResponse = await listCategories({ per_page: 100 })
     const category = categoriesResponse.data.find((item) => item.id === collection.category_id)
-    categoryTitle.value = category?.title ?? 'Collections'
+    categoryTitle.value = category?.title ?? 'Categories'
   } catch {
     videoName.value = ''
     categoryId.value = null

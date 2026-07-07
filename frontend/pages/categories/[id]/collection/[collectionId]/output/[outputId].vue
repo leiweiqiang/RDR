@@ -9,7 +9,7 @@
           <nav class="cot__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="cot__crumb">Home</NuxtLink>
             <span class="cot__crumb-sep" aria-hidden="true">&gt;</span>
-            <NuxtLink :to="`/categories/${categoryId}`" class="cot__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
+            <NuxtLink :to="`/categories/${categoryId}`" class="cot__crumb">{{ categoryTitle || 'Categories' }}</NuxtLink>
             <span class="cot__crumb-sep" aria-hidden="true">&gt;</span>
             <span class="cot__crumb cot__crumb--current">{{ displayFileName || '…' }}</span>
           </nav>

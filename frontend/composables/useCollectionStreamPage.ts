@@ -117,7 +117,7 @@ export function useCollectionStreamPage(
 
       collection.value = detail
       stream.value = matchedStream
-      categoryTitle.value = category?.title ?? 'Collections'
+      categoryTitle.value = category?.title ?? 'Categories'
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
     } finally {

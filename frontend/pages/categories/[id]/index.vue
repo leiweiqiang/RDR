@@ -9,7 +9,7 @@
           <nav class="hsa__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="hsa__crumb">Home</NuxtLink>
             <span class="hsa__crumb-sep" aria-hidden="true">&gt;</span>
-            <span class="hsa__crumb hsa__crumb--current">{{ categoryTitle || 'Collections' }}</span>
+            <span class="hsa__crumb hsa__crumb--current">{{ categoryTitle || 'Categories' }}</span>
           </nav>
         </div>
       </header>
@@ -244,7 +244,7 @@ function closePoolSearch() {
 }
 
 useHead(() => ({
-  title: `${categoryTitle.value || 'Collections'} — Projects — RDR`,
+  title: `${categoryTitle.value || 'Categories'} — Projects — RDR`,
   link: [
     {
       rel: 'stylesheet',

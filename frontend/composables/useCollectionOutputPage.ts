@@ -108,7 +108,7 @@ export function useCollectionOutputPage(
       const category = categoriesResponse.data.find((item) => item.id === detail.category_id)
 
       collection.value = detail
-      categoryTitle.value = category?.title ?? 'Collections'
+      categoryTitle.value = category?.title ?? 'Categories'
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
     } finally {
