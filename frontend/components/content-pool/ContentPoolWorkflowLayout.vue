@@ -53,7 +53,7 @@ const videoName = ref('')
 const categoryId = ref<number | null>(null)
 
 const collectionsHref = computed(() =>
-  categoryId.value != null ? `/collections/${categoryId.value}` : '/collections/1',
+  categoryId.value != null ? `/categories/${categoryId.value}` : '/categories/1',
 )
 const categoryTitle = ref('')
 

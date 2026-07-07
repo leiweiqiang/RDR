@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import CreateProjectDialog from '~/components/collections/CreateProjectDialog.vue'
+import CreateProjectDialog from '~/components/categories/CreateProjectDialog.vue'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 import {
   filterHighSpeedActionItems,

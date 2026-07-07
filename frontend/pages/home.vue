@@ -28,7 +28,7 @@
           <template v-for="cat in categories" :key="cat.id">
             <NuxtLink
               v-if="cat.name === 'high-speed-action'"
-              to="/collections/1"
+              to="/categories/1"
               role="option"
               class="home__card"
               :class="{ 'home__card--selected': selectedId === cat.name }"

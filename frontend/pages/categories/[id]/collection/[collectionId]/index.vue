@@ -9,7 +9,7 @@
           <nav class="col__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="col__crumb">Home</NuxtLink>
             <span class="col__crumb-sep" aria-hidden="true">&gt;</span>
-            <NuxtLink :to="`/collections/${categoryId}`" class="col__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
+            <NuxtLink :to="`/categories/${categoryId}`" class="col__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
             <span class="col__crumb-sep" aria-hidden="true">&gt;</span>
             <span class="col__crumb col__crumb--current">{{ displayFileName || '…' }}</span>
           </nav>
@@ -216,7 +216,7 @@ const providerLabel = computed(() =>
 const targetingHref = computed(() => `/content-pool/${collectionId.value}/targeting`)
 
 function streamPagePath(streamId: number) {
-  return `/collections/${categoryId.value}/collection/${collectionId.value}/stream/${streamId}`
+  return `/categories/${categoryId.value}/collection/${collectionId.value}/stream/${streamId}`
 }
 
 function goToStream(streamId: number) {
@@ -224,7 +224,7 @@ function goToStream(streamId: number) {
 }
 
 function outputPagePath(outputId: number | 'new') {
-  return `/collections/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
+  return `/categories/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
 }
 
 function goToOutput(outputId: number) {

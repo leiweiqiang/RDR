@@ -9,7 +9,7 @@
           <nav class="cot__crumbs" aria-label="Breadcrumb">
             <NuxtLink to="/home" class="cot__crumb">Home</NuxtLink>
             <span class="cot__crumb-sep" aria-hidden="true">&gt;</span>
-            <NuxtLink :to="`/collections/${categoryId}`" class="cot__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
+            <NuxtLink :to="`/categories/${categoryId}`" class="cot__crumb">{{ categoryTitle || 'Collections' }}</NuxtLink>
             <span class="cot__crumb-sep" aria-hidden="true">&gt;</span>
             <span class="cot__crumb cot__crumb--current">{{ displayFileName || '…' }}</span>
           </nav>
@@ -210,7 +210,7 @@ const showSubmitModal = ref(false)
 function closeSubmitModal() {
   showSubmitModal.value = false
   if (submitSuccess.value) {
-    void navigateTo(`/collections/${categoryId.value}/collection/${collectionId.value}`)
+    void navigateTo(`/categories/${categoryId.value}/collection/${collectionId.value}`)
   }
 }
 

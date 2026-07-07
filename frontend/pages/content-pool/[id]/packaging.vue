@@ -37,7 +37,7 @@ function onClosePackagingNotice() {
   const wasSuccess = packagingNotice.value.success
   closePackagingNotice()
   if (wasSuccess) {
-    navigateTo('/collections/1')
+    navigateTo('/categories/1')
   }
 }
 

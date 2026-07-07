@@ -22,7 +22,7 @@ function toContentPoolItem(
     id: collection.id,
     title: collection.name,
     imageUrl: collection.cover,
-    to: `/collections/${categoryId}/collection/${collection.id}`,
+    to: `/categories/${categoryId}/collection/${collection.id}`,
     createdAt: collection.created_at,
     resolution: '',
     fileType: extractFileType(collection.name),
