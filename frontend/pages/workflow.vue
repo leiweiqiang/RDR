@@ -9,8 +9,7 @@
       <div class="app-page-inner workflow__inner">
       <div class="workflow__stage">
         <div class="workflow__hero">
-          <p class="workflow__caption">原始4K视屏</p>
-
+          <p class="workflow__caption">Original 4K Video</p>
           <div
             class="workflow__track"
             role="tablist"
