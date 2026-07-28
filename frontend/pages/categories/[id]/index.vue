@@ -148,7 +148,7 @@ const { categoryTitle, categoryName, contentPool, pending, error, refresh } =
 
 const createProjectOpen = ref(false)
 
-function onCreateProjectSubmit(_payload: { name: string; file: File }) {
+function onCreateProjectSubmit(_payload: { name: string; file?: File; url?: string }) {
   createProjectOpen.value = false
 }
 

@@ -42,6 +42,22 @@
               {{ selectedFile ? selectedFile.name : 'Upload your file here' }}
             </span>
           </button>
+
+          <div class="create-project__divider">
+            <span class="create-project__divider-line"></span>
+            <span class="create-project__divider-text">or</span>
+            <span class="create-project__divider-line"></span>
+          </div>
+
+          <label class="visually-hidden" for="create-project-url">File URL</label>
+          <input
+            id="create-project-url"
+            v-model="fileUrl"
+            type="url"
+            class="create-project__input"
+            placeholder="Paste a file URL…"
+            autocomplete="off"
+          />
         </div>
 
         <button
@@ -66,22 +82,27 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: []
-  submit: [payload: { name: string; file: File }]
+  submit: [payload: { name: string; file?: File; url?: string }]
 }>()
 
 const projectName = ref('')
 const selectedFile = ref<File | null>(null)
+const fileUrl = ref('')
 const submitting = ref(false)
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
-const canSubmit = computed(
-  () => projectName.value.trim().length > 0 && selectedFile.value != null,
-)
+const canSubmit = computed(() => {
+  const nameOk = projectName.value.trim().length > 0
+  const fileOk = selectedFile.value != null
+  const urlOk = fileUrl.value.trim().length > 0
+  return nameOk && (fileOk || urlOk)
+})
 
 function resetForm() {
   projectName.value = ''
   selectedFile.value = null
+  fileUrl.value = ''
   submitting.value = false
   if (fileInputRef.value) fileInputRef.value.value = ''
 }
@@ -102,12 +123,15 @@ function onFileChange(event: Event) {
 }
 
 function submitProject() {
-  if (!canSubmit.value || !selectedFile.value || submitting.value) return
+  if (!canSubmit.value || submitting.value) return
+  const name = projectName.value.trim()
+  const url = fileUrl.value.trim()
   submitting.value = true
-  emit('submit', {
-    name: projectName.value.trim(),
-    file: selectedFile.value,
-  })
+  if (selectedFile.value) {
+    emit('submit', { name, file: selectedFile.value })
+  } else if (url) {
+    emit('submit', { name, url })
+  }
 }
 
 watch(
@@ -246,6 +270,25 @@ defineExpose({
   color: rgba(0, 0, 0, 0.45);
   text-align: center;
   word-break: break-word;
+}
+
+.create-project__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.create-project__divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.create-project__divider-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
 }
 
 .create-project__add-btn {
