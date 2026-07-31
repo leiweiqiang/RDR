@@ -144,7 +144,7 @@
           </div>
           <ul v-if="filteredOutputs.length > 0" class="col__grid" role="list">
             <li v-for="output in filteredOutputs" :key="output.id" class="col__tile">
-              <button type="button" class="col__card" @click="goToOutput(output.id)">
+              <button type="button" class="col__card" @click="goToOutput(output)">
                 <span class="col__card-visual">
                   <img
                     :src="getDecodedStreamCover(output, collection)"
@@ -175,6 +175,7 @@
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 import { formatResolutionLabel } from '~/composables/useContentPoolVideo'
+import type { DecodedStreamFile } from '~/types/api/video-collection'
 import {
   formatCollectionAddedDate,
   formatCollectionFileFormat,
@@ -221,12 +222,20 @@ function goToStream(_streamId: number) {
   void navigateTo(newOutputHref.value)
 }
 
+function streamPagePath(streamId: number) {
+  return `/categories/${categoryId.value}/collection/${collectionId.value}/stream/${streamId}`
+}
+
 function outputPagePath(outputId: number | 'new') {
   return `/categories/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
 }
 
-function goToOutput(_outputId: number) {
-  void navigateTo(targetingHref.value)
+function goToOutput(output: DecodedStreamFile) {
+  // An output is the decoded result of a transcoded stream; its comparison
+  // page (two videos side by side) lives at the stream route keyed by the
+  // parent transcoded stream id.
+  const parentStreamId = output.transcoded_stream_file_id
+  void navigateTo(streamPagePath(parentStreamId))
 }
 
 const newOutputHref = computed(() => outputPagePath('new'))
