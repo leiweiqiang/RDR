@@ -226,7 +226,7 @@ function outputPagePath(outputId: number | 'new') {
 }
 
 function goToOutput(_outputId: number) {
-  void navigateTo(newOutputHref.value)
+  void navigateTo(targetingHref.value)
 }
 
 const newOutputHref = computed(() => outputPagePath('new'))
