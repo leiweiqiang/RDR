@@ -225,8 +225,8 @@ function outputPagePath(outputId: number | 'new') {
   return `/categories/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
 }
 
-function goToOutput(outputId: number) {
-  void navigateTo(outputPagePath(outputId))
+function goToOutput(_outputId: number) {
+  void navigateTo(newOutputHref.value)
 }
 
 const newOutputHref = computed(() => outputPagePath('new'))
