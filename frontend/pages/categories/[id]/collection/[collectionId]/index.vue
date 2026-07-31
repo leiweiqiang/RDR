@@ -215,12 +215,9 @@ const providerLabel = computed(() =>
 
 const targetingHref = computed(() => `/content-pool/${collectionId.value}/targeting`)
 
-function streamPagePath(streamId: number) {
-  return `/categories/${categoryId.value}/collection/${collectionId.value}/stream/${streamId}`
-}
-
-function goToStream(streamId: number) {
-  void navigateTo(streamPagePath(streamId))
+function goToStream(_streamId: number) {
+  // Clicking a streaming generation item initiates the Upscaling flow.
+  void navigateTo(targetingHref.value)
 }
 
 function outputPagePath(outputId: number | 'new') {
