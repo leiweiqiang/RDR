@@ -14,17 +14,6 @@
         <h2 id="create-project-title" class="create-project__title">Create New Project</h2>
 
         <div class="create-project__card">
-          <label class="visually-hidden" for="create-project-name">Project Name</label>
-          <input
-            id="create-project-name"
-            ref="nameInputRef"
-            v-model="projectName"
-            type="text"
-            class="create-project__input"
-            placeholder="Project Name"
-            autocomplete="off"
-          />
-
           <input
             ref="fileInputRef"
             type="file"
@@ -63,10 +52,10 @@
         <button
           type="button"
           class="create-project__add-btn"
-          :disabled="!canSubmit || submitting"
+          :disabled="!canSubmit"
           @click="submitProject"
         >
-          {{ submitting ? 'Adding…' : 'Add' }}
+          Add
         </button>
       </div>
     </div>
@@ -76,39 +65,32 @@
 <script setup lang="ts">
 import { onKeyStroke } from '@vueuse/core'
 
+export type CreateProjectPickerPayload =
+  | { mode: 'upload'; file: File }
+  | { mode: 'url'; url: string }
+
 const props = defineProps<{
   open: boolean
 }>()
 
 const emit = defineEmits<{
   close: []
-  submit: [payload: { name: string; file?: File; url?: string }]
+  submit: [payload: CreateProjectPickerPayload]
 }>()
 
-const projectName = ref('')
 const selectedFile = ref<File | null>(null)
 const fileUrl = ref('')
-const submitting = ref(false)
-const nameInputRef = ref<HTMLInputElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
-const canSubmit = computed(() => {
-  const nameOk = projectName.value.trim().length > 0
-  const fileOk = selectedFile.value != null
-  const urlOk = fileUrl.value.trim().length > 0
-  return nameOk && (fileOk || urlOk)
-})
+const canSubmit = computed(() => selectedFile.value != null || fileUrl.value.trim().length > 0)
 
 function resetForm() {
-  projectName.value = ''
   selectedFile.value = null
   fileUrl.value = ''
-  submitting.value = false
   if (fileInputRef.value) fileInputRef.value.value = ''
 }
 
 function closeDialog() {
-  if (submitting.value) return
   resetForm()
   emit('close')
 }
@@ -120,28 +102,24 @@ function openFilePicker() {
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   selectedFile.value = input.files?.[0] ?? null
+  if (selectedFile.value) fileUrl.value = ''
 }
 
 function submitProject() {
-  if (!canSubmit.value || submitting.value) return
-  const name = projectName.value.trim()
-  const url = fileUrl.value.trim()
-  submitting.value = true
+  if (!canSubmit.value) return
   if (selectedFile.value) {
-    emit('submit', { name, file: selectedFile.value })
-  } else if (url) {
-    emit('submit', { name, url })
+    emit('submit', { mode: 'upload', file: selectedFile.value })
+  } else {
+    emit('submit', { mode: 'url', url: fileUrl.value.trim() })
   }
+  resetForm()
+  emit('close')
 }
 
 watch(
   () => props.open,
   (isOpen) => {
-    if (!isOpen) {
-      resetForm()
-      return
-    }
-    nextTick(() => nameInputRef.value?.focus())
+    if (!isOpen) resetForm()
   },
 )
 
@@ -149,17 +127,6 @@ onKeyStroke('Escape', (event) => {
   if (!props.open) return
   event.preventDefault()
   closeDialog()
-})
-
-defineExpose({
-  finishSubmit() {
-    submitting.value = false
-    resetForm()
-    emit('close')
-  },
-  failSubmit() {
-    submitting.value = false
-  },
 })
 </script>
 

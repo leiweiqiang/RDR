@@ -115,13 +115,34 @@
   <CreateProjectDialog
     :open="createProjectOpen"
     @close="createProjectOpen = false"
-    @submit="onCreateProjectSubmit"
+    @submit="onCreateProjectPickerSubmit"
+  />
+  <CreateProjectUploadDialog
+    :open="uploadDialogOpen"
+    :file="uploadFile"
+    :default-category-id="numericCategoryId"
+    :categories="categoryOptions"
+    @close="closeUploadDialog"
+    @success="onCreateProjectSuccess"
+  />
+  <CreateProjectUrlDialog
+    :open="urlDialogOpen"
+    :url="urlSource"
+    :default-category-id="numericCategoryId"
+    :categories="categoryOptions"
+    @close="closeUrlDialog"
+    @success="onCreateProjectSuccess"
   />
 </template>
 
 <script setup lang="ts">
 import CreateProjectDialog from '~/components/categories/CreateProjectDialog.vue'
+import type { CreateProjectPickerPayload } from '~/components/categories/CreateProjectDialog.vue'
+import CreateProjectUploadDialog from '~/components/categories/CreateProjectUploadDialog.vue'
+import CreateProjectUrlDialog from '~/components/categories/CreateProjectUrlDialog.vue'
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
+import { listCategories } from '~/api/categories'
+import type { CreateProjectCategoryOption } from '~/composables/useCreateProjectDetailForm'
 import {
   filterHighSpeedActionItems,
   type HighSpeedActionFilterKey,
@@ -142,14 +163,62 @@ const CATEGORY_NAME = 'high-speed-action'
 
 const route = useRoute()
 const categoryId = computed(() => String(route.params.id))
+const numericCategoryId = computed(() => {
+  const n = Number.parseInt(categoryId.value, 10)
+  return Number.isFinite(n) && n > 0 ? n : 1
+})
 
 const { categoryTitle, categoryName, contentPool, pending, error, refresh } =
   useCategoryContentById(categoryId)
 
 const createProjectOpen = ref(false)
+const uploadDialogOpen = ref(false)
+const urlDialogOpen = ref(false)
+const uploadFile = ref<File | null>(null)
+const urlSource = ref('')
+const categoryOptions = ref<CreateProjectCategoryOption[]>([])
 
-function onCreateProjectSubmit(_payload: { name: string; file?: File; url?: string }) {
+async function loadCategoryOptions() {
+  try {
+    const response = await listCategories({ per_page: 100 })
+    categoryOptions.value = response.data.map((item) => ({
+      id: item.id,
+      title: item.title,
+    }))
+  } catch {
+    categoryOptions.value = []
+  }
+}
+
+onMounted(() => {
+  void loadCategoryOptions()
+})
+
+function onCreateProjectPickerSubmit(payload: CreateProjectPickerPayload) {
   createProjectOpen.value = false
+  if (payload.mode === 'upload') {
+    uploadFile.value = payload.file
+    uploadDialogOpen.value = true
+    return
+  }
+  urlSource.value = payload.url
+  urlDialogOpen.value = true
+}
+
+function closeUploadDialog() {
+  uploadDialogOpen.value = false
+  uploadFile.value = null
+}
+
+function closeUrlDialog() {
+  urlDialogOpen.value = false
+  urlSource.value = ''
+}
+
+async function onCreateProjectSuccess() {
+  closeUploadDialog()
+  closeUrlDialog()
+  await refresh()
 }
 
 const timeOptions = HIGH_SPEED_ACTION_TIME_OPTIONS

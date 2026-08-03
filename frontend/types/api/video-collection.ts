@@ -93,3 +93,28 @@ export type VideoCollectionDetail = VideoCollectionListItem & {
   transcoded_stream_files: TranscodedStreamFile[]
   decoded_stream_files: DecodedStreamFile[]
 }
+
+export type VideoMetadataFields = {
+  url: string
+  resolution: string
+  fps?: number | null
+  bitrate?: number | null
+  video_type?: string | null
+}
+
+export type VideoCollectionCreateBody = {
+  category_id: number
+  is_third_party: boolean
+  name: string
+  cover: string
+  provider?: string | null
+  duration: number
+  video_metadata: VideoMetadataFields
+}
+
+export type VideoCollectionUpdateBody = {
+  name?: string | null
+  cover?: string | null
+  provider?: string | null
+  category_id?: number | null
+}
