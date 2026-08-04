@@ -49,7 +49,11 @@ export function useCollectionOutputPage(
         ''
       )
     }
-    // Try to find a decoded stream paired with the source stream
+    // New output from a Streaming Generation item: preview that stream itself.
+    if (isNewOutput.value && sourceStream.value?.stream_url) {
+      return sourceStream.value.stream_url
+    }
+    // Existing output page keyed by stream / decoded: prefer paired decoded URLs.
     const pairedDecoded = sourceStream.value
       ? detail.decoded_stream_files.find(
           (item) => item.transcoded_stream_file_id === sourceStream.value!.id,
