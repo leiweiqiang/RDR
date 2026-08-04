@@ -37,6 +37,7 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
 
   const {
     video,
+    categoryId,
     previewImageUrl,
     pending: videoPending,
     error: videoError,
@@ -158,6 +159,8 @@ export function usePackaging(poolId: MaybeRefOrGetter<string>) {
 
   return {
     video,
+    categoryId,
+    collectionId,
     previewImageUrl,
     transcodedStreams,
     resultItems,

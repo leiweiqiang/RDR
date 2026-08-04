@@ -24,6 +24,8 @@ const poolId = computed(() => String(route.params.id))
 const {
   previewImageUrl,
   video,
+  categoryId,
+  collectionId,
   resultItems,
   metadataType,
   pending,
@@ -36,9 +38,14 @@ const {
 function onClosePackagingNotice() {
   const wasSuccess = packagingNotice.value.success
   closePackagingNotice()
-  if (wasSuccess) {
-    navigateTo('/categories/1')
+  if (!wasSuccess) return
+
+  // Return to the collection processing page (Streaming Generation list).
+  if (categoryId.value != null && collectionId.value != null) {
+    void navigateTo(`/categories/${categoryId.value}/collection/${collectionId.value}`)
+    return
   }
+  void navigateTo(categoryId.value != null ? `/categories/${categoryId.value}` : '/categories/1')
 }
 
 useHead(() => ({

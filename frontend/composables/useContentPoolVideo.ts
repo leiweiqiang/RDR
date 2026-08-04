@@ -60,6 +60,7 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
   const { previewImageUrl: demoPreviewUrl } = useContentPoolPreview(poolId)
 
   const video = ref<RawVideoListItem | null>(null)
+  const categoryId = ref<number | null>(null)
   const transcodedStreamResolutions = ref<string[]>([])
   const pending = ref(false)
   const error = ref<Error | null>(null)
@@ -77,6 +78,7 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
     const cid = collectionId.value
     if (cid == null) {
       video.value = null
+      categoryId.value = null
       transcodedStreamResolutions.value = []
       error.value = null
       pending.value = false
@@ -86,17 +88,20 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
     pending.value = true
     error.value = null
     video.value = null
+    categoryId.value = null
     transcodedStreamResolutions.value = []
 
     try {
       const collection = await getVideoCollection(cid)
       video.value = mapCollectionToVideo(collection)
+      categoryId.value = collection.category_id
       transcodedStreamResolutions.value = collection.transcoded_stream_files.map(
         (stream) => stream.resolution,
       )
     } catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
       video.value = null
+      categoryId.value = null
       transcodedStreamResolutions.value = []
     } finally {
       pending.value = false
@@ -113,6 +118,8 @@ export function useContentPoolVideo(poolId: MaybeRefOrGetter<string>) {
 
   return {
     video,
+    categoryId,
+    collectionId,
     transcodedStreamResolutions,
     previewImageUrl,
     originalMeta,
