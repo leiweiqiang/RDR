@@ -82,6 +82,83 @@ export function getDecodedStreamCover(
   return getDecodedStreamParent(output, collection)?.cover ?? collection.cover
 }
 
+/**
+ * Upscaling / output flow always submits fps: 60. Packaging / Streaming Generation
+ * targets use 30fps. Use that to keep upscaled results out of Streaming Generation.
+ */
+export function isUpscaleTranscodedStream(stream: TranscodedStreamFile): boolean {
+  return stream.fps != null && stream.fps >= 60
+}
+
+export type CollectionOutputListItem =
+  | {
+      kind: 'decoded'
+      id: number
+      name: string
+      resolution: string
+      fps: number | null
+      bitrate: number | null
+      status: string
+      output: DecodedStreamFile
+    }
+  | {
+      kind: 'upscaled'
+      id: number
+      name: string
+      resolution: string
+      fps: number | null
+      bitrate: number | null
+      status: string
+      stream: TranscodedStreamFile
+    }
+
+export function getStreamingGenerationStreams(
+  collection: VideoCollectionDetail,
+): TranscodedStreamFile[] {
+  return collection.transcoded_stream_files.filter((stream) => !isUpscaleTranscodedStream(stream))
+}
+
+export function getCollectionOutputItems(
+  collection: VideoCollectionDetail,
+): CollectionOutputListItem[] {
+  const decoded = collection.decoded_stream_files ?? []
+  const decodedParentIds = new Set(decoded.map((item) => item.transcoded_stream_file_id))
+
+  const decodedItems: CollectionOutputListItem[] = decoded.map((output) => ({
+    kind: 'decoded',
+    id: output.id,
+    name: output.name,
+    resolution: output.resolution,
+    fps: output.fps,
+    bitrate: output.bitrate,
+    status: output.status,
+    output,
+  }))
+
+  const upscaledItems: CollectionOutputListItem[] = collection.transcoded_stream_files
+    .filter((stream) => isUpscaleTranscodedStream(stream) && !decodedParentIds.has(stream.id))
+    .map((stream) => ({
+      kind: 'upscaled',
+      id: stream.id,
+      name: stream.name,
+      resolution: stream.resolution,
+      fps: stream.fps,
+      bitrate: stream.bitrate,
+      status: stream.status,
+      stream,
+    }))
+
+  return [...decodedItems, ...upscaledItems]
+}
+
+export function getCollectionOutputCover(
+  item: CollectionOutputListItem,
+  collection: VideoCollectionDetail,
+): string {
+  if (item.kind === 'upscaled') return item.stream.cover || collection.cover
+  return getDecodedStreamCover(item.output, collection)
+}
+
 export function useVideoCollection(collectionId: MaybeRefOrGetter<string>) {
   const id = parseCollectionId(collectionId)
   const collection = ref<VideoCollectionDetail | null>(null)

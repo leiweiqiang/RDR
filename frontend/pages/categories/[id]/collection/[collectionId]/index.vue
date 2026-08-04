@@ -143,11 +143,11 @@
             </div>
           </div>
           <ul v-if="filteredOutputs.length > 0" class="col__grid" role="list">
-            <li v-for="output in filteredOutputs" :key="output.id" class="col__tile">
+            <li v-for="output in filteredOutputs" :key="`${output.kind}-${output.id}`" class="col__tile">
               <button type="button" class="col__card" @click="goToOutput(output)">
                 <span class="col__card-visual">
                   <img
-                    :src="getDecodedStreamCover(output, collection)"
+                    :src="getCollectionOutputCover(output, collection)"
                     :alt="output.name"
                     loading="lazy"
                     decoding="async"
@@ -175,13 +175,15 @@
 <script setup lang="ts">
 import rdrLogoUrl from '~/assets/rdr-logo-small.png?url'
 import { formatResolutionLabel } from '~/composables/useContentPoolVideo'
-import type { DecodedStreamFile } from '~/types/api/video-collection'
+import type { CollectionOutputListItem } from '~/composables/useVideoCollection'
 import {
   formatCollectionAddedDate,
   formatCollectionFileFormat,
   formatCollectionFileName,
   formatCollectionProvider,
-  getDecodedStreamCover,
+  getCollectionOutputCover,
+  getCollectionOutputItems,
+  getStreamingGenerationStreams,
   streamStatusLabel,
   streamStatusTone,
   useVideoCollection,
@@ -233,12 +235,12 @@ function outputPagePath(outputId: number | 'new') {
   return `/categories/${categoryId.value}/collection/${collectionId.value}/output/${outputId}`
 }
 
-function goToOutput(output: DecodedStreamFile) {
-  // An output is the decoded result of a transcoded stream; its comparison
-  // page (two videos side by side) lives at the stream route keyed by the
-  // parent transcoded stream id.
-  const parentStreamId = output.transcoded_stream_file_id
-  void navigateTo(streamPagePath(parentStreamId))
+function goToOutput(output: CollectionOutputListItem) {
+  // Decoded outputs compare via their parent stream id; upscaled transcodes
+  // are themselves the stream to open on the side-by-side page.
+  const streamId =
+    output.kind === 'decoded' ? output.output.transcoded_stream_file_id : output.stream.id
+  void navigateTo(streamPagePath(streamId))
 }
 
 const newOutputHref = computed(() => outputPagePath('new'))
@@ -312,7 +314,7 @@ function bitrateMatchesFilter(bitrate: number | null, filter: string): boolean {
 }
 
 const filteredStreams = computed(() => {
-  const streams = collection.value?.transcoded_stream_files ?? []
+  const streams = collection.value ? getStreamingGenerationStreams(collection.value) : []
   return streams.filter(
     (stream) =>
       resolutionMatchesFilter(stream.resolution, streamFilters.resolution) &&
@@ -322,7 +324,7 @@ const filteredStreams = computed(() => {
 })
 
 const filteredOutputs = computed(() => {
-  const outputs = collection.value?.decoded_stream_files ?? []
+  const outputs = collection.value ? getCollectionOutputItems(collection.value) : []
   return outputs.filter(
     (output) =>
       resolutionMatchesFilter(output.resolution, outputFilters.resolution) &&
