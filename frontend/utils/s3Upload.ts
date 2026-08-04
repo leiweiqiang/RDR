@@ -44,6 +44,11 @@ export async function uploadFileWithCredentials(
       secretAccessKey: creds.secret_access_key,
       sessionToken: creds.session_token,
     },
+    // Browser multipart uploads fail when the SDK defaults to CRC32: CreateMultipartUpload
+    // records crc32, but UploadPart response checksum headers are often blocked by CORS
+    // (ExposeHeaders), so CompleteMultipartUpload is missing per-part checksums.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   })
 
   const upload = new Upload({
